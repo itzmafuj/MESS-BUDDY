@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> MESS MANAGEMENT </title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #10b981;
+            --danger: #f43f5e;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --glass: rgba(255, 255, 255, 0.95);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            color: var(--dark);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .login-card {
+            background: var(--glass);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        nav {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            padding: 0.75rem;
+            display: flex;
+            gap: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+        }
+
+        nav button {
+            padding: 0.8rem 1.2rem;
+            border: none;
+            border-radius: 12px;
+            background: transparent;
+            color: #64748b;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        nav button.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+        
+        .card {
+            background: var(--glass);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-box {
+            padding: 1.5rem;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+        }
+        .blue { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+        .green { background: linear-gradient(135deg, #10b981, #059669); }
+        .red { background: linear-gradient(135deg, #f43f5e, #e11d48); }
+
+        .table-wrap { overflow-x: auto; border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th { background: #f1f5f9; color: #475569; padding: 1rem; text-align: left; font-size: 0.85rem; }
+        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; }
+
+        .edit-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-del { background: #fee2e2; color: var(--danger); width: auto; padding: 5px 10px; font-size: 0.75rem; }
+
+        .meal-main { font-size: 1.1rem; font-weight: 700; color: var(--dark); }
+        .meal-sub { font-size: 0.85rem; color: #64748b; margin-top: 2px; }
+        .currency { font-weight: bold; margin-right: 2px; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<div id="login-screen">
+    <div class="login-card">
+        <h2 style="color:var(--primary); margin-bottom: 1.5rem;">Mess Manager 2026</h2>
+        <input type="password" id="pass" placeholder="Enter Access Key" oninput="autoLogin()">
+        <button class="btn btn-primary" onclick="checkLogin()">Unlock System</button>
+    </div>
+</div>
+
+<div id="app">
+    <nav>
+        <button class="active" onclick="showTab('dashboard', this)">Dashboard</button>
+        <button onclick="showTab('meals', this)">Meal Records</button>
+        <button onclick="showTab('bazar', this)">Bazar List</button>
+        <button onclick="showTab('members', this)">Member Deposits</button>
+        <button id="nav-settings" onclick="showTab('settings', this)">Settings</button>
+    </nav>
+
+    <div class="container">
+        <div id="tab-dashboard" class="tab-content">
+            <div class="grid-stats">
+                <div class="stat-box blue"><span>Total Actual Meals</span><h1 id="stat-meals">0</h1></div>
+                <div class="stat-box green"><span>Total Mess Cost</span><h1><span class="currency">₹</span><span id="stat-cost">0.00</span></h1></div>
+                <div class="stat-box red"><span>Current Meal Rate</span><h1><span class="currency">₹</span><span id="stat-rate">0.00</span></h1></div>
+            </div>
+            <div class="card">
+                <h3>Monthly Balance Sheet</h3>
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Member Name</th><th>Total Deposit</th><th>Meal Count (Actual/Min)</th><th>Actual Cost</th><th>Net Balance</th></tr></thead>
+                        <tbody id="summary-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="background:#64748b" onclick="logout()">Logout</button>
+        </div>
+
+        <div id="tab-meals" class="tab-content hidden">
+            <div class="card" id="admin-meal-entry">
+                <h3>Record Daily Meals (Admin)</h3>
+                <input type="date" id="meal-date" class="edit-input">
+                <div id="meal-inputs-area"></div>
+                <button class="btn btn-primary" onclick="saveDailyMeals()">Save Daily Record</button>
+            </div>
+            <div class="card">
+                <h3>Meal History Log</h3>
+                <div class="table-wrap">
+                    <table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-bazar" class="tab-content hidden">
+            <div class="card" id="admin-bazar-entry">
+                <h3>Add Bazar Expense (Admin)</h3>
+                <input type="date" id="b-date" class="edit-input">
+                <input type="number" id="b-amt" placeholder="Amount (₹)" class="edit-input">
+                <input type="text" id="b-note" placeholder="Items Details" class="edit-input">
+                <button class="btn btn-primary" style="background:var(--secondary)" onclick="addBazar()">Add to Records</button>
+            </div>
+            <div class="card">
+                <h3>Bazar History</h3>
+                <div class="table-wrap">
+                    <table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Action</th></tr></thead><tbody id="bazar-body"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-members" class="tab-content hidden">
+            <div class="card" id="admin-member-entry">
+                <h3>Record Member Deposit (Admin)</h3>
+                <input type="date" id="dep-date" class="edit-input">
+                <select id="dep-member" class="edit-input"></select>
+                <input type="number" id="dep-amt" placeholder="Deposit Amount (₹)" class="edit-input">
+                <button class="btn btn-primary" onclick="addDeposit()">Save Deposit</button>
+                <hr style="margin:20px 0; opacity:0.1">
+                <div style="display:flex; gap:10px">
+                    <input type="text" id="new-mem-name" class="edit-input" placeholder="New Member Name" style="margin:0">
+                    <button class="btn btn-primary" style="background:var(--secondary); width:auto" onclick="addMember()">Add</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Deposit Records</h3>
+                <div class="table-wrap">
+                    <table><thead><tr><th>Date</th><th>Name</th><th>Amount</th><th>Action</th></tr></thead><tbody id="deposit-history-body"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content hidden">
+            <div class="card">
+                <h3>Access Key Settings</h3>
+                <label>Admin Access Key</label><input type="text" id="set-admin-key" class="edit-input">
+                <label>Viewer Access Key</label><input type="text" id="set-viewer-key" class="edit-input">
+                <button class="btn btn-primary" onclick="updateKeys()">Save Security Keys</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let keys = JSON.parse(localStorage.getItem('messKeys')) || { admin: "MESS2026", viewer: "MESSMEAL" };
+    let isAdmin = false;
+    let data = JSON.parse(localStorage.getItem('messData')) || { 
+        members: [{id: 1, name: 'SAMIM'}, {id: 2, name: 'BAPPI'}, {id: 3, name: 'MAFUJ'}, {id: 4, name: 'RAJOB'}, {id: 5, name: 'JAHID'}, {id: 6, name: 'SORIFUL'}], 
+        meals: {}, bazar: [], deposits: [] 
+    };
+
+    function autoLogin() { const v = document.getElementById('pass').value.toUpperCase(); if(v === keys.admin || v === keys.viewer) login(v); }
+    function checkLogin() { const v = document.getElementById('pass').value.toUpperCase(); if(v === keys.admin || v === keys.viewer) login(v); else alert("Access Key Incorrect"); }
+
+    function login(key) {
+        isAdmin = (key === keys.admin);
+        localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('userRole', isAdmin ? 'admin' : 'viewer');
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('admin-meal-entry').classList.toggle('hidden', !isAdmin);
+        document.getElementById('admin-bazar-entry').classList.toggle('hidden', !isAdmin);
+        document.getElementById('admin-member-entry').classList.toggle('hidden', !isAdmin);
+        document.getElementById('nav-settings').classList.toggle('hidden', !isAdmin);
+        refreshUI();
+    }
+
+    function logout() { localStorage.removeItem('isLoggedIn'); location.reload(); }
+    window.onload = () => { if(localStorage.getItem('isLoggedIn') === 'true') { login(localStorage.getItem('userRole') === 'admin' ? keys.admin : keys.viewer); } };
+
+    function showTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.getElementById('tab-'+id).classList.remove('hidden');
+        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        refreshUI();
+    }
+
+    function refreshUI() {
+        document.getElementById('dep-member').innerHTML = data.members.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        if(isAdmin) {
+            document.getElementById('meal-inputs-area').innerHTML = data.members.map(m => `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#f1f5f9; padding:10px; border-radius:10px">
+                    <b>${m.name}</b><input type="number" class="day-meal-val edit-input" style="width:80px; margin:0; text-align:center" data-id="${m.id}" step="0.5" value="0">
+                </div>`).join('');
+        }
+        const dates = Object.keys(data.meals).sort().reverse();
+        document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${data.members.map(m => `<th>${m.name}</th>`).join('')}</tr>`;
+        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td><small>${d}</small></td>${data.members.map(m => `<td>${data.meals[d][m.id] || 0}</td>`).join('')}</tr>`).join('');
+        document.getElementById('bazar-body').innerHTML = data.bazar.slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td><td>${isAdmin ? `<button class="btn btn-del" onclick="delBazar(${data.bazar.length-1-i})">Del</button>` : '-'}</td></tr>`).join('');
+        document.getElementById('deposit-history-body').innerHTML = data.deposits.slice().reverse().map((d, i) => {
+            const m = data.members.find(mem => mem.id == d.mId);
+            return `<tr><td>${d.date}</td><td>${m ? m.name : '?'}</td><td>₹${d.amt}</td><td>${isAdmin ? `<button class="btn btn-del" onclick="delDep(${data.deposits.length-1-i})">Del</button>` : '-'}</td></tr>`;
+        }).join('');
+        calculate();
+    }
+
+    function calculate() {
+        let totalActMeals = 0; let mMeals = {}; let mDeps = {};
+        data.members.forEach(m => { mMeals[m.id] = 0; mDeps[m.id] = 0; });
+        data.deposits.forEach(d => { if(mDeps[d.mId] !== undefined) mDeps[d.mId] += parseFloat(d.amt); });
+        Object.values(data.meals).forEach(day => { Object.entries(day).forEach(([id, count]) => { if(mMeals[id] !== undefined) { mMeals[id] += parseFloat(count); totalActMeals += parseFloat(count); } }); });
+        
+        const totalBazar = data.bazar.reduce((s, b) => s + parseFloat(b.amt), 0);
+        const rate = totalActMeals > 0 ? totalBazar / totalActMeals : 0;
+        
+        document.getElementById('stat-meals').innerText = totalActMeals;
+        document.getElementById('stat-cost').innerText = totalBazar.toFixed(2);
+        document.getElementById('stat-rate').innerText = rate.toFixed(2);
+
+        document.getElementById('summary-body').innerHTML = data.members.map(m => {
+            const actCount = mMeals[m.id];
+            const minAllowed = (m.name.toUpperCase() === 'RAJOB') ? 30 : 50;
+            
+            // MATH UPDATE: Cost is based on ACTUAL meals now
+            const cost = actCount * rate;
+            const bal = mDeps[m.id] - cost;
+            
+            return `<tr>
+                <td><b>${m.name}</b></td>
+                <td><span class="currency">₹</span>${mDeps[m.id].toFixed(2)}</td>
+                <td>
+                    <div class="meal-main">${actCount}</div>
+                    <div class="meal-sub">Minimum Rule: ${minAllowed}</div>
+                </td>
+                <td><span class="currency">₹</span>${cost.toFixed(2)}</td>
+                <td style="color:${bal < 0 ? 'var(--danger)' : 'var(--secondary)'}"><b><span class="currency">₹</span>${bal.toFixed(2)}</b></td>
+            </tr>`;
+        }).join('');
+    }
+
+    function saveDailyMeals() {
+        const d = document.getElementById('meal-date').value; if(!d) return alert("Select Date");
+        const entry = {}; document.querySelectorAll('.day-meal-val').forEach(i => entry[i.dataset.id] = parseFloat(i.value) || 0);
+        data.meals[d] = entry; save();
+    }
+    function addBazar() {
+        const d = document.getElementById('b-date').value; const a = document.getElementById('b-amt').value;
+        if(d && a) { data.bazar.push({amt: parseFloat(a), note: document.getElementById('b-note').value, date: d}); save(); }
+    }
+    function addDeposit() {
+        const d = document.getElementById('dep-date').value; const m = document.getElementById('dep-member').value; const a = document.getElementById('dep-amt').value;
+        if(d && a && m) { data.deposits.push({mId: parseInt(m), amt: parseFloat(a), date: d}); save(); document.getElementById('dep-amt').value = ''; }
+    }
+    function addMember() { const n = document.getElementById('new-mem-name').value; if(n) { data.members.push({id: Date.now(), name: n.toUpperCase()}); save(); } }
+    function delBazar(i) { if(confirm("Delete?")) { data.bazar.splice(i, 1); save(); } }
+    function delDep(i) { if(confirm("Delete?")) { data.deposits.splice(i, 1); save(); } }
+    function updateKeys() {
+        keys.admin = document.getElementById('set-admin-key').value.toUpperCase();
+        keys.viewer = document.getElementById('set-viewer-key').value.toUpperCase();
+        localStorage.setItem('messKeys', JSON.stringify(keys)); alert("Keys Updated Successfully");
+    }
+    function save() { localStorage.setItem('messData', JSON.stringify(data)); refreshUI(); }
+</script>
+</body>
+</html>
