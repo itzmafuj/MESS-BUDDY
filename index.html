@@ -440,4 +440,14 @@
         if(n) { data.members.push({id: Date.now(), name: n.toUpperCase(), minMeal: parseInt(m)}); save(); document.getElementById('new-mem-name').value = ''; } 
     }
     function delMember(i) { if(confirm(`Remove ${data.members[i].name}?`)) { data.members.splice(i, 1); save(); } }
-    function delBazar(i) { if(confirm(
+    function delBazar(i) { if(confirm("Delete bazar record?")) { data.bazar.splice(i, 1); save(); } }
+    function delDep(i) { if(confirm("Delete deposit record?")) { data.deposits.splice(i, 1); save(); } }
+    function updateKeys() {
+        keys.admin = document.getElementById('set-admin-key').value.toUpperCase();
+        keys.viewer = document.getElementById('set-viewer-key').value.toUpperCase();
+        localStorage.setItem('messKeys', JSON.stringify(keys)); alert("Keys Updated!");
+    }
+    function save() { localStorage.setItem('messData', JSON.stringify(data)); refreshUI(); }
+</script>
+</body>
+</html>
