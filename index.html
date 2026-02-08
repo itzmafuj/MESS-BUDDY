@@ -1,136 +1,196 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mess Buddy</title>
+    <title>Mess Buddy | Premium Secure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #f43f5e; /* Matching the logo red */
-            --secondary: #10b981; --danger: #f43f5e;
-            --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc;
-            --glass: rgba(255, 255, 255, 0.95); --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --primary: #f43f5e; --accent: #6366f1; --success: #10b981;
+            --bg: #f8fafc; --card-bg: rgba(255, 255, 255, 0.8);
+            --text-main: #0f172a; --text-muted: #64748b;
+            --radius-lg: 24px; --radius-md: 16px;
+            --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
         }
-        body { font-family: 'Inter', sans-serif; background: #e2e8f0; color: var(--dark); margin: 0; min-height: 100vh; }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s ease; }
+        body { background: radial-gradient(circle at top right, #fdf2f2, #f8fafc); margin: 0; min-height: 100vh; overflow-x: hidden; }
+
+        /* --- Strict Login Screen --- */
+        #login-screen { position: fixed; inset: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        .login-card { 
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem 2rem; border-radius: var(--radius-lg); width: 90%; max-width: 400px; text-align: center;
+        }
+        .app-logo { width: 100px; height: 100px; border-radius: 25px; margin-bottom: 1rem; border: 3px solid rgba(255,255,255,0.1); }
+        .login-card h2 { color: white; margin: 0; font-size: 1.8rem; }
+        .tagline { color: #94a3b8; font-size: 0.9rem; margin: 8px 0 2rem; }
+
+        .edit-input { 
+            width: 100%; padding: 1rem; border: 1.5px solid #e2e8f0; border-radius: var(--radius-md);
+            background: white; font-size: 1rem; margin-bottom: 1rem;
+        }
+        .login-card .edit-input { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white; text-align: center; }
+
+        .btn { padding: 1rem; border: none; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: var(--primary); color: white; }
+
+        /* --- App UI --- */
+        nav { 
+            background: var(--card-bg); backdrop-filter: blur(15px); padding: 0.8rem; display: flex; justify-content: center; gap: 8px;
+            position: sticky; top: 10px; z-index: 1000; margin: 10px 1rem; border-radius: 18px; box-shadow: var(--shadow);
+        }
+        nav button { padding: 0.6rem 1rem; border: none; border-radius: 12px; background: transparent; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+        nav button.active { background: white; color: var(--primary); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+
+        .container { max-width: 1000px; margin: 1.5rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); border: 1px solid #f1f5f9; position: relative; }
         
-        /* Login Screen Updates */
-        #login-screen { position: fixed; inset: 0; background: var(--dark); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-        .login-card { background: var(--glass); padding: 2.5rem; border-radius: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-        .app-logo { width: 100px; height: auto; margin-bottom: 1rem; }
-        .dev-credit { font-size: 0.8rem; color: #64748b; margin-top: 1.5rem; font-weight: 500; }
-        
-        nav { background: var(--glass); backdrop-filter: blur(10px); padding: 0.75rem; display: flex; gap: 10px; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); overflow-x: auto; }
-        nav button { padding: 0.8rem 1.2rem; border: none; border-radius: 12px; background: transparent; color: #64748b; font-weight: 600; cursor: pointer; white-space: nowrap; }
-        nav button.active { background: var(--primary); color: white; }
-        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
-        .card { background: var(--glass); border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
-        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .stat-box { padding: 1rem; border-radius: 16px; color: white; text-align: center; }
+        .grid-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat-box { padding: 1.2rem; border-radius: var(--radius-md); color: white; text-align: center; }
+        .stat-box span { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+        .stat-box h2 { margin: 5px 0 0; font-size: 1.5rem; }
+
         .blue { background: linear-gradient(135deg, #6366f1, #4f46e5); }
         .green { background: linear-gradient(135deg, #10b981, #059669); }
         .gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .red { background: linear-gradient(135deg, #f43f5e, #e11d48); }
-        .table-wrap { overflow-x: auto; border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; background: white; }
-        th { background: #f1f5f9; color: #475569; padding: 1rem; text-align: left; font-size: 0.85rem; }
-        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; }
-        .edit-input { width: 100%; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 10px; margin-bottom: 1rem; box-sizing: border-box; }
-        .btn { padding: 0.8rem 1.5rem; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; width: 100%; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-del { background: #fee2e2; color: var(--danger); width: auto; padding: 5px 10px; font-size: 0.75rem; border:none; border-radius:4px; cursor:pointer; }
-        .status-badge { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: bold; display: block; margin-top: 4px; text-align: center; }
+
+        .table-wrap { border-radius: var(--radius-md); overflow: hidden; border: 1px solid #f1f5f9; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f8fafc; padding: 1rem; text-align: left; font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; }
+        td { padding: 1rem; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; }
+
+        .status-badge { padding: 4px 10px; border-radius: 100px; font-size: 0.65rem; font-weight: 800; display: block; margin-top: 4px; text-align: center; }
         .hidden { display: none !important; }
-        .meal-main { font-size: 1.1rem; font-weight: 700; color: var(--dark); }
-        .meal-sub { font-size: 0.75rem; color: #64748b; }
+
+        /* QR Styles */
+        .qr-section { background: #fdf2f2; border: 2px dashed var(--primary); border-radius: var(--radius-md); padding: 1.5rem; text-align: center; }
+        #display-qr { max-width: 180px; border-radius: 12px; margin: 15px auto; box-shadow: 0 10px 15px rgba(0,0,0,0.1); display: block; }
+
+        @media (max-width: 600px) {
+            nav { position: fixed; bottom: 10px; top: auto; width: calc(100% - 2rem); margin: 0 1rem; }
+            .container { padding-bottom: 80px; }
+        }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-card">
-        <img src="https://image2url.com/r2/default/images/1770476946953-8102fd3c-bc16-43ef-8b8a-0a4c50759a3c.jpeg" alt="Mess Buddy Logo" class="app-logo">
-        <h2 style="color:var(--dark); margin: 0 0 1.5rem 0;">Mess Buddy</h2>
-        <input type="password" id="pass" placeholder="Enter Access Key" oninput="autoLogin()" class="edit-input">
+        <img src="https://image2url.com/r2/default/images/1770476946953-8102fd3c-bc16-43ef-8b8a-0a4c50759a3c.jpeg" alt="Logo" class="app-logo">
+        <h2>Mess Buddy</h2>
+        <p class="tagline">"Your Trusted Partner in Every Plate."</p>
+        <input type="password" id="pass" placeholder="Enter Key" oninput="autoLogin()" class="edit-input">
         <button class="btn btn-primary" onclick="checkLogin()">Unlock System</button>
-        <div class="dev-credit">Developed by - sh1nzo Tech</div>
     </div>
 </div>
 
 <div id="app" style="display:none;">
     <nav>
-        <button id="nav-dashboard" class="active" onclick="showTab('dashboard', this)">Dashboard</button>
-        <button id="nav-meals" onclick="showTab('meals', this)">Meal History</button>
-        <button id="nav-bazar" onclick="showTab('bazar', this)">Bazar List</button>
-        <button id="nav-members" onclick="showTab('members', this)">Members</button>
-        <button id="nav-settings" class="admin-only hidden" onclick="showTab('settings', this)">Settings</button>
+        <button id="nav-dashboard" class="active" onclick="showTab('dashboard', this)">Home</button>
+        <button id="nav-meals" onclick="showTab('meals', this)">Meals</button>
+        <button id="nav-bazar" onclick="showTab('bazar', this)">Expenses</button>
+        <button id="nav-members" onclick="showTab('members', this)">Team</button>
+        <button id="nav-settings" class="admin-only hidden" onclick="showTab('settings', this)">Admin</button>
     </nav>
 
     <div class="container">
         <div id="tab-dashboard" class="tab-content">
             <div class="card">
-                <div style="display: flex; gap: 10px;">
-                    <select id="filter-month" class="edit-input" onchange="refreshUI()" style="margin:0"></select>
-                    <select id="filter-year" class="edit-input" onchange="refreshUI()" style="margin:0">
+                <div class="qr-section">
+                    <h3 style="margin: 0; color: var(--primary); font-size: 1.1rem;">Scan & Pay Dues</h3>
+                    <div id="qr-viewer-area">
+                        <div id="no-qr-msg" style="padding:20px; color:#94a3b8;">No QR Uploaded</div>
+                        <img id="display-qr" class="hidden" src="" alt="Payment QR">
+                        <a id="download-link" class="hidden" href="" download="Mess-Buddy-QR.png" style="text-decoration: none; color: var(--accent); font-weight: 800; font-size: 0.8rem; display: inline-block; margin-top: 10px;">📥 SAVE QR TO GALLERY</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="display:flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <h3 id="logic-indicator" style="margin:0; font-size: 0.9rem;">Loading...</h3>
+                <div style="display:flex; gap:5px;">
+                    <select id="filter-month" class="edit-input" onchange="refreshUI()" style="margin:0; width:110px; padding:5px;"></select>
+                    <select id="filter-year" class="edit-input" onchange="refreshUI()" style="margin:0; width:80px; padding:5px;">
                         <option value="2025">2025</option><option value="2026">2026</option>
                     </select>
                 </div>
             </div>
+
+            <div class="grid-stats">
+                <div class="stat-box blue"><span>Meals</span><h2 id="stat-meals">0</h2></div>
+                <div class="stat-box green"><span>Total Cost</span><h2 id="stat-cost">₹0</h2></div>
+                <div class="stat-box gold" id="balance-card"><span>Cash</span><h2 id="stat-balance">₹0</h2></div>
+                <div class="stat-box red"><span>Rate</span><h2 id="stat-rate">₹0</h2></div>
+            </div>
+
             <div class="card">
-                <h2 style="text-align:center; color:var(--primary); margin-top:0">Monthly Summary</h2>
-                <p id="logic-indicator" style="font-size: 0.75rem; text-align: center; color: #64748b; margin-top: -10px; font-weight: bold;"></p>
-                <div class="grid-stats">
-                    <div class="stat-box blue"><span>Billable Meals</span><h2 id="stat-meals">0</h2></div>
-                    <div class="stat-box green"><span>Total Cost</span><h2 id="stat-cost">₹0</h2></div>
-                    <div class="stat-box gold" id="balance-card"><span>Available</span><h2 id="stat-balance">₹0</h2></div>
-                    <div class="stat-box red"><span>Rate</span><h2 id="stat-rate">₹0</h2></div>
-                </div>
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Member</th><th>Deposit</th><th>Meal (Act/Min)</th><th>Cost</th><th>Status</th></tr></thead>
+                        <thead><tr><th>Member</th><th>Deposit</th><th>Activity</th><th>Cost</th><th>Status</th></tr></thead>
                         <tbody id="summary-body"></tbody>
                     </table>
                 </div>
             </div>
-            <button class="btn btn-primary" style="background:#64748b; margin-top:10px" onclick="logout()">Logout</button>
+            <button class="btn" style="background:#e2e8f0; margin-bottom: 2rem;" onclick="logout()">Lock & Exit</button>
         </div>
 
         <div id="tab-meals" class="tab-content hidden">
-            <div class="card admin-only hidden" id="admin-meal-entry">
-                <h3>Record Meals</h3>
+            <div class="card admin-only hidden">
+                <h3>Daily Entry</h3>
                 <input type="date" id="meal-date" class="edit-input">
                 <div id="meal-inputs-area"></div>
                 <button class="btn btn-primary" onclick="saveDailyMeals()">Save Record</button>
             </div>
-            <div class="card"><div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div></div>
+            <div class="card"><h3>Meal History</h3><div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div></div>
         </div>
 
         <div id="tab-bazar" class="tab-content hidden">
             <div class="card admin-only hidden">
                 <h3>Add Expense</h3>
-                <input type="date" id="b-date" class="edit-input"><input type="number" id="b-amt" placeholder="Amount" class="edit-input"><input type="text" id="b-note" placeholder="Item" class="edit-input"><button class="btn btn-primary" style="background:var(--secondary)" onclick="addBazar()">Add</button>
+                <input type="date" id="b-date" class="edit-input"><input type="number" id="b-amt" placeholder="Amount" class="edit-input"><input type="text" id="b-note" placeholder="Item" class="edit-input">
+                <button class="btn btn-primary" style="background:var(--success)" onclick="addBazar()">Add Expense</button>
             </div>
             <div class="card"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div>
         </div>
 
         <div id="tab-members" class="tab-content hidden">
             <div class="card admin-only hidden">
-                <h3>Member & Deposit</h3>
-                <input type="text" id="new-mem-name" class="edit-input" placeholder="Name"><input type="number" id="new-mem-min" class="edit-input" placeholder="Min Meal" value="50"><button class="btn btn-primary" style="background:var(--secondary)" onclick="addMember()">Create</button>
-                <hr style="margin:1.5rem 0">
-                <input type="date" id="dep-date" class="edit-input"><select id="dep-member" class="edit-input"></select><input type="number" id="dep-amt" placeholder="Deposit Amount" class="edit-input"><button class="btn btn-primary" onclick="addDeposit()">Save</button>
+                <h3>Management</h3>
+                <input type="text" id="new-mem-name" class="edit-input" placeholder="Name"><input type="number" id="new-mem-min" class="edit-input" placeholder="Min Meal" value="50">
+                <button class="btn btn-primary" onclick="addMember()">Add Member</button>
+                <hr style="margin:1.5rem 0; border:0; border-top:1px solid #eee;">
+                <input type="date" id="dep-date" class="edit-input"><select id="dep-member" class="edit-input"></select><input type="number" id="dep-amt" placeholder="Deposit Amount" class="edit-input">
+                <button class="btn btn-primary" onclick="addDeposit()">Save Deposit</button>
             </div>
-            <div class="card"><h3>Member List</h3><div class="table-wrap"><table><tbody id="member-list-body"></tbody></table></div></div>
+            <div class="card"><h3>Members</h3><div class="table-wrap"><table><tbody id="member-list-body"></tbody></table></div></div>
             <div class="card"><h3>Recent Deposits</h3><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
         </div>
 
-        <div id="tab-settings" class="tab-content hidden"><div class="card"><h3>Keys</h3><input type="text" id="set-admin-key" class="edit-input"><input type="text" id="set-viewer-key" class="edit-input"><button class="btn btn-primary" onclick="updateKeys()">Save Keys</button></div></div>
+        <div id="tab-settings" class="tab-content hidden">
+            <div class="card">
+                <h3>System Keys</h3>
+                <input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key">
+                <input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key">
+                <button class="btn btn-primary" onclick="updateKeys()">Update Keys</button>
+            </div>
+            <div class="card admin-only hidden">
+                <h3>Upload Payment QR</h3>
+                <div style="border:2px dashed #eee; padding:20px; border-radius:15px; text-align:center;">
+                    <input type="file" id="qr-input" accept="image/*" style="margin-bottom:15px;">
+                    <button class="btn btn-primary" onclick="uploadQR()">PUSH QR TO LIVE SYSTEM</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
     let isAdmin = false;
     let keys = JSON.parse(localStorage.getItem('messKeys')) || { admin: "MESS2026", viewer: "MESSMEAL" };
-    let data = { members: [], meals: {}, bazar: [], deposits: [], keys: keys };
+    let data = { members: [], meals: {}, bazar: [], deposits: [], keys: keys, paymentQR: "" };
 </script>
 
 <script type="module">
@@ -158,35 +218,63 @@
             data = cloudData;
             if (data.keys) { keys = data.keys; localStorage.setItem('messKeys', JSON.stringify(keys)); }
             window.refreshUI();
+            window.refreshQR();
         }
     });
 
     window.save = function() {
         if(!isAdmin) return;
         data.keys = keys;
-        set(dataRef, data).catch(err => alert("Error: " + err.message));
+        set(dataRef, data).catch(err => alert("Sync Error: " + err.message));
         window.refreshUI();
+    };
+
+    // --- QR UPLOAD LOGIC ---
+    window.uploadQR = function() {
+        const file = document.getElementById('qr-input').files[0];
+        if(!file) return alert("Select an image first!");
+        const reader = new FileReader();
+        reader.onloadend = function() {
+            data.paymentQR = reader.result;
+            window.save();
+            alert("QR Code updated instantly for all members!");
+        }
+        reader.readAsDataURL(file);
+    };
+
+    window.refreshQR = function() {
+        const qrImg = document.getElementById('display-qr');
+        const dBtn = document.getElementById('download-link');
+        const msg = document.getElementById('no-qr-msg');
+        if(data.paymentQR) {
+            qrImg.src = data.paymentQR;
+            qrImg.classList.remove('hidden');
+            dBtn.href = data.paymentQR;
+            dBtn.classList.remove('hidden');
+            msg.classList.add('hidden');
+        } else {
+            qrImg.classList.add('hidden');
+            dBtn.classList.add('hidden');
+            msg.classList.remove('hidden');
+        }
     };
 
     window.refreshUI = function() {
         const sBody = document.getElementById('summary-body');
         if(!sBody) return;
-
         const selMonth = document.getElementById('filter-month').value;
         const selYear = document.getElementById('filter-year').value;
         const filterStr = `${selYear}-${selMonth}`;
-        
         const lastDayDate = new Date(selYear, selMonth, 0); 
         const lastDayString = `${selYear}-${selMonth}-${String(lastDayDate.getDate()).padStart(2, '0')}`;
-        const isMonthFinished = data.meals && data.meals[lastDayString];
+        const isFinished = data.meals && data.meals[lastDayString];
 
-        const indicator = document.getElementById('logic-indicator');
-        indicator.innerText = isMonthFinished ? "Month Finished: Min Rule Active" : "Month Progress: Tracking Actual";
-        indicator.style.color = isMonthFinished ? "var(--secondary)" : "var(--warning)";
+        document.getElementById('logic-indicator').innerText = isFinished ? "● Settlement Mode" : "● Tracking Mode";
+        document.getElementById('logic-indicator').style.color = isFinished ? "var(--success)" : "var(--warning)";
 
         let totalBillable = 0, mActualCounts = {}, mDepsSum = {}, periodIncome = 0;
         (data.members || []).forEach(m => { mActualCounts[m.id] = 0; mDepsSum[m.id] = 0; });
-        (data.deposits || []).forEach(d => { if(d.date.startsWith(filterStr)) { mDepsSum[d.mId] += parseFloat(d.amt); periodIncome += parseFloat(d.amt); } });
+        (data.deposits || []).forEach(d => { if(d.date?.startsWith(filterStr)) { mDepsSum[d.mId] += parseFloat(d.amt); periodIncome += parseFloat(d.amt); } });
         
         if (data.meals) {
             Object.entries(data.meals).forEach(([date, entry]) => {
@@ -199,49 +287,53 @@
         const calcData = (data.members || []).map(m => {
             const actual = mActualCounts[m.id] || 0;
             const minSet = m.minMeal || 50;
-            const billable = isMonthFinished ? (actual <= minSet ? minSet : actual) : actual;
+            const billable = isFinished ? (actual <= minSet ? minSet : actual) : actual;
             totalBillable += billable;
             return { ...m, actual, billable, minSet };
         });
 
-        const totalBazar = (data.bazar || []).reduce((sum, b) => b.date.startsWith(filterStr) ? sum + parseFloat(b.amt) : sum, 0);
+        const totalBazar = (data.bazar || []).reduce((sum, b) => b.date?.startsWith(filterStr) ? sum + parseFloat(b.amt) : sum, 0);
         const rate = totalBillable > 0 ? totalBazar / totalBillable : 0;
         const avail = periodIncome - totalBazar;
 
         document.getElementById('stat-meals').innerText = totalBillable.toFixed(1);
-        document.getElementById('stat-cost').innerText = "₹" + totalBazar.toFixed(0);
-        document.getElementById('stat-balance').innerText = "₹" + avail.toFixed(0);
+        document.getElementById('stat-cost').innerText = "₹" + totalBazar.toLocaleString();
+        document.getElementById('stat-balance').innerText = "₹" + avail.toLocaleString();
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
-        document.getElementById('balance-card').style.background = avail < 0 ? 'var(--danger)' : 'var(--warning)';
 
         sBody.innerHTML = calcData.map(m => {
             const cost = m.billable * rate;
-            const net = cost - mDepsSum[m.id];
+            const net = cost - (mDepsSum[m.id] || 0);
             return `<tr>
                 <td><b>${m.name}</b></td>
-                <td>₹${mDepsSum[m.id]}</td>
-                <td><div class="meal-main">${m.actual} / ${m.minSet}</div><div class="meal-sub">Bill: ${m.billable}</div></td>
-                <td>₹${cost.toFixed(1)}</td>
-                <td style="color:${net > 0 ? 'red' : 'green'}">
-                    <b>₹${Math.abs(net).toFixed(1)}</b>
-                    <span class="status-badge" style="background:${net > 0 ? '#fee2e2' : '#d1fae5'}">${net > 0 ? 'DUE' : 'SURPLUS'}</span>
+                <td>₹${(mDepsSum[m.id] || 0)}</td>
+                <td>${m.actual} <small>/${m.minSet}</small></td>
+                <td>₹${cost.toFixed(0)}</td>
+                <td>
+                    <b style="color:${net > 0 ? 'var(--primary)' : 'var(--success)'}">₹${Math.abs(net).toFixed(1)}</b>
+                    <span class="status-badge" style="background:${net > 0 ? '#fff1f2' : '#ecfdf5'}; color:${net > 0 ? 'var(--primary)' : 'var(--success)'}">
+                        ${net > 0 ? 'DUE' : 'SURPLUS'}
+                    </span>
                 </td>
             </tr>`;
         }).join('');
 
-        document.getElementById('dep-member').innerHTML = (data.members || []).map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        const dSelect = document.getElementById('dep-member');
+        if(dSelect) dSelect.innerHTML = (data.members || []).map(m => `<option value="${m.id}">${m.name}</option>`).join('');
+        
         if(isAdmin) {
-            document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(m => `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#f1f5f9; padding:10px; border-radius:10px"><b>${m.name}</b><input type="number" class="day-meal-val edit-input" style="width:80px; margin:0; text-align:center" data-id="${m.id}" step="0.5" value="0"></div>`).join('');
+            const mArea = document.getElementById('meal-inputs-area');
+            if(mArea) mArea.innerHTML = (data.members || []).map(m => `<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; background:#f8fafc; padding:10px; border-radius:10px; border:1px solid #eee;"><b>${m.name}</b><input type="number" class="day-meal-val edit-input" style="width:70px; margin:0; padding:5px" data-id="${m.id}" step="0.5" value="0"></div>`).join('');
         }
         
         const mDates = Object.keys(data.meals || {}).sort().reverse();
-        document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${(data.members || []).map(m => `<th>${m.name.substring(0,3)}</th>`).join('')}${isAdmin ? '<th>X</th>' : ''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = mDates.map(d => `<tr><td><small>${d}</small></td>${(data.members || []).map(m => `<td>${data.meals[d][m.id] || 0}</td>`).join('')}${isAdmin ? `<td><button class="btn-del" onclick="delMealDate('${d}')">X</button></td>` : ''}</tr>`).join('');
-        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin ? `<td><button class="btn-del" onclick="delBazar(${data.bazar.length-1-i})">X</button></td>` : ''}</tr>`).join('');
-        document.getElementById('member-list-body').innerHTML = (data.members || []).map((m, i) => `<tr><td>${m.name}</td><td>Min: ${m.minMeal}</td>${isAdmin ? `<td><button class="btn-del" onclick="delMember(${i})">X</button></td>` : ''}</tr>`).join('');
+        document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${(data.members || []).map(m => `<th>${m.name.substring(0,3)}</th>`).join('')}${isAdmin ? '<th></th>' : ''}</tr>`;
+        document.getElementById('meal-history-body').innerHTML = mDates.map(d => `<tr><td><small>${d}</small></td>${(data.members || []).map(m => `<td>${data.meals[d][m.id] || 0}</td>`).join('')}${isAdmin ? `<td><button onclick="delMealDate('${d}')">✕</button></td>` : ''}</tr>`).join('');
+        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin ? `<td><button onclick="delBazar(${data.bazar.length-1-i})">✕</button></td>` : ''}</tr>`).join('');
+        document.getElementById('member-list-body').innerHTML = (data.members || []).map((m, i) => `<tr><td><b>${m.name}</b></td><td>Min: ${m.minMeal}</td>${isAdmin ? `<td><button onclick="delMember(${i})">✕</button></td>` : ''}</tr>`).join('');
         document.getElementById('deposit-history-body').innerHTML = (data.deposits || []).slice().reverse().map((d, i) => {
             const m = data.members.find(mem => mem.id == d.mId);
-            return `<tr><td>${d.date}</td><td>${m ? m.name : '?'}</td><td>₹${d.amt}</td>${isAdmin ? `<td><button class="btn-del" onclick="delDep(${data.deposits.length-1-i})">X</button></td>` : ''}</tr>`;
+            return `<tr><td>${d.date}</td><td>${m ? m.name : '?'}</td><td>₹${d.amt}</td>${isAdmin ? `<td><button onclick="delDep(${data.deposits.length-1-i})">✕</button></td>` : ''}</tr>`;
         }).join('');
     };
 
@@ -255,34 +347,35 @@
 
     window.login = function(key) {
         isAdmin = (key === keys.admin);
-        document.getElementById('login-screen').style.display = 'none'; document.getElementById('app').style.display = 'block';
+        document.getElementById('login-screen').style.display = 'none'; 
+        document.getElementById('app').style.display = 'block';
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
         
         const now = new Date();
-        const monthSelect = document.getElementById('filter-month');
-        monthSelect.innerHTML = ['January','February','March','April','May','June','July','August','September','October','November','December']
-            .map((m, i) => `<option value="${String(i+1).padStart(2,'0')}">${m}</option>`).join('');
-        monthSelect.value = String(now.getMonth() + 1).padStart(2, '0');
-        document.getElementById('filter-year').value = now.getFullYear();
-        
+        const mSelect = document.getElementById('filter-month');
+        if(mSelect.options.length === 0) {
+            mSelect.innerHTML = ['January','February','March','April','May','June','July','August','September','October','November','December']
+                .map((m, i) => `<option value="${String(i+1).padStart(2,'0')}">${m}</option>`).join('');
+            mSelect.value = String(now.getMonth() + 1).padStart(2, '0');
+            document.getElementById('filter-year').value = now.getFullYear();
+        }
         window.refreshUI();
+        window.refreshQR();
     };
 
     window.autoLogin = function() { const v = document.getElementById('pass').value.toUpperCase(); if(v === keys.admin || v === keys.viewer) window.login(v); };
     window.checkLogin = function() { const v = document.getElementById('pass').value.toUpperCase(); if(v === keys.admin || v === keys.viewer) window.login(v); else alert("Wrong Key"); };
-    window.logout = function() { location.reload(); }; // Just reload to show login screen again
-    window.saveDailyMeals = function() { if(!isAdmin) return; const d = document.getElementById('meal-date').value; if(!d) return alert("Select Date"); const entry = {}; document.querySelectorAll('.day-meal-val').forEach(i => entry[i.dataset.id] = parseFloat(i.value) || 0); data.meals[d] = entry; window.save(); };
+    window.logout = function() { location.reload(); };
+
+    window.saveDailyMeals = function() { if(!isAdmin) return; const d = document.getElementById('meal-date').value; if(!d) return alert("Select Date"); const entry = {}; document.querySelectorAll('.day-meal-val').forEach(i => entry[i.dataset.id] = parseFloat(i.value) || 0); if(!data.meals) data.meals = {}; data.meals[d] = entry; window.save(); };
     window.delMealDate = function(d) { if(!isAdmin) return; if(confirm("Delete?")) { delete data.meals[d]; window.save(); } };
-    window.addBazar = function() { if(!isAdmin) return; const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value; if(d && a) { data.bazar.push({amt: parseFloat(a), note: document.getElementById('b-note').value, date: d}); window.save(); } };
-    window.addDeposit = function() { if(!isAdmin) return; const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d && a && m) { data.deposits.push({mId: parseInt(m), amt: parseFloat(a), date: d}); window.save(); } };
-    window.addMember = function() { if(!isAdmin) return; const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { data.members.push({id: Date.now(), name: n.toUpperCase(), minMeal: parseInt(m) || 50}); window.save(); } };
+    window.addBazar = function() { if(!isAdmin) return; const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value; if(d && a) { if(!data.bazar) data.bazar = []; data.bazar.push({amt: parseFloat(a), note: document.getElementById('b-note').value, date: d}); window.save(); } };
+    window.addDeposit = function() { if(!isAdmin) return; const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d && a && m) { if(!data.deposits) data.deposits = []; data.deposits.push({mId: parseInt(m), amt: parseFloat(a), date: d}); window.save(); } };
+    window.addMember = function() { if(!isAdmin) return; const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members = []; data.members.push({id: Date.now(), name: n.toUpperCase(), minMeal: parseInt(m) || 50}); window.save(); } };
     window.delMember = function(i) { if(!isAdmin) return; data.members.splice(i, 1); window.save(); };
     window.delBazar = function(i) { if(!isAdmin) return; data.bazar.splice(i, 1); window.save(); };
     window.delDep = function(i) { if(!isAdmin) return; data.deposits.splice(i, 1); window.save(); };
     window.updateKeys = function() { if(!isAdmin) return; keys.admin = document.getElementById('set-admin-key').value.toUpperCase(); keys.viewer = document.getElementById('set-viewer-key').value.toUpperCase(); window.save(); alert("Keys Updated!"); };
-
 </script>
 </body>
 </html>
-
-
