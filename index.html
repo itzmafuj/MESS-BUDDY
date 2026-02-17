@@ -3,133 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mess Buddy | Auto-QR Pro</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <title>Mess Buddy | Data Sync Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #f43f5e; --accent: #6366f1; --success: #10b981;
-            --bg: #f8fafc; --text-main: #0f172a; --text-muted: #64748b;
-            --radius-lg: 24px; --radius-md: 16px;
+            --primary: #6366f1; --primary-soft: #eef2ff;
+            --rose: #f43f5e; --rose-soft: #fff1f2;
+            --emerald: #10b981; --emerald-soft: #ecfdf5;
+            --amber: #f59e0b; --amber-soft: #fffbeb;
+            --slate: #1e293b; --radius-xl: 32px;
         }
 
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #f8fafc; margin: 0; padding-bottom: 110px; color: var(--text-main); }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+        body { background: #f8fafc; margin: 0; padding-bottom: 110px; color: var(--slate); overflow-x: hidden; }
 
-        #login-screen { position: fixed; inset: 0; background: #0f172a; display: flex; align-items: center; justify-content: center; z-index: 3000; padding: 20px; }
-        .login-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); padding: 2.5rem 2rem; border-radius: var(--radius-lg); width: 100%; max-width: 380px; text-align: center; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content { animation: fadeIn 0.4s ease-out; }
+
+        #login-screen { position: fixed; inset: 0; background: linear-gradient(45deg, #0f172a, #1e293b); display: flex; align-items: center; justify-content: center; z-index: 3000; }
+        .login-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); padding: 3rem 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 400px; text-align: center; color: white; }
         
-        nav { position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; background: #0f172a; padding: 8px; display: flex; justify-content: space-around; z-index: 2000; border-radius: 25px; box-shadow: 0 15px 30px rgba(0,0,0,0.3); }
-        nav button { flex: 1; padding: 12px 5px; border: none; background: transparent; color: #94a3b8; font-weight: 700; font-size: 0.7rem; text-transform: uppercase; border-radius: 18px; }
-        nav button.active { color: white; background: rgba(255,255,255,0.15); }
+        nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; background: white; padding: 8px; display: flex; z-index: 2000; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+        nav button { flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8; font-weight: 700; font-size: 0.7rem; border-radius: 20px; transition: 0.3s; }
+        nav button.active { color: var(--primary); background: var(--primary-soft); }
 
-        .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .card { background: white; border-radius: var(--radius-md); padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #f1f5f9; }
-        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .stat-box { padding: 15px; border-radius: var(--radius-md); color: white; }
-        .stat-box h2 { margin: 4px 0 0; font-size: 1.3rem; }
-
-        .blue { background: linear-gradient(135deg, #6366f1, #4f46e5); }
-        .green { background: linear-gradient(135deg, #10b981, #059669); }
-        .gold { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .red { background: linear-gradient(135deg, #f43f5e, #e11d48); }
-
-        .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #f1f5f9; }
-        table { width: 100%; border-collapse: collapse; min-width: 480px; }
-        td, th { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; text-align: left; }
-
-        .edit-input { width: 100%; height: 48px; padding: 0 15px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 16px !important; margin-bottom: 10px; }
-        .btn { height: 48px; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; background: var(--primary); color: white; gap: 8px; text-decoration: none; }
+        .container { padding: 20px; max-width: 700px; margin: 0 auto; }
+        .card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
         
-        #generated-qr { width: 180px; height: 180px; margin: 15px auto; display: block; border: 5px solid white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
+        .stat-box { padding: 20px; border-radius: 22px; text-align: center; border: 1px solid rgba(0,0,0,0.02); }
+        .stat-box span { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+        .stat-box h2 { margin: 5px 0 0; font-size: 1.4rem; font-weight: 800; }
 
-        .del-btn { background: #fee2e2; color: #ef4444; border: none; padding: 6px 10px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 11px; }
-        .status-badge { padding: 6px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; display: block; margin-top: 4px; text-align: center; cursor: pointer; text-decoration: none; }
+        .blue { background: var(--primary-soft); color: var(--primary); }
+        .red { background: var(--rose-soft); color: var(--rose); }
+        .green { background: var(--emerald-soft); color: var(--emerald); }
+        .gold { background: var(--amber-soft); color: var(--amber); }
+
+        .table-wrap { overflow-x: auto; border-radius: 18px; }
+        table { width: 100%; border-collapse: collapse; min-width: 450px; }
+        th { text-align: left; padding: 15px 12px; font-size: 0.7rem; color: #94a3b8; background: #fcfcfd; }
+        td { padding: 15px 12px; border-bottom: 1px solid #f8fafc; font-size: 0.85rem; }
+
+        .edit-input { width: 100%; height: 54px; padding: 0 18px; border: 2px solid #f1f5f9; border-radius: 16px; font-size: 1rem; margin-bottom: 12px; transition: all 0.3s; }
+        .btn { height: 54px; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; width: 100%; background: var(--primary); color: white; transition: 0.3s; }
+        
+        .badge { padding: 8px 12px; border-radius: 12px; font-weight: 800; font-size: 0.7rem; border: none; }
+        .clickable { cursor: pointer; }
         .hidden { display: none !important; }
-        
-        .help-desk { text-align: center; margin-top: 25px; font-size: 0.8rem; color: var(--text-muted); padding: 15px; background: #fff; border-radius: 16px; border: 1px dashed #e2e8f0; }
+
+        .dev-section { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border: none; display: flex; align-items: center; gap: 15px; }
+        .dev-avatar { width: 50px; height: 50px; border-radius: 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-card">
-        <h2 style="color:white; margin-bottom:5px;">Mess Buddy</h2>
-        <p style="color:#94a3b8; font-size:0.8rem; margin-bottom:20px;">"Your Trusted Partner in Every Plate."</p>
-        <input type="password" id="pass" placeholder="Access Key" oninput="autoLogin()" class="edit-input" style="background:rgba(255,255,255,0.1); color:white; border:none; text-align:center;">
+        <h1 style="margin:0;">Mess Buddy</h1>
+        <p style="opacity: 0.6; font-size: 0.8rem; margin-bottom: 25px;">"Your Mess, Simplified. Your Bills, Perfected."</p>
+        
+        <div id="first-time-area" class="hidden">
+            <input type="text" id="v-name-input" placeholder="Enter Your Name" class="edit-input" style="background:rgba(255,255,255,0.1); color:white; border:none; text-align:center;">
+        </div>
+        <div id="returning-area" class="hidden">
+            <p id="returning-msg" style="font-weight: 700; color: var(--emerald); margin-bottom: 15px;"></p>
+        </div>
+
+        <input type="password" id="pass" placeholder="Access Key" class="edit-input" style="background:rgba(255,255,255,0.1); color:white; border:none; text-align:center;">
         <button class="btn" onclick="checkLogin()">Unlock App</button>
     </div>
 </div>
 
 <div id="app" class="hidden">
-    <nav>
-        <button id="nav-dashboard" class="active" onclick="showTab('dashboard', this)">Home</button>
-        <button id="nav-meals" onclick="showTab('meals', this)">Meals</button>
-        <button id="nav-bazar" onclick="showTab('bazar', this)">Cost</button>
-        <button id="nav-members" onclick="showTab('members', this)">Team</button>
-        <button id="nav-settings" class="admin-only hidden" onclick="showTab('settings', this)">Admin</button>
-    </nav>
-
     <div class="container">
+        <div class="card" style="background: var(--primary); color: white; border: none; margin-bottom: 15px;">
+            <h3 id="dash-greeting" style="margin:0;">Hello!</h3>
+            <p id="live-date" style="margin:5px 0 0; font-size: 0.75rem; opacity: 0.8;"></p>
+        </div>
+
+        <nav>
+            <button id="nav-dashboard" class="active" onclick="showTab('dashboard', this)">HOME</button>
+            <button id="nav-meals" onclick="showTab('meals', this)">MEALS</button>
+            <button id="nav-bazar" onclick="showTab('bazar', this)">COST</button>
+            <button id="nav-members" onclick="showTab('members', this)">TEAM</button>
+            <button id="nav-settings" class="admin-only hidden" onclick="showTab('settings', this)">ADMIN</button>
+        </nav>
+
         <div id="tab-dashboard" class="tab-content">
-            <div id="notice-display-card" class="card hidden" style="background:#1e293b; color:white;">
-                <small style="color:var(--primary); font-weight:800;">BROADCAST</small>
-                <div id="current-notice" style="margin-top:5px; font-weight:600;"></div>
+            <div id="notice-display-card" class="card hidden" style="background:var(--primary-soft); border: 2px solid var(--primary);">
+                <small style="color:var(--primary); font-weight:900;">NOTICE</small>
+                <div id="current-notice" style="margin-top:5px; font-weight:700;"></div>
             </div>
 
             <div class="grid-stats">
                 <div class="stat-box blue"><span>Actual Meals</span><h2 id="stat-meals">0</h2></div>
-                <div class="stat-box green"><span>Bazar Cost</span><h2 id="stat-cost">₹0</h2></div>
-                <div class="stat-box gold"><span>Current Cash</span><h2 id="stat-balance">₹0</h2></div>
-                <div class="stat-box red"><span>Final Rate</span><h2 id="stat-rate">0</h2></div>
+                <div class="stat-box red"><span>Total Cost</span><h2 id="stat-cost">₹0</h2></div>
+                <div class="stat-box green"><span>Balance</span><h2 id="stat-balance">₹0</h2></div>
+                <div class="stat-box gold"><span>Meal Rate</span><h2 id="stat-rate">0</h2></div>
             </div>
 
-            <div class="card" style="display:flex; gap:10px;">
-                <select id="filter-month" class="edit-input" style="margin:0; flex:2;" onchange="refreshUI()"></select>
-                <select id="filter-year" class="edit-input" style="margin:0; flex:1;" onchange="refreshUI()">
+            <div class="card" style="display:flex; gap:10px; background:transparent; border:none; box-shadow:none; padding:0;">
+                <select id="filter-month" class="edit-input" style="flex:2;" onchange="refreshUI()"></select>
+                <select id="filter-year" class="edit-input" style="flex:1;" onchange="refreshUI()">
                     <option value="2025">2025</option><option value="2026" selected>2026</option>
                 </select>
             </div>
 
-            <div id="qr-pay-card" class="card hidden" style="text-align:center;">
-                <h4 style="margin:0; color:var(--primary);">Scan & Pay</h4>
-                <p id="qr-upi-text" style="font-size:0.7rem; color:var(--text-muted); margin-bottom:10px;"></p>
-                <img id="generated-qr" src="" alt="Payment QR">
-                <p style="font-size:0.6rem; color:var(--text-muted); font-weight:600;">Supported by all UPI Apps</p>
-            </div>
-
-            <div class="card" style="padding:10px;">
+            <div class="card" style="padding: 10px;">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>Name</th><th>Deposit</th><th>Meals</th><th>Cost</th><th>Status (Tap to Pay)</th></tr></thead>
+                        <thead><tr><th>MEMBER</th><th>DEPOSIT</th><th>MEALS</th><th>BILL</th><th>STATUS</th></tr></thead>
                         <tbody id="summary-body"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="help-desk">
-                Technical Support: <a href="mailto:mafujhossain154@gmail.com" style="color:var(--accent); text-decoration:none; font-weight:700;">mafujhossain154@gmail.com</a>
+            <div id="qr-pay-card" class="card hidden" style="text-align:center;">
+                <h4 style="margin:0 0 10px;">Scan to Settle</h4>
+                <img id="generated-qr" src="" style="width:180px; height:180px; border-radius:15px; border:5px solid #f8fafc;">
+                <p id="qr-upi-text" style="font-size:0.8rem; font-weight:700; color:var(--primary); margin-top:10px;"></p>
             </div>
-            <button class="btn" style="background:#eee; color:#666; margin-top:20px;" onclick="location.reload()">Lock Session</button>
+
+            <div class="card dev-section">
+                <div class="dev-avatar">MH</div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.9rem;">Mafuj Hossain</div>
+                    <div style="font-size: 0.7rem; opacity: 0.7;">Technical Architect</div>
+                    <a href="mailto:mafujhossain154@gmail.com" style="color: var(--primary); text-decoration: none; font-size: 0.75rem; font-weight: 700;">mafujhossain154@gmail.com</a>
+                </div>
+            </div>
         </div>
 
-        <div id="tab-meals" class="tab-content hidden"><div class="card admin-only hidden"><h3>Daily Entry</h3><input type="date" id="meal-date" class="edit-input"><div id="meal-inputs-area"></div><button class="btn" onclick="saveDailyMeals()">Save Record</button></div><div class="card"><div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div></div></div>
-        
-        <div id="tab-bazar" class="tab-content hidden"><div class="card admin-only hidden"><h3>Bazar Expense</h3><input type="date" id="b-date" class="edit-input"><input type="number" id="b-amt" placeholder="Amt" class="edit-input"><input type="text" id="b-note" placeholder="Item" class="edit-input"><button class="btn" onclick="addBazar()">Save Expense</button></div><div class="card"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div></div>
-        
-        <div id="tab-members" class="tab-content hidden"><div class="card admin-only hidden"><h3>Management</h3><div style="display:flex; gap:5px;"><input type="text" id="new-mem-name" class="edit-input" placeholder="Name" style="flex:2;"><input type="number" id="new-mem-min" class="edit-input" placeholder="Min" style="flex:1;"></div><button class="btn" onclick="addMember()">Add Member</button><hr style="margin:15px 0;"><input type="date" id="dep-date" class="edit-input"><select id="dep-member" class="edit-input"></select><input type="number" id="dep-amt" placeholder="Deposit Amt" class="edit-input"><button class="btn" onclick="addDeposit()">Save Money</button></div><div class="card"><h4>Recent Deposits</h4><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div></div>
-        
+        <div id="tab-meals" class="tab-content hidden">
+            <div class="card admin-only hidden"><h3>Daily Meals</h3><input type="date" id="meal-date" class="edit-input"><div id="meal-inputs-area"></div><button class="btn" onclick="saveDailyMeals()">Save Record</button></div>
+            <div class="card" style="padding:5px;"><div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div></div>
+        </div>
+
+        <div id="tab-bazar" class="tab-content hidden">
+            <div class="card admin-only hidden"><h3>Add Cost</h3><input type="date" id="b-date" class="edit-input"><input type="number" id="b-amt" placeholder="Amt" class="edit-input"><input type="text" id="b-note" placeholder="Item" class="edit-input"><button class="btn" style="background:var(--rose);" onclick="addBazar()">Save</button></div>
+            <div class="card" style="padding:5px;"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div>
+        </div>
+
+        <div id="tab-members" class="tab-content hidden">
+            <div class="card admin-only hidden"><h3>New Member</h3><div style="display:flex; gap:5px;"><input type="text" id="new-mem-name" class="edit-input" style="flex:2;"><input type="number" id="new-mem-min" class="edit-input" style="flex:1;"></div><button class="btn" onclick="addMember()">Add</button><hr style="margin:20px 0;"><input type="date" id="dep-date" class="edit-input"><select id="dep-member" class="edit-input"></select><input type="number" id="dep-amt" placeholder="Amt" class="edit-input"><button class="btn" style="background:var(--emerald);" onclick="addDeposit()">Deposit</button></div>
+            <div class="card" style="padding:5px;"><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
+        </div>
+
         <div id="tab-settings" class="tab-content hidden">
+            <div class="card"><h3>Settings</h3><input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID"><input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key"><input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key"><button class="btn" onclick="updateKeys()">Update</button><button class="btn" style="background:var(--slate); margin-top:10px;" onclick="resetIdentity()">Reset My Name</button></div>
             <div class="card">
-                <h3>Admin Settings</h3>
-                <input type="text" id="set-upi-id" class="edit-input" placeholder="Enter UPI ID (e.g. name@upi)">
-                <input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key">
-                <input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key">
-                <button class="btn" onclick="updateKeys()">Save Settings</button>
-            </div>
-            <div class="card">
-                <h3>Notice Board</h3>
-                <textarea id="notice-input" class="edit-input" style="height:80px;" placeholder="Notice text..."></textarea>
-                <div style="display:flex; gap:10px;"><button class="btn" onclick="updateNotice()">Post</button><button class="btn" style="background:#fee2e2; color:#ef4444;" onclick="deleteNotice()">Delete</button></div>
+                <h3>Notice</h3>
+                <textarea id="notice-input" class="edit-input" style="height:80px;"></textarea>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" onclick="updateNotice()">Post</button>
+                    <button class="btn" style="background:var(--rose); flex: 0.4;" onclick="deleteNotice()">Delete</button>
+                </div>
             </div>
         </div>
     </div>
@@ -154,18 +183,37 @@
     const dataRef = ref(db, 'messData');
 
     let isAdmin = false;
-    let data = { members: [], meals: {}, bazar: [], deposits: [], notice: "", upiId: "", keys: { admin: "MESS2026", viewer: "MESSMEAL" } };
+    let data = { members: [], meals: {}, bazar: [], deposits: [], keys: { admin: "MESS2026", viewer: "MESSMEAL" } };
 
-    window.showTab = (tabId, btn) => {
-        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-        document.getElementById('tab-' + tabId).classList.remove('hidden');
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        window.refreshUI();
+    window.addEventListener('load', () => {
+        const saved = localStorage.getItem('mb_name');
+        if(saved) {
+            document.getElementById('returning-area').classList.remove('hidden');
+            document.getElementById('returning-msg').innerText = "Hi, " + saved + "!";
+        } else {
+            document.getElementById('first-time-area').classList.remove('hidden');
+        }
+    });
+
+    window.checkLogin = () => {
+        const pass = document.getElementById('pass').value.toUpperCase();
+        const saved = localStorage.getItem('mb_name');
+        const input = document.getElementById('v-name-input').value.trim();
+
+        if(pass === data.keys.admin) {
+            window.login(pass);
+        } else if(pass === data.keys.viewer) {
+            const name = saved || input;
+            if(!name) return alert("Enter your name!");
+            localStorage.setItem('mb_name', name);
+            window.login(pass);
+        } else alert("Wrong Key");
     };
 
     window.login = (key) => {
         isAdmin = (key === data.keys.admin);
+        const name = localStorage.getItem('mb_name') || "Admin";
+        document.getElementById('dash-greeting').innerText = "Hello, " + name + "!";
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
@@ -176,166 +224,124 @@
             mSel.innerHTML = months.map((m, i) => `<option value="${m}">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]}</option>`).join('');
             mSel.value = String(new Date().getMonth() + 1).padStart(2, '0');
         }
+        document.getElementById('live-date').innerText = new Date().toDateString();
         window.refreshUI();
-    };
-
-    window.autoLogin = () => {
-        const v = document.getElementById('pass').value.toUpperCase();
-        if(v === data.keys.admin || v === data.keys.viewer) window.login(v);
-    };
-
-    window.checkLogin = () => {
-        const v = document.getElementById('pass').value.toUpperCase();
-        if(v === data.keys.admin || v === data.keys.viewer) window.login(v);
-        else alert("Wrong Access Key");
     };
 
     onValue(dataRef, (snap) => {
         const cloud = snap.val();
-        if(cloud) {
-            data = cloud;
-            if(!data.keys) data.keys = { admin: "MESS2026", viewer: "MESSMEAL" };
-            window.refreshUI();
-            window.refreshExtras();
-        }
+        if(cloud) { data = cloud; window.refreshUI(); window.refreshExtras(); }
     });
-
-    window.save = () => { if(isAdmin) set(dataRef, data); };
-
-    window.refreshExtras = () => {
-        const nCard = document.getElementById('notice-display-card');
-        if(data.notice) {
-            document.getElementById('current-notice').innerText = data.notice;
-            nCard.classList.remove('hidden');
-        } else nCard.classList.add('hidden');
-
-        // Real-Time QR Generation Logic
-        const qrCard = document.getElementById('qr-pay-card');
-        const qrImg = document.getElementById('generated-qr');
-        const qrText = document.getElementById('qr-upi-text');
-
-        if(data.upiId) {
-            const upiString = `upi://pay?pa=${data.upiId}&pn=MessBuddy&cu=INR`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiString)}`;
-            qrImg.src = qrUrl;
-            qrText.innerText = `UPI ID: ${data.upiId}`;
-            qrCard.classList.remove('hidden');
-            document.getElementById('set-upi-id').value = data.upiId;
-        } else {
-            qrCard.classList.add('hidden');
-        }
-    };
 
     window.refreshUI = () => {
         const m = document.getElementById('filter-month').value;
         const y = document.getElementById('filter-year').value;
         const filterStr = `${y}-${m}`;
-
-        const lastDayDate = new Date(y, m, 0); 
-        const lastDayStr = `${y}-${m}-${String(lastDayDate.getDate()).padStart(2, '0')}`;
+        const lastDay = new Date(y, m, 0).getDate();
+        const lastDayStr = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
         const isMonthEnd = data.meals && data.meals[lastDayStr];
 
-        let totalActualMeals = 0, totalBillableMeals = 0, mActual = {}, mDeps = {}, periodIncome = 0;
+        let totalMeals = 0, totalBillable = 0, mActual = {}, mDeps = {}, income = 0;
         (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
         (data.deposits || []).forEach(d => {
-            if(d.date && d.date.startsWith(filterStr)) {
-                mDeps[d.mId] = (mDeps[d.mId] || 0) + parseFloat(d.amt);
-                periodIncome += parseFloat(d.amt);
-            }
+            if(d.date.startsWith(filterStr)) { mDeps[d.mId] += parseFloat(d.amt); income += parseFloat(d.amt); }
         });
 
         if(data.meals) {
-            Object.entries(data.meals).forEach(([date, entry]) => {
+            Object.entries(data.meals).forEach(([date, dayData]) => {
                 if(date.startsWith(filterStr)) {
-                    Object.entries(entry).forEach(([id, qty]) => {
-                        if(mActual[id] !== undefined) mActual[id] += (parseInt(qty) || 0);
-                    });
+                    Object.entries(dayData).forEach(([id, q]) => { if(mActual[id] !== undefined) mActual[id] += q; });
                 }
             });
         }
 
-        const calcData = (data.members || []).map(mem => {
-            const actual = mActual[mem.id] || 0;
+        const calc = (data.members || []).map(mem => {
+            const act = mActual[mem.id] || 0;
             const min = mem.minMeal || 50;
-            const billable = isMonthEnd ? (actual < min ? min : actual) : actual;
-            totalActualMeals += actual;
-            totalBillableMeals += billable;
-            return { ...mem, actual, billable };
+            const bill = isMonthEnd ? (act < min ? min : act) : act;
+            totalMeals += act; totalBillable += bill;
+            return { ...mem, act, bill };
         });
 
-        const totalCost = (data.bazar || []).reduce((s, b) => (b.date && b.date.startsWith(filterStr)) ? s + parseFloat(b.amt) : s, 0);
-        const rate = totalBillableMeals > 0 ? totalCost / totalBillableMeals : 0;
+        const cost = (data.bazar || []).reduce((s, b) => b.date.startsWith(filterStr) ? s + parseFloat(b.amt) : s, 0);
+        const rate = totalBillable > 0 ? cost / totalBillable : 0;
 
-        document.getElementById('stat-meals').innerText = Math.floor(totalActualMeals);
-        document.getElementById('stat-cost').innerText = "₹" + totalCost;
-        document.getElementById('stat-balance').innerText = "₹" + (periodIncome - totalCost).toFixed(0);
+        document.getElementById('stat-meals').innerText = Math.floor(totalMeals);
+        document.getElementById('stat-cost').innerText = "₹" + cost;
+        document.getElementById('stat-balance').innerText = "₹" + (income - cost).toFixed(0);
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
 
-        document.getElementById('summary-body').innerHTML = calcData.map(mem => {
-            const cost = mem.billable * rate;
-            const dep = mDeps[mem.id] || 0;
-            const net = cost - dep;
-            const statusLabel = net > 0 ? 'DUE ₹' + net.toFixed(0) : 'SURPLUS ₹' + Math.abs(net).toFixed(0);
-            const upiLink = net > 5 ? `upi://pay?pa=${data.upiId}&pn=MessBuddy&am=${net.toFixed(0)}&cu=INR` : '#';
-            
-            return `<tr>
-                <td><b>${mem.name}</b></td>
-                <td>₹${dep}</td>
-                <td>${mem.actual}</td>
-                <td>₹${cost.toFixed(0)}</td>
-                <td><a href="${upiLink}" class="status-badge" style="background:${net > 0 ? '#fff1f2':'#ecfdf5'}; color:${net > 0 ? 'var(--primary)':'var(--success)'}">${statusLabel}</a></td>
-            </tr>`;
+        document.getElementById('summary-body').innerHTML = calc.map(mem => {
+            const bill = mem.bill * rate;
+            const net = bill - (mDeps[mem.id] || 0);
+            const isDue = net > 0;
+            return `<tr><td>${mem.name}</td><td>₹${mDeps[mem.id] || 0}</td><td>${mem.act}</td><td>₹${bill.toFixed(0)}</td>
+            <td><button class="badge ${isDue?'clickable':''}" ${isDue?'onclick="window.scrollToQR()"':''} style="background:${isDue?'var(--rose-soft)':'var(--emerald-soft)'}; color:${isDue?'var(--rose)':'var(--emerald)'}">${isDue?'DUE ₹'+net.toFixed(0):'EXTRA ₹'+Math.abs(net).toFixed(0)}</button></td></tr>`;
         }).join('');
 
         document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
         if(isAdmin) {
             document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(mem => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                    <span style="font-weight:600;">${mem.name}</span>
-                    <input type="number" class="day-meal-val edit-input" style="width:70px; margin:0;" data-id="${mem.id}" value="0">
-                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>${mem.name}</span><input type="number" class="m-val edit-input" style="width:70px; margin:0;" data-id="${mem.id}" value="0"></div>
             `).join('');
         }
         
         const dates = Object.keys(data.meals || {}).sort().reverse();
-        document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${(data.members || []).map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin ? '<th>Del</th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td>${d}</td>${(data.members || []).map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin ? `<td><button class="del-btn" onclick="deleteMealRecord('${d}')">✕</button></td>`:''}</tr>`).join('');
-        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, idx) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin ? `<td><button class="del-btn" onclick="deleteBazar(${data.bazar.length - 1 - idx})">✕</button></td>`:''}</tr>`).join('');
-        document.getElementById('deposit-history-body').innerHTML = (data.deposits || []).slice().reverse().map((d, idx) => {
-            const member = data.members.find(m => m.id == d.mId);
-            return `<tr><td>${d.date}</td><td>${member ? member.name : 'Unknown'}</td><td>₹${d.amt}</td>${isAdmin ? `<td><button class="del-btn" onclick="deleteDeposit(${data.deposits.length - 1 - idx})">✕</button></td>`:''}</tr>`;
+        document.getElementById('meal-history-head').innerHTML = `<tr><th>DATE</th>${(data.members || []).map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th>DEL</th>':''}</tr>`;
+        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td>${d}</td>${(data.members || []).map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
+        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${data.bazar.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
+        document.getElementById('deposit-history-body').innerHTML = (data.deposits || []).slice().reverse().map((d, i) => {
+            const mem = data.members.find(m => m.id == d.mId);
+            return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${data.deposits.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`;
         }).join('');
     };
 
-    // --- Actions ---
-    window.deleteMember = (idx) => { if(confirm("Remove member?")) { data.members.splice(idx,1); window.save(); } };
-    window.deleteBazar = (idx) => { if(confirm("Delete expense?")) { data.bazar.splice(idx,1); window.save(); } };
-    window.deleteDeposit = (idx) => { if(confirm("Delete record?")) { data.deposits.splice(idx,1); window.save(); } };
-    window.deleteMealRecord = (date) => { if(confirm("Delete meals for "+date+"?")) { delete data.meals[date]; window.save(); } };
+    window.scrollToQR = () => document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
+    
+    window.refreshExtras = () => {
+        if(data.upiId) {
+            document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa='+data.upiId+'&pn=MessBuddy&cu=INR')}`;
+            document.getElementById('qr-upi-text').innerText = data.upiId;
+            document.getElementById('qr-pay-card').classList.remove('hidden');
+        }
+        if(data.notice && data.notice.trim() !== "") { 
+            document.getElementById('current-notice').innerText = data.notice; 
+            document.getElementById('notice-display-card').classList.remove('hidden'); 
+        } else {
+            document.getElementById('notice-display-card').classList.add('hidden');
+        }
+    };
 
-    window.saveDailyMeals = () => {
-        const d = document.getElementById('meal-date').value; if(!d) return alert("Select Date");
-        const entry = {}; document.querySelectorAll('.day-meal-val').forEach(i => entry[i.dataset.id] = parseInt(i.value) || 0);
-        if(!data.meals) data.meals = {}; data.meals[d] = entry; window.save(); alert("Saved!");
+    window.showTab = (id, b) => { document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); document.getElementById('tab-'+id).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(nb=>nb.classList.remove('active')); b.classList.add('active'); window.refreshUI(); };
+    window.save = () => { if(isAdmin) set(dataRef, data); };
+    window.delBazar = (i) => { if(confirm("Del?")) { data.bazar.splice(i,1); window.save(); } };
+    window.delDep = (i) => { if(confirm("Del?")) { data.deposits.splice(i,1); window.save(); } };
+    window.delMeal = (d) => { if(confirm("Del?")) { delete data.meals[d]; window.save(); } };
+    window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return; const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseInt(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
+    window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
+    window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); } };
+    window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
+    window.updateKeys = () => { const u = document.getElementById('set-upi-id').value, a = document.getElementById('set-admin-key').value.toUpperCase(), v = document.getElementById('set-viewer-key').value.toUpperCase(); if(a&&v) { data.upiId=u; data.keys={admin:a, viewer:v}; window.save(); alert("Saved"); } };
+    
+    // Updated Notice Functions
+    window.updateNotice = () => { 
+        const input = document.getElementById('notice-input').value;
+        if(input.trim() === "") return alert("Enter some text first");
+        data.notice = input; 
+        window.save(); 
+        alert("Notice Posted");
     };
-    window.addBazar = () => {
-        const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value;
-        if(d && a) { if(!data.bazar) data.bazar = []; data.bazar.push({date: d, amt: parseFloat(a), note: n}); window.save(); }
+    
+    window.deleteNotice = () => {
+        if(confirm("Delete current notice?")) {
+            data.notice = ""; 
+            document.getElementById('notice-input').value = ""; 
+            window.save();
+            alert("Notice Removed");
+        }
     };
-    window.addMember = () => {
-        const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value;
-        if(n) { if(!data.members) data.members = []; data.members.push({id: Date.now(), name: n.toUpperCase(), minMeal: parseInt(m) || 50}); window.save(); document.getElementById('new-mem-name').value = ''; }
-    };
-    window.addDeposit = () => {
-        const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value;
-        if(d && m && a) { if(!data.deposits) data.deposits = []; data.deposits.push({date: d, mId: parseInt(m), amt: parseFloat(a)}); window.save(); }
-    };
-    window.updateKeys = () => {
-        const u = document.getElementById('set-upi-id').value, a = document.getElementById('set-admin-key').value.toUpperCase(), v = document.getElementById('set-viewer-key').value.toUpperCase();
-        if(a && v) { data.upiId = u; data.keys = { admin: a, viewer: v }; window.save(); alert("Settings Saved!"); }
-    };
-    window.updateNotice = () => { data.notice = document.getElementById('notice-input').value; window.save(); alert("Posted!"); };
-    window.deleteNotice = () => { if(confirm("Clear notice?")) { data.notice = ""; window.save(); } };
+
+    window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
 </script>
 </body>
 </html>
