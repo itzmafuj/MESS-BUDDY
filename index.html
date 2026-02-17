@@ -52,6 +52,9 @@
         .clickable { cursor: pointer; }
         .hidden { display: none !important; }
 
+        .toggle-filter { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--primary); color: white; border-radius: 16px; margin-bottom: 15px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
+        .toggle-filter input { width: 18px; height: 18px; cursor: pointer; }
+
         .dev-section { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border: none; display: flex; align-items: center; gap: 15px; }
         .dev-avatar { width: 50px; height: 50px; border-radius: 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; }
     </style>
@@ -77,6 +80,11 @@
 
 <div id="app" class="hidden">
     <div class="container">
+        <div class="toggle-filter" onclick="togglePersonalView()">
+            <span>✨ Show Only My Records</span>
+            <input type="checkbox" id="personal-toggle" style="pointer-events:none;">
+        </div>
+
         <div class="card" style="background: var(--primary); color: white; border: none; margin-bottom: 15px;">
             <h3 id="dash-greeting" style="margin:0;">Hello!</h3>
             <p id="live-date" style="margin:5px 0 0; font-size: 0.75rem; opacity: 0.8;"></p>
@@ -137,7 +145,10 @@
 
         <div id="tab-meals" class="tab-content hidden">
             <div class="card admin-only hidden"><h3>Daily Meals</h3><input type="date" id="meal-date" class="edit-input"><div id="meal-inputs-area"></div><button class="btn" onclick="saveDailyMeals()">Save Record</button></div>
-            <div class="card" style="padding:5px;"><div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div></div>
+            <div class="card" style="padding:5px;">
+                <input type="text" id="meal-search" placeholder="Search date (e.g. 2026-02)..." class="edit-input" oninput="refreshUI()" style="margin:10px; width:calc(100% - 20px);">
+                <div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div>
+            </div>
         </div>
 
         <div id="tab-bazar" class="tab-content hidden">
@@ -146,15 +157,22 @@
         </div>
 
         <div id="tab-members" class="tab-content hidden">
-            <div class="card admin-only hidden"><h3>New Member</h3><div style="display:flex; gap:5px;"><input type="text" id="new-mem-name" class="edit-input" style="flex:2;"><input type="number" id="new-mem-min" class="edit-input" style="flex:1;"></div><button class="btn" onclick="addMember()">Add</button><hr style="margin:20px 0;"><input type="date" id="dep-date" class="edit-input"><select id="dep-member" class="edit-input"></select><input type="number" id="dep-amt" placeholder="Amt" class="edit-input"><button class="btn" style="background:var(--emerald);" onclick="addDeposit()">Deposit</button></div>
-            <div class="card" style="padding:5px;"><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
+            <div class="card admin-only hidden">
+                <h3>New Member</h3>
+                <div style="display:flex; gap:5px;"><input type="text" id="new-mem-name" placeholder="NAME" class="edit-input" style="flex:2;"><input type="number" id="new-mem-min" placeholder="MIN" class="edit-input" style="flex:1;"></div>
+                <button class="btn" onclick="addMember()">Add Member</button>
+                <hr style="margin:20px 0;">
+                <input type="date" id="dep-date" class="edit-input">
+                <select id="dep-member" class="edit-input"></select>
+                <input type="number" id="dep-amt" placeholder="Amt" class="edit-input">
+                <button class="btn" style="background:var(--emerald);" onclick="addDeposit()">Deposit</button>
+            </div>
+            <div class="card" style="padding:15px;"><h4 style="margin:0 0 10px;">Deposit History</h4><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
         </div>
 
         <div id="tab-settings" class="tab-content hidden">
-            <div class="card"><h3>Settings</h3><input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID"><input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key"><input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key"><button class="btn" onclick="updateKeys()">Update</button><button class="btn" style="background:var(--slate); margin-top:10px;" onclick="resetIdentity()">Reset My Name</button></div>
-            <div class="card">
-                <h3>Notice</h3>
-                <textarea id="notice-input" class="edit-input" style="height:80px;"></textarea>
+            <div class="card"><h3>Settings</h3><input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID"><input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key"><input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key"><button class="btn" onclick="updateKeys()">Update</button><button class="btn" style="background:var(--slate); margin-top:10px;" onclick="resetIdentity()">Logout / Reset Name</button></div>
+            <div class="card"><h3>Notice</h3><textarea id="notice-input" class="edit-input" style="height:80px;"></textarea>
                 <div style="display:flex; gap:10px;">
                     <button class="btn" onclick="updateNotice()">Post</button>
                     <button class="btn" style="background:var(--rose); flex: 0.4;" onclick="deleteNotice()">Delete</button>
@@ -184,6 +202,7 @@
 
     let isAdmin = false;
     let data = { members: [], meals: {}, bazar: [], deposits: [], keys: { admin: "MESS2026", viewer: "MESSMEAL" } };
+    let showOnlyMe = false;
 
     window.addEventListener('load', () => {
         const saved = localStorage.getItem('mb_name');
@@ -195,15 +214,20 @@
         }
     });
 
+    window.togglePersonalView = () => {
+        showOnlyMe = !showOnlyMe;
+        document.getElementById('personal-toggle').checked = showOnlyMe;
+        window.refreshUI();
+    };
+
     window.checkLogin = () => {
         const pass = document.getElementById('pass').value.toUpperCase();
         const saved = localStorage.getItem('mb_name');
         const input = document.getElementById('v-name-input').value.trim();
 
-        if(pass === data.keys.admin) {
-            window.login(pass);
-        } else if(pass === data.keys.viewer) {
-            const name = saved || input;
+        if(pass === data.keys.admin) { window.login(pass); } 
+        else if(pass === data.keys.viewer) {
+            const name = (saved || input).toUpperCase();
             if(!name) return alert("Enter your name!");
             localStorage.setItem('mb_name', name);
             window.login(pass);
@@ -212,8 +236,8 @@
 
     window.login = (key) => {
         isAdmin = (key === data.keys.admin);
-        const name = localStorage.getItem('mb_name') || "Admin";
-        document.getElementById('dash-greeting').innerText = "Welcome Back, " + name + "!";
+        const name = localStorage.getItem('mb_name') || "ADMIN";
+        document.getElementById('dash-greeting').innerText = "Hello, " + name + "!";
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
@@ -237,10 +261,9 @@
         const m = document.getElementById('filter-month').value;
         const y = document.getElementById('filter-year').value;
         const filterStr = `${y}-${m}`;
-        const lastDay = new Date(y, m, 0).getDate();
-        const lastDayStr = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
-        const isMonthEnd = data.meals && data.meals[lastDayStr];
-
+        const myName = (localStorage.getItem('mb_name') || "").toUpperCase();
+        const currentUserObj = (data.members || []).find(mem => mem.name === myName);
+        
         let totalMeals = 0, totalBillable = 0, mActual = {}, mDeps = {}, income = 0;
         (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
         (data.deposits || []).forEach(d => {
@@ -254,6 +277,10 @@
                 }
             });
         }
+
+        const lastDay = new Date(y, m, 0).getDate();
+        const lastDayStr = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
+        const isMonthEnd = data.meals && data.meals[lastDayStr];
 
         const calc = (data.members || []).map(mem => {
             const act = mActual[mem.id] || 0;
@@ -271,45 +298,58 @@
         document.getElementById('stat-balance').innerText = "₹" + (income - cost).toFixed(0);
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
 
-        document.getElementById('summary-body').innerHTML = calc.map(mem => {
-            const bill = mem.bill * rate;
-            const net = bill - (mDeps[mem.id] || 0);
-            const isDue = net > 0;
-            return `<tr><td>${mem.name}</td><td>₹${mDeps[mem.id] || 0}</td><td>${mem.act}</td><td>₹${bill.toFixed(0)}</td>
-            <td><button class="badge ${isDue?'clickable':''}" ${isDue?'onclick="window.scrollToQR()"':''} style="background:${isDue?'var(--rose-soft)':'var(--emerald-soft)'}; color:${isDue?'var(--rose)':'var(--emerald)'}">${isDue?'DUE ₹'+net.toFixed(0):'EXTRA ₹'+Math.abs(net).toFixed(0)}</button></td></tr>`;
-        }).join('');
+        // 1. HOME TABLE FILTER
+        document.getElementById('summary-body').innerHTML = calc
+            .filter(mem => !showOnlyMe || mem.name === myName)
+            .map(mem => {
+                const bill = mem.bill * rate;
+                const net = bill - (mDeps[mem.id] || 0);
+                const isDue = net > 0;
+                return `<tr><td>${mem.name}</td><td>₹${mDeps[mem.id] || 0}</td><td>${mem.act}</td><td>₹${bill.toFixed(0)}</td>
+                <td><button class="badge ${isDue?'clickable':''}" ${isDue?'onclick="window.scrollToQR()"':''} style="background:${isDue?'var(--rose-soft)':'var(--emerald-soft)'}; color:${isDue?'var(--rose)':'var(--emerald)'}">${isDue?'DUE ₹'+net.toFixed(0):'EXTRA ₹'+Math.abs(net).toFixed(0)}</button></td></tr>`;
+            }).join('');
+
+        // 2. MEAL HISTORY FILTER (Columns)
+        const searchVal = document.getElementById('meal-search').value.toLowerCase();
+        const dates = Object.keys(data.meals || {}).sort().reverse().filter(d => d.includes(searchVal));
+        const filteredMembers = (data.members || []).filter(mem => !showOnlyMe || mem.name === myName);
+        
+        document.getElementById('meal-history-head').innerHTML = `<tr><th>DATE</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th>DEL</th>':''}</tr>`;
+        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td>${d}</td>${filteredMembers.map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
+        
+        // 3. DEPOSIT HISTORY FILTER
+        document.getElementById('deposit-history-body').innerHTML = (data.deposits || []).slice().reverse()
+            .filter(d => {
+                if(!showOnlyMe) return true;
+                return currentUserObj && d.mId === currentUserObj.id;
+            })
+            .map((d, i) => {
+                const mem = data.members.find(m => m.id == d.mId);
+                return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${data.deposits.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`;
+            }).join('');
+
+        // 4. BAZAR (Shared - No filter)
+        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${data.bazar.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
 
         document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
         if(isAdmin) {
             document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(mem => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;"><span>${mem.name}</span><input type="number" class="m-val edit-input" style="width:70px; margin:0;" data-id="${mem.id}" value="0"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; ${showOnlyMe && mem.name !== myName ? 'opacity:0.3' : ''}">
+                    <span>${mem.name}</span><input type="number" class="m-val edit-input" style="width:70px; margin:0;" data-id="${mem.id}" value="0">
+                </div>
             `).join('');
         }
-        
-        const dates = Object.keys(data.meals || {}).sort().reverse();
-        document.getElementById('meal-history-head').innerHTML = `<tr><th>DATE</th>${(data.members || []).map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th>DEL</th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td>${d}</td>${(data.members || []).map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
-        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${data.bazar.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
-        document.getElementById('deposit-history-body').innerHTML = (data.deposits || []).slice().reverse().map((d, i) => {
-            const mem = data.members.find(m => m.id == d.mId);
-            return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${data.deposits.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`;
-        }).join('');
     };
 
     window.scrollToQR = () => document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
-    
     window.refreshExtras = () => {
         if(data.upiId) {
             document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa='+data.upiId+'&pn=MessBuddy&cu=INR')}`;
             document.getElementById('qr-upi-text').innerText = data.upiId;
             document.getElementById('qr-pay-card').classList.remove('hidden');
         }
-        if(data.notice && data.notice.trim() !== "") { 
-            document.getElementById('current-notice').innerText = data.notice; 
-            document.getElementById('notice-display-card').classList.remove('hidden'); 
-        } else {
-            document.getElementById('notice-display-card').classList.add('hidden');
-        }
+        if(data.notice) { document.getElementById('current-notice').innerText = data.notice; document.getElementById('notice-display-card').classList.remove('hidden'); }
+        else { document.getElementById('notice-display-card').classList.add('hidden'); }
     };
 
     window.showTab = (id, b) => { document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); document.getElementById('tab-'+id).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(nb=>nb.classList.remove('active')); b.classList.add('active'); window.refreshUI(); };
@@ -317,34 +357,14 @@
     window.delBazar = (i) => { if(confirm("Del?")) { data.bazar.splice(i,1); window.save(); } };
     window.delDep = (i) => { if(confirm("Del?")) { data.deposits.splice(i,1); window.save(); } };
     window.delMeal = (d) => { if(confirm("Del?")) { delete data.meals[d]; window.save(); } };
-    window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return; const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseInt(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
+    window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return; const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseFloat(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
     window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
-    window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); } };
+    window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
     window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
     window.updateKeys = () => { const u = document.getElementById('set-upi-id').value, a = document.getElementById('set-admin-key').value.toUpperCase(), v = document.getElementById('set-viewer-key').value.toUpperCase(); if(a&&v) { data.upiId=u; data.keys={admin:a, viewer:v}; window.save(); alert("Saved"); } };
-    
-    // Updated Notice Functions
-    window.updateNotice = () => { 
-        const input = document.getElementById('notice-input').value;
-        if(input.trim() === "") return alert("Enter some text first");
-        data.notice = input; 
-        window.save(); 
-        alert("Notice Posted");
-    };
-    
-    window.deleteNotice = () => {
-        if(confirm("Delete current notice?")) {
-            data.notice = ""; 
-            document.getElementById('notice-input').value = ""; 
-            window.save();
-            alert("Notice Removed");
-        }
-    };
-
+    window.updateNotice = () => { data.notice = document.getElementById('notice-input').value; window.save(); alert("Posted"); };
+    window.deleteNotice = () => { if(confirm("Delete Notice?")) { data.notice = ""; window.save(); } };
     window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
 </script>
 </body>
 </html>
-
-
-
