@@ -189,7 +189,7 @@
         const saved = localStorage.getItem('mb_name');
         if(saved) {
             document.getElementById('returning-area').classList.remove('hidden');
-            document.getElementById('returning-msg').innerText = "Hi, " + saved + "!";
+            document.getElementById('returning-msg').innerText = "Hello, " + saved + "!";
         } else {
             document.getElementById('first-time-area').classList.remove('hidden');
         }
@@ -213,7 +213,7 @@
     window.login = (key) => {
         isAdmin = (key === data.keys.admin);
         const name = localStorage.getItem('mb_name') || "Admin";
-        document.getElementById('dash-greeting').innerText = "WELCOME BACK, " + name + "!";
+        document.getElementById('dash-greeting').innerText = "Welcome Back, " + name + "!";
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
@@ -345,5 +345,6 @@
 </script>
 </body>
 </html>
+
 
 
