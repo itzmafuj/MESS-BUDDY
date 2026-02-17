@@ -213,7 +213,7 @@
     window.login = (key) => {
         isAdmin = (key === data.keys.admin);
         const name = localStorage.getItem('mb_name') || "Admin";
-        document.getElementById('dash-greeting').innerText = "Hello, " + name + "!";
+        document.getElementById('dash-greeting').innerText = "WELCOME BACK, " + name + "!";
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
@@ -345,4 +345,5 @@
 </script>
 </body>
 </html>
+
 
