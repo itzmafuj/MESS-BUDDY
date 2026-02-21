@@ -7,111 +7,182 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1; --primary-soft: #eef2ff;
-            --rose: #f43f5e; --rose-soft: #fff1f2;
-            --emerald: #10b981; --emerald-soft: #ecfdf5;
-            --amber: #f59e0b; --amber-soft: #fffbeb;
-            --slate: #1e293b; --radius-xl: 32px;
+            --bg-deep: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --rose: #fb7185;
+            --emerald: #34d399;
+            --amber: #fbbf24;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --radius: 24px;
         }
 
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
-        body { background: #f8fafc; margin: 0; padding-bottom: 110px; color: var(--slate); overflow-x: hidden; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-content { animation: fadeIn 0.4s ease-out; }
-
-        #login-screen { position: fixed; inset: 0; background: linear-gradient(45deg, #0f172a, #1e293b); display: flex; align-items: center; justify-content: center; z-index: 3000; }
-        .login-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); padding: 3rem 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 400px; text-align: center; color: white; }
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         
-        nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 500px; background: white; padding: 8px; display: flex; z-index: 2000; border-radius: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
-        nav button { flex: 1; padding: 12px; border: none; background: transparent; color: #94a3b8; font-weight: 700; font-size: 0.7rem; border-radius: 20px; transition: 0.3s; }
-        nav button.active { color: var(--primary); background: var(--primary-soft); }
+        body { 
+            background: var(--bg-deep);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(251, 113, 133, 0.1) 0px, transparent 50%);
+            margin: 0; 
+            padding-bottom: 120px; 
+            color: var(--text-main); 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
 
-        .container { padding: 20px; max-width: 700px; margin: 0 auto; }
-        .card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.03); border: 1px solid #f1f5f9; }
+        /* --- Login Screen --- */
+        #login-screen { 
+            position: fixed; inset: 0; 
+            background: #020617; 
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 9999; 
+        }
+        .login-card { 
+            background: var(--bg-card);
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 40px 30px; 
+            border-radius: 32px; 
+            width: 90%; max-width: 380px; 
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        /* --- Navigation --- */
+        nav { 
+            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
+            width: 92%; max-width: 450px; 
+            background: rgba(15, 23, 42, 0.8); 
+            backdrop-filter: blur(20px);
+            padding: 8px; display: flex; z-index: 2000; 
+            border-radius: 24px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.4); 
+            border: 1px solid rgba(255,255,255,0.08); 
+        }
+        nav button { 
+            flex: 1; padding: 12px 5px; border: none; background: transparent; 
+            color: var(--text-dim); font-weight: 700; font-size: 0.65rem; 
+            border-radius: 18px; transition: 0.3s; 
+            text-transform: uppercase;
+        }
+        nav button.active { 
+            color: white; 
+            background: var(--primary); 
+            box-shadow: 0 0 15px var(--primary-glow); 
+        }
+
+        /* --- Components --- */
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
         
-        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-        .stat-box { padding: 20px; border-radius: 22px; text-align: center; border: 1px solid rgba(0,0,0,0.02); }
-        .stat-box span { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+        .header-card {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white; padding: 25px; border-radius: 28px;
+            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .card { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(10px);
+            border-radius: 24px; padding: 20px; 
+            margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .stat-box { padding: 18px; border-radius: 22px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
+        .stat-box span { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
         .stat-box h2 { margin: 5px 0 0; font-size: 1.4rem; font-weight: 800; }
 
-        .blue { background: var(--primary-soft); color: var(--primary); }
-        .red { background: var(--rose-soft); color: var(--rose); }
-        .green { background: var(--emerald-soft); color: var(--emerald); }
-        .gold { background: var(--amber-soft); color: var(--amber); }
+        .neon-blue { border-left: 4px solid var(--primary); color: #a5b4fc; }
+        .neon-red { border-left: 4px solid var(--rose); color: #fecdd3; }
+        .neon-green { border-left: 4px solid var(--emerald); color: #a7f3d0; }
+        .neon-gold { border-left: 4px solid var(--amber); color: #fde68a; }
 
-        .table-wrap { overflow-x: auto; border-radius: 18px; }
-        table { width: 100%; border-collapse: collapse; min-width: 450px; }
-        th { text-align: left; padding: 15px 12px; font-size: 0.7rem; color: #94a3b8; background: #fcfcfd; }
-        td { padding: 15px 12px; border-bottom: 1px solid #f8fafc; font-size: 0.85rem; }
-
-        .edit-input { width: 100%; height: 54px; padding: 0 18px; border: 2px solid #f1f5f9; border-radius: 16px; font-size: 1rem; margin-bottom: 12px; transition: all 0.3s; }
-        .btn { height: 54px; border: none; border-radius: 16px; font-weight: 800; cursor: pointer; width: 100%; background: var(--primary); color: white; transition: 0.3s; }
+        .edit-input { 
+            width: 100%; height: 50px; padding: 0 16px; 
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; 
+            font-size: 0.95rem; margin-bottom: 12px; background: rgba(15, 23, 42, 0.5);
+            color: white;
+        }
         
-        .badge { padding: 8px 12px; border-radius: 12px; font-weight: 800; font-size: 0.7rem; border: none; }
-        .clickable { cursor: pointer; }
+        .btn { height: 50px; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; background: var(--primary); color: white; transition: all 0.2s; }
+        .btn:active { transform: scale(0.97); }
+
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; }
+        td { padding: 14px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
+
+        .badge { padding: 6px 10px; border-radius: 8px; font-weight: 800; font-size: 0.6rem; border: none; }
+        .del-btn { background: rgba(251, 113, 133, 0.1); color: var(--rose); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
+
         .hidden { display: none !important; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content { animation: fadeIn 0.3s ease-out; }
 
-        .toggle-filter { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--primary); color: white; border-radius: 16px; margin-bottom: 15px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: 0.3s; }
-        .toggle-filter input { width: 18px; height: 18px; cursor: pointer; }
-
-        .dev-section { background: linear-gradient(135deg, #1e293b, #0f172a); color: white; border: none; display: flex; align-items: center; gap: 15px; }
-        .dev-avatar { width: 50px; height: 50px; border-radius: 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; }
+        .personal-toggle-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 20px; background: var(--bg-card); border-radius: 18px;
+            margin-bottom: 20px; border: 1px solid var(--primary-glow); cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-card">
-        <h1 style="margin:0;">Mess Buddy</h1>
-        <p style="opacity: 0.6; font-size: 0.8rem; margin-bottom: 25px;">"Your Mess, Simplified. Your Bills, Perfected."</p>
+        <h1 style="margin:0; color:white; letter-spacing: -1px; font-size: 2rem;">Mess Buddy</h1>
+        <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 30px;">Premium Mess Management</p>
         
         <div id="first-time-area" class="hidden">
-            <input type="text" id="v-name-input" placeholder="Enter Your Name" class="edit-input" style="background:rgba(255,255,255,0.1); color:white; border:none; text-align:center;">
+            <input type="text" id="v-name-input" placeholder="Your Name" class="edit-input">
         </div>
         <div id="returning-area" class="hidden">
-            <p id="returning-msg" style="font-weight: 700; color: var(--emerald); margin-bottom: 15px;"></p>
+            <p id="returning-msg" style="font-weight: 700; color: var(--emerald); margin-bottom: 20px;"></p>
         </div>
 
-        <input type="password" id="pass" placeholder="Access Key" class="edit-input" style="background:rgba(255,255,255,0.1); color:white; border:none; text-align:center;">
-        <button class="btn" onclick="checkLogin()">Unlock App</button>
+        <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px;">
+        <button class="btn" onclick="checkLogin()">Unlock Dashboard</button>
     </div>
 </div>
 
 <div id="app" class="hidden">
     <div class="container">
-        <div class="toggle-filter" onclick="togglePersonalView()">
-            <span>✨ Show Only My Records</span>
-            <input type="checkbox" id="personal-toggle" style="pointer-events:none;">
+        
+        <div class="header-card">
+            <h2 id="dash-greeting" style="margin:0; font-weight: 800;">Hello!</h2>
+            <p id="live-date" style="margin:5px 0 0; font-size: 0.75rem; opacity: 0.6;"></p>
         </div>
 
-        <div class="card" style="background: var(--primary); color: white; border: none; margin-bottom: 15px;">
-            <h3 id="dash-greeting" style="margin:0;">Hello!</h3>
-            <p id="live-date" style="margin:5px 0 0; font-size: 0.75rem; opacity: 0.8;"></p>
+        <div class="personal-toggle-bar" onclick="togglePersonalView()">
+            <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">View My Stats Only</span>
+            <input type="checkbox" id="personal-toggle" style="accent-color: var(--primary); width: 18px; height: 18px;">
         </div>
 
         <nav>
-            <button id="nav-dashboard" class="active" onclick="showTab('dashboard', this)">HOME</button>
-            <button id="nav-meals" onclick="showTab('meals', this)">MEALS</button>
-            <button id="nav-bazar" onclick="showTab('bazar', this)">COST</button>
-            <button id="nav-members" onclick="showTab('members', this)">TEAM</button>
-            <button id="nav-settings" class="admin-only hidden" onclick="showTab('settings', this)">ADMIN</button>
+            <button id="nav-dashboard" class="active" onclick="showTab('dashboard', this)">Home</button>
+            <button id="nav-meals" onclick="showTab('meals', this)">Meals</button>
+            <button id="nav-bazar" onclick="showTab('bazar', this)">Cost</button>
+            <button id="nav-members" onclick="showTab('members', this)">Team</button>
+            <button id="nav-settings" class="admin-only hidden" onclick="showTab('settings', this)">Admin</button>
         </nav>
 
         <div id="tab-dashboard" class="tab-content">
-            <div id="notice-display-card" class="card hidden" style="background:var(--primary-soft); border: 2px solid var(--primary);">
-                <small style="color:var(--primary); font-weight:900;">NOTICE</small>
-                <div id="current-notice" style="margin-top:5px; font-weight:700;"></div>
+            <div id="notice-display-card" class="card hidden" style="background: rgba(251, 191, 36, 0.1); border-color: var(--amber);">
+                <div id="current-notice" style="font-weight:600; font-size: 0.85rem; color: var(--amber);"></div>
             </div>
 
             <div class="grid-stats">
-                <div class="stat-box blue"><span>Actual Meals</span><h2 id="stat-meals">0</h2></div>
-                <div class="stat-box red"><span>Total Cost</span><h2 id="stat-cost">₹0</h2></div>
-                <div class="stat-box green"><span>Balance</span><h2 id="stat-balance">₹0</h2></div>
-                <div class="stat-box gold"><span>Meal Rate</span><h2 id="stat-rate">0</h2></div>
+                <div class="stat-box neon-blue"><span>Meals</span><h2 id="stat-meals">0</h2></div>
+                <div class="stat-box neon-red"><span>Cost</span><h2 id="stat-cost">₹0</h2></div>
+                <div class="stat-box neon-green"><span>Balance</span><h2 id="stat-balance">₹0</h2></div>
+                <div class="stat-box neon-gold"><span>Rate</span><h2 id="stat-rate">0</h2></div>
             </div>
 
-            <div class="card" style="display:flex; gap:10px; background:transparent; border:none; box-shadow:none; padding:0;">
+            <div style="display:flex; gap:10px; margin-bottom: 20px;">
                 <select id="filter-month" class="edit-input" style="flex:2;" onchange="refreshUI()"></select>
                 <select id="filter-year" class="edit-input" style="flex:1;" onchange="refreshUI()">
                     <option value="2025">2025</option><option value="2026" selected>2026</option>
@@ -121,62 +192,94 @@
             <div class="card" style="padding: 10px;">
                 <div class="table-wrap">
                     <table>
-                        <thead><tr><th>MEMBER</th><th>DEPOSIT</th><th>MEALS</th><th>BILL</th><th>STATUS</th></tr></thead>
+                        <thead><tr><th>Member</th><th>Paid</th><th>Meal</th><th>Bill</th><th>Status</th></tr></thead>
                         <tbody id="summary-body"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div id="qr-pay-card" class="card hidden" style="text-align:center;">
-                <h4 style="margin:0 0 10px;">Scan to Settle</h4>
-                <img id="generated-qr" src="" style="width:180px; height:180px; border-radius:15px; border:5px solid #f8fafc;">
-                <p id="qr-upi-text" style="font-size:0.8rem; font-weight:700; color:var(--primary); margin-top:10px;"></p>
+            <div class="card" style="border: 1px solid var(--primary-glow); background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); display: flex; align-items: center; gap: 15px; margin-top: 10px;">
+                <div style="width: 50px; height: 50px; border-radius: 12px; background: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; color: white; box-shadow: 0 0 15px var(--primary-glow);">
+                    MH
+                </div>
+                <div>
+                    <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-main);">Mafuj Hossain</div>
+                    <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Technical Architect</div>
+                    <a href="mailto:mafujhossain154@gmail.com" style="color: var(--text-dim); text-decoration: none; font-size: 0.75rem; font-weight: 500; border-bottom: 1px dotted var(--text-dim);">
+                        mafujhossain154@gmail.com
+                    </a>
+                </div>
             </div>
 
-            <div class="card dev-section">
-                <div class="dev-avatar">MH</div>
-                <div>
-                    <div style="font-weight: 800; font-size: 0.9rem;">Mafuj Hossain</div>
-                    <div style="font-size: 0.7rem; opacity: 0.7;">Technical Architect</div>
-                    <a href="mailto:mafujhossain154@gmail.com" style="color: var(--primary); text-decoration: none; font-size: 0.75rem; font-weight: 700;">mafujhossain154@gmail.com</a>
-                </div>
+            <div id="qr-pay-card" class="card hidden" style="text-align:center;">
+                <p style="margin:0 0 15px; font-weight: 800; font-size: 0.8rem; color: var(--text-dim);">SCAN TO SETTLE DUE</p>
+                <img id="generated-qr" src="" style="width:160px; height:160px; border-radius:15px; border: 4px solid #fff;">
+                <p id="qr-upi-text" style="font-size:0.75rem; color: var(--primary); margin-top:10px;"></p>
+            </div>
+            
+            <div style="text-align: center; padding: 10px; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px; color: var(--text-dim);">
+                VERSION 2.0.26 • SECURED SYSTEM
             </div>
         </div>
 
         <div id="tab-meals" class="tab-content hidden">
-            <div class="card admin-only hidden"><h3>Daily Meals</h3><input type="date" id="meal-date" class="edit-input"><div id="meal-inputs-area"></div><button class="btn" onclick="saveDailyMeals()">Save Record</button></div>
-            <div class="card" style="padding:5px;">
-                <input type="text" id="meal-search" placeholder="Search date (e.g. 2026-02)..." class="edit-input" oninput="refreshUI()" style="margin:10px; width:calc(100% - 20px);">
-                <div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div>
+            <div class="card admin-only hidden">
+                <h3>Daily Meal Entry</h3>
+                <input type="date" id="meal-date" class="edit-input">
+                <div id="meal-inputs-area"></div>
+                <button class="btn" onclick="saveDailyMeals()">Save Records</button>
+            </div>
+            <div class="card" style="padding:10px;">
+                <input type="text" id="meal-search" placeholder="Search Date (2026-02)" class="edit-input">
+                <div class="table-wrap">
+                    <table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table>
+                </div>
             </div>
         </div>
 
         <div id="tab-bazar" class="tab-content hidden">
-            <div class="card admin-only hidden"><h3>Add Cost</h3><input type="date" id="b-date" class="edit-input"><input type="number" id="b-amt" placeholder="Amt" class="edit-input"><input type="text" id="b-note" placeholder="Item" class="edit-input"><button class="btn" style="background:var(--rose);" onclick="addBazar()">Save</button></div>
-            <div class="card" style="padding:5px;"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div>
+            <div class="card admin-only hidden">
+                <h3>New Expense</h3>
+                <input type="date" id="b-date" class="edit-input">
+                <input type="number" id="b-amt" placeholder="Amount (₹)" class="edit-input">
+                <input type="text" id="b-note" placeholder="Item Name" class="edit-input">
+                <button class="btn" style="background:var(--rose);" onclick="addBazar()">Add Cost</button>
+            </div>
+            <div class="card" style="padding:10px;"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div>
         </div>
 
         <div id="tab-members" class="tab-content hidden">
             <div class="card admin-only hidden">
-                <h3>New Member</h3>
-                <div style="display:flex; gap:5px;"><input type="text" id="new-mem-name" placeholder="NAME" class="edit-input" style="flex:2;"><input type="number" id="new-mem-min" placeholder="MIN" class="edit-input" style="flex:1;"></div>
+                <h3>Manage Team</h3>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="new-mem-name" placeholder="Name" class="edit-input" style="flex:2;">
+                    <input type="number" id="new-mem-min" placeholder="Min" class="edit-input" style="flex:1;">
+                </div>
                 <button class="btn" onclick="addMember()">Add Member</button>
-                <hr style="margin:20px 0;">
+                <hr style="margin:20px 0; border: none; border-top: 1px solid rgba(255,255,255,0.05);">
+                <h3>Deposit Money</h3>
                 <input type="date" id="dep-date" class="edit-input">
                 <select id="dep-member" class="edit-input"></select>
-                <input type="number" id="dep-amt" placeholder="Amt" class="edit-input">
-                <button class="btn" style="background:var(--emerald);" onclick="addDeposit()">Deposit</button>
+                <input type="number" id="dep-amt" placeholder="Amount (₹)" class="edit-input">
+                <button class="btn" style="background:var(--emerald);" onclick="addDeposit()">Save Deposit</button>
             </div>
-            <div class="card" style="padding:15px;"><h4 style="margin:0 0 10px;">Deposit History</h4><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
+            <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Min</th><th id="admin-act-head"></th></tr></thead><tbody id="members-list-body"></tbody></table></div></div>
+            <div class="card"><h4 style="margin:0 0 15px;">Deposit History</h4><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
         </div>
 
         <div id="tab-settings" class="tab-content hidden">
-            <div class="card"><h3>Settings</h3><input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID"><input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key"><input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key"><button class="btn" onclick="updateKeys()">Update</button><button class="btn" style="background:var(--slate); margin-top:10px;" onclick="resetIdentity()">Logout / Reset Name</button></div>
-            <div class="card"><h3>Notice</h3><textarea id="notice-input" class="edit-input" style="height:80px;"></textarea>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn" onclick="updateNotice()">Post</button>
-                    <button class="btn" style="background:var(--rose); flex: 0.4;" onclick="deleteNotice()">Delete</button>
-                </div>
+            <div class="card">
+                <h3>Global Config</h3>
+                <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID">
+                <input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key">
+                <input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key">
+                <button class="btn" onclick="updateKeys()">Update Keys</button>
+                <button class="btn" style="background:#334155; margin-top:10px;" onclick="resetIdentity()">Logout</button>
+            </div>
+            <div class="card">
+                <h3>Global Notice</h3>
+                <textarea id="notice-input" class="edit-input" style="height:80px;"></textarea>
+                <div style="display:flex; gap:10px;"><button class="btn" onclick="updateNotice()">Post</button><button class="btn" style="background:var(--rose); flex: 0.4;" onclick="deleteNotice()">Clear</button></div>
             </div>
         </div>
     </div>
@@ -208,7 +311,7 @@
         const saved = localStorage.getItem('mb_name');
         if(saved) {
             document.getElementById('returning-area').classList.remove('hidden');
-            document.getElementById('returning-msg').innerText = "Hello, " + saved + "!";
+            document.getElementById('returning-msg').innerText = "Logged in as: " + saved;
         } else {
             document.getElementById('first-time-area').classList.remove('hidden');
         }
@@ -225,19 +328,20 @@
         const saved = localStorage.getItem('mb_name');
         const input = document.getElementById('v-name-input').value.trim();
 
-        if(pass === data.keys.admin) { window.login(pass); } 
-        else if(pass === data.keys.viewer) {
-            const name = (saved || input).toUpperCase();
-            if(!name) return alert("Enter your name!");
-            localStorage.setItem('mb_name', name);
+        if(pass === data.keys.admin || pass === data.keys.viewer) {
+            if(pass === data.keys.viewer) {
+                const name = (saved || input).toUpperCase();
+                if(!name) return alert("Enter your name!");
+                localStorage.setItem('mb_name', name);
+            }
             window.login(pass);
-        } else alert("Wrong Key");
+        } else alert("Invalid Key");
     };
 
     window.login = (key) => {
         isAdmin = (key === data.keys.admin);
         const name = localStorage.getItem('mb_name') || "ADMIN";
-        document.getElementById('dash-greeting').innerText = "Hello, " + name + "!";
+        document.getElementById('dash-greeting').innerText = "Hello, " + name.split(' ')[0] + "!";
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
@@ -278,14 +382,10 @@
             });
         }
 
-        const lastDay = new Date(y, m, 0).getDate();
-        const lastDayStr = `${y}-${m}-${String(lastDay).padStart(2, '0')}`;
-        const isMonthEnd = data.meals && data.meals[lastDayStr];
-
         const calc = (data.members || []).map(mem => {
             const act = mActual[mem.id] || 0;
             const min = mem.minMeal || 50;
-            const bill = isMonthEnd ? (act < min ? min : act) : act;
+            const bill = (data.meals && data.meals[`${y}-${m}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`]) ? (act < min ? min : act) : act;
             totalMeals += act; totalBillable += bill;
             return { ...mem, act, bill };
         });
@@ -298,7 +398,6 @@
         document.getElementById('stat-balance').innerText = "₹" + (income - cost).toFixed(0);
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
 
-        // 1. HOME TABLE FILTER
         document.getElementById('summary-body').innerHTML = calc
             .filter(mem => !showOnlyMe || mem.name === myName)
             .map(mem => {
@@ -306,42 +405,34 @@
                 const net = bill - (mDeps[mem.id] || 0);
                 const isDue = net > 0;
                 return `<tr><td>${mem.name}</td><td>₹${mDeps[mem.id] || 0}</td><td>${mem.act}</td><td>₹${bill.toFixed(0)}</td>
-                <td><button class="badge ${isDue?'clickable':''}" ${isDue?'onclick="window.scrollToQR()"':''} style="background:${isDue?'var(--rose-soft)':'var(--emerald-soft)'}; color:${isDue?'var(--rose)':'var(--emerald)'}">${isDue?'DUE ₹'+net.toFixed(0):'EXTRA ₹'+Math.abs(net).toFixed(0)}</button></td></tr>`;
+                <td><button class="badge" onclick="window.scrollToQR()" style="background:${isDue?'rgba(251,113,133,0.15)':'rgba(52,211,153,0.15)'}; color:${isDue?'var(--rose)':'var(--emerald)'}">${isDue?'DUE ₹'+net.toFixed(0):'CR ₹'+Math.abs(net).toFixed(0)}</button></td></tr>`;
             }).join('');
 
-        // 2. MEAL HISTORY FILTER (Columns)
-        const searchVal = document.getElementById('meal-search').value.toLowerCase();
-        const dates = Object.keys(data.meals || {}).sort().reverse().filter(d => d.includes(searchVal));
+        document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
+            <tr><td>${mem.name}</td><td>${mem.minMeal}</td>${isAdmin ? `<td><button class="del-btn" onclick="window.delMember(${mem.id})">✕</button></td>` : '<td></td>'}</tr>
+        `).join('');
+
+        const dates = Object.keys(data.meals || {}).sort().reverse();
         const filteredMembers = (data.members || []).filter(mem => !showOnlyMe || mem.name === myName);
+        document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th></th>':''}</tr>`;
+        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td>${d}</td>${filteredMembers.map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="color:var(--rose); border:none; background:none;">✕</button></td>`:''}</tr>`).join('');
         
-        document.getElementById('meal-history-head').innerHTML = `<tr><th>DATE</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th>DEL</th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td>${d}</td>${filteredMembers.map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
-        
-        // 3. DEPOSIT HISTORY FILTER
         document.getElementById('deposit-history-body').innerHTML = (data.deposits || []).slice().reverse()
-            .filter(d => {
-                if(!showOnlyMe) return true;
-                return currentUserObj && d.mId === currentUserObj.id;
-            })
+            .filter(d => !showOnlyMe || (currentUserObj && d.mId === currentUserObj.id))
             .map((d, i) => {
                 const mem = data.members.find(m => m.id == d.mId);
-                return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${data.deposits.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`;
+                return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${data.deposits.length-1-i})" class="del-btn">✕</button></td>`:''}</tr>`;
             }).join('');
 
-        // 4. BAZAR (Shared - No filter)
-        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${data.bazar.length-1-i})" style="background:none; border:none; color:var(--rose);">✕</button></td>`:''}</tr>`).join('');
-
+        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${data.bazar.length-1-i})" class="del-btn">✕</button></td>`:''}</tr>`).join('');
         document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
         if(isAdmin) {
             document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(mem => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; ${showOnlyMe && mem.name !== myName ? 'opacity:0.3' : ''}">
-                    <span>${mem.name}</span><input type="number" class="m-val edit-input" style="width:70px; margin:0;" data-id="${mem.id}" value="0">
-                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><span style="font-weight:600;">${mem.name}</span><input type="number" step="0.5" class="m-val edit-input" style="width:80px; margin:0; text-align:center;" data-id="${mem.id}" value="0"></div>
             `).join('');
         }
     };
 
-    window.scrollToQR = () => document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
     window.refreshExtras = () => {
         if(data.upiId) {
             document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa='+data.upiId+'&pn=MessBuddy&cu=INR')}`;
@@ -349,21 +440,27 @@
             document.getElementById('qr-pay-card').classList.remove('hidden');
         }
         if(data.notice) { document.getElementById('current-notice').innerText = data.notice; document.getElementById('notice-display-card').classList.remove('hidden'); }
-        else { document.getElementById('notice-display-card').classList.add('hidden'); }
     };
 
-    window.showTab = (id, b) => { document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); document.getElementById('tab-'+id).classList.remove('hidden'); document.querySelectorAll('nav button').forEach(nb=>nb.classList.remove('active')); b.classList.add('active'); window.refreshUI(); };
+    window.delMember = (id) => { if(confirm("Delete Member?")) { data.members = data.members.filter(m => m.id !== id); window.save(); } };
+    window.scrollToQR = () => document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
+    window.showTab = (id, b) => { 
+        document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); 
+        document.getElementById('tab-'+id).classList.remove('hidden'); 
+        document.querySelectorAll('nav button').forEach(nb=>nb.classList.remove('active')); 
+        b.classList.add('active'); 
+    };
     window.save = () => { if(isAdmin) set(dataRef, data); };
-    window.delBazar = (i) => { if(confirm("Del?")) { data.bazar.splice(i,1); window.save(); } };
-    window.delDep = (i) => { if(confirm("Del?")) { data.deposits.splice(i,1); window.save(); } };
-    window.delMeal = (d) => { if(confirm("Del?")) { delete data.meals[d]; window.save(); } };
-    window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return; const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseFloat(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
+    window.delBazar = (i) => { if(confirm("Delete?")) { data.bazar.splice(i,1); window.save(); } };
+    window.delDep = (i) => { if(confirm("Delete?")) { data.deposits.splice(i,1); window.save(); } };
+    window.delMeal = (d) => { if(confirm("Delete?")) { delete data.meals[d]; window.save(); } };
+    window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return alert("Date?"); const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseFloat(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
     window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
     window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
     window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
-    window.updateKeys = () => { const u = document.getElementById('set-upi-id').value, a = document.getElementById('set-admin-key').value.toUpperCase(), v = document.getElementById('set-viewer-key').value.toUpperCase(); if(a&&v) { data.upiId=u; data.keys={admin:a, viewer:v}; window.save(); alert("Saved"); } };
-    window.updateNotice = () => { data.notice = document.getElementById('notice-input').value; window.save(); alert("Posted"); };
-    window.deleteNotice = () => { if(confirm("Delete Notice?")) { data.notice = ""; window.save(); } };
+    window.updateKeys = () => { const u = document.getElementById('set-upi-id').value, a = document.getElementById('set-admin-key').value.toUpperCase(), v = document.getElementById('set-viewer-key').value.toUpperCase(); if(a&&v) { data.upiId=u; data.keys={admin:a, viewer:v}; window.save(); alert("Updated"); } };
+    window.updateNotice = () => { data.notice = document.getElementById('notice-input').value; window.save(); alert("Notice Posted"); };
+    window.deleteNotice = () => { if(confirm("Clear?")) { data.notice = ""; window.save(); } };
     window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
 </script>
 </body>
