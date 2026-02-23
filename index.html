@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mess Buddy </title>
+    <title>Mess Buddy</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -146,6 +146,13 @@
 
         <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px;">
         <button class="btn" onclick="checkLogin()">Unlock Dashboard</button>
+        
+        <div style="margin-top: 25px;">
+            <a href="https://wa.me/917074242645?text=NEED%20KEY" target="_blank" 
+               style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px dashed var(--primary);">
+               GET ACCESS KEY
+            </a>
+        </div>
     </div>
 </div>
 
@@ -218,7 +225,7 @@
             </div>
             
             <div style="text-align: center; padding: 10px; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px; color: var(--text-dim);">
-                VERSION 2.0.26 • SECURED SYSTEM
+                VERSION 2.1.26 • SECURED SYSTEM 
             </div>
         </div>
 
@@ -323,6 +330,7 @@
         window.refreshUI();
     };
 
+    // UPDATED CHECK LOGIN LOGIC
     window.checkLogin = () => {
         const pass = document.getElementById('pass').value.toUpperCase();
         const saved = localStorage.getItem('mb_name');
@@ -335,7 +343,10 @@
                 localStorage.setItem('mb_name', name);
             }
             window.login(pass);
-        } else alert("Invalid Key");
+        } else {
+            // Updated popup message as requested
+            alert("Incorrect Key, please contact Admin.");
+        }
     };
 
     window.login = (key) => {
@@ -361,6 +372,7 @@
         if(cloud) { data = cloud; window.refreshUI(); window.refreshExtras(); }
     });
 
+    // --- REFRESH UI & DATA HANDLERS ---
     window.refreshUI = () => {
         const m = document.getElementById('filter-month').value;
         const y = document.getElementById('filter-year').value;
@@ -442,6 +454,7 @@
         if(data.notice) { document.getElementById('current-notice').innerText = data.notice; document.getElementById('notice-display-card').classList.remove('hidden'); }
     };
 
+    // --- BUTTON ACTIONS ---
     window.delMember = (id) => { if(confirm("Delete Member?")) { data.members = data.members.filter(m => m.id !== id); window.save(); } };
     window.scrollToQR = () => document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
     window.showTab = (id, b) => { 
@@ -465,5 +478,3 @@
 </script>
 </body>
 </html>
-
-
