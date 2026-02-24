@@ -164,6 +164,13 @@
             <p id="live-date" style="margin:5px 0 0; font-size: 0.75rem; opacity: 0.6;"></p>
         </div>
 
+        <div class="card" style="display:flex; gap:10px; margin-bottom: 20px; background: rgba(99, 102, 241, 0.1);">
+            <select id="filter-month" class="edit-input" style="flex:2; margin:0;" onchange="refreshUI()"></select>
+            <select id="filter-year" class="edit-input" style="flex:1; margin:0;" onchange="refreshUI()">
+                <option value="2025">2025</option><option value="2026" selected>2026</option>
+            </select>
+        </div>
+
         <div class="personal-toggle-bar" onclick="togglePersonalView()">
             <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">View My Stats Only</span>
             <input type="checkbox" id="personal-toggle" style="accent-color: var(--primary); width: 18px; height: 18px;">
@@ -187,13 +194,6 @@
                 <div class="stat-box neon-red"><span>Cost</span><h2 id="stat-cost">₹0</h2></div>
                 <div class="stat-box neon-green"><span>Balance</span><h2 id="stat-balance">₹0</h2></div>
                 <div class="stat-box neon-gold"><span>Rate</span><h2 id="stat-rate">0</h2></div>
-            </div>
-
-            <div style="display:flex; gap:10px; margin-bottom: 20px;">
-                <select id="filter-month" class="edit-input" style="flex:2;" onchange="refreshUI()"></select>
-                <select id="filter-year" class="edit-input" style="flex:1;" onchange="refreshUI()">
-                    <option value="2025">2025</option><option value="2026" selected>2026</option>
-                </select>
             </div>
 
             <div class="card" style="padding: 10px;">
@@ -225,7 +225,7 @@
             </div>
             
             <div style="text-align: center; padding: 10px; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px; color: var(--text-dim);">
-                VERSION 2.1.26 • SECURED SYSTEM 
+                VERSION 2.2.26 • SECURED SYSTEM 
             </div>
         </div>
 
@@ -237,7 +237,6 @@
                 <button class="btn" onclick="saveDailyMeals()">Save Records</button>
             </div>
             <div class="card" style="padding:10px;">
-                <input type="text" id="meal-search" placeholder="Search Date (2026-02)" class="edit-input">
                 <div class="table-wrap">
                     <table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table>
                 </div>
@@ -330,7 +329,6 @@
         window.refreshUI();
     };
 
-    // UPDATED CHECK LOGIN LOGIC
     window.checkLogin = () => {
         const pass = document.getElementById('pass').value.toUpperCase();
         const saved = localStorage.getItem('mb_name');
@@ -344,7 +342,6 @@
             }
             window.login(pass);
         } else {
-            // Updated popup message as requested
             alert("Incorrect Key, please contact Admin.");
         }
     };
@@ -372,7 +369,6 @@
         if(cloud) { data = cloud; window.refreshUI(); window.refreshExtras(); }
     });
 
-    // --- REFRESH UI & DATA HANDLERS ---
     window.refreshUI = () => {
         const m = document.getElementById('filter-month').value;
         const y = document.getElementById('filter-year').value;
@@ -382,10 +378,13 @@
         
         let totalMeals = 0, totalBillable = 0, mActual = {}, mDeps = {}, income = 0;
         (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
+        
+        // Filter Deposits by month
         (data.deposits || []).forEach(d => {
             if(d.date.startsWith(filterStr)) { mDeps[d.mId] += parseFloat(d.amt); income += parseFloat(d.amt); }
         });
 
+        // Filter Meals by month
         if(data.meals) {
             Object.entries(data.meals).forEach(([date, dayData]) => {
                 if(date.startsWith(filterStr)) {
@@ -402,7 +401,9 @@
             return { ...mem, act, bill };
         });
 
-        const cost = (data.bazar || []).reduce((s, b) => b.date.startsWith(filterStr) ? s + parseFloat(b.amt) : s, 0);
+        // Filter Bazar by month
+        const filteredBazar = (data.bazar || []).filter(b => b.date.startsWith(filterStr));
+        const cost = filteredBazar.reduce((s, b) => s + parseFloat(b.amt), 0);
         const rate = totalBillable > 0 ? cost / totalBillable : 0;
 
         document.getElementById('stat-meals').innerText = Math.floor(totalMeals);
@@ -410,6 +411,7 @@
         document.getElementById('stat-balance').innerText = "₹" + (income - cost).toFixed(0);
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
 
+        // Summary List
         document.getElementById('summary-body').innerHTML = calc
             .filter(mem => !showOnlyMe || mem.name === myName)
             .map(mem => {
@@ -420,23 +422,35 @@
                 <td><button class="badge" onclick="window.scrollToQR()" style="background:${isDue?'rgba(251,113,133,0.15)':'rgba(52,211,153,0.15)'}; color:${isDue?'var(--rose)':'var(--emerald)'}">${isDue?'DUE ₹'+net.toFixed(0):'CR ₹'+Math.abs(net).toFixed(0)}</button></td></tr>`;
             }).join('');
 
+        // Members List
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
             <tr><td>${mem.name}</td><td>${mem.minMeal}</td>${isAdmin ? `<td><button class="del-btn" onclick="window.delMember(${mem.id})">✕</button></td>` : '<td></td>'}</tr>
         `).join('');
 
+        // MEALS HISTORY (Filtered)
         const dates = Object.keys(data.meals || {}).sort().reverse();
+        const filteredDates = dates.filter(d => d.startsWith(filterStr));
         const filteredMembers = (data.members || []).filter(mem => !showOnlyMe || mem.name === myName);
         document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th></th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = dates.map(d => `<tr><td>${d}</td>${filteredMembers.map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="color:var(--rose); border:none; background:none;">✕</button></td>`:''}</tr>`).join('');
+        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td>${d}</td>${filteredMembers.map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="color:var(--rose); border:none; background:none;">✕</button></td>`:''}</tr>`).join('');
         
-        document.getElementById('deposit-history-body').innerHTML = (data.deposits || []).slice().reverse()
+        // DEPOSIT HISTORY (Filtered)
+        document.getElementById('deposit-history-body').innerHTML = (data.deposits || [])
+            .filter(d => d.date.startsWith(filterStr))
             .filter(d => !showOnlyMe || (currentUserObj && d.mId === currentUserObj.id))
-            .map((d, i) => {
+            .slice().reverse()
+            .map((d) => {
+                const realIdx = data.deposits.indexOf(d);
                 const mem = data.members.find(m => m.id == d.mId);
-                return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${data.deposits.length-1-i})" class="del-btn">✕</button></td>`:''}</tr>`;
+                return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn">✕</button></td>`:''}</tr>`;
             }).join('');
 
-        document.getElementById('bazar-body').innerHTML = (data.bazar || []).slice().reverse().map((b, i) => `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${data.bazar.length-1-i})" class="del-btn">✕</button></td>`:''}</tr>`).join('');
+        // BAZAR HISTORY (Filtered)
+        document.getElementById('bazar-body').innerHTML = filteredBazar.slice().reverse().map((b) => {
+            const realIdx = data.bazar.indexOf(b);
+            return `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn">✕</button></td>`:''}</tr>`;
+        }).join('');
+
         document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
         if(isAdmin) {
             document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(mem => `
@@ -454,7 +468,6 @@
         if(data.notice) { document.getElementById('current-notice').innerText = data.notice; document.getElementById('notice-display-card').classList.remove('hidden'); }
     };
 
-    // --- BUTTON ACTIONS ---
     window.delMember = (id) => { if(confirm("Delete Member?")) { data.members = data.members.filter(m => m.id !== id); window.save(); } };
     window.scrollToQR = () => document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
     window.showTab = (id, b) => { 
@@ -464,9 +477,9 @@
         b.classList.add('active'); 
     };
     window.save = () => { if(isAdmin) set(dataRef, data); };
-    window.delBazar = (i) => { if(confirm("Delete?")) { data.bazar.splice(i,1); window.save(); } };
-    window.delDep = (i) => { if(confirm("Delete?")) { data.deposits.splice(i,1); window.save(); } };
-    window.delMeal = (d) => { if(confirm("Delete?")) { delete data.meals[d]; window.save(); } };
+    window.delBazar = (idx) => { if(confirm("Delete Expense?")) { data.bazar.splice(idx,1); window.save(); } };
+    window.delDep = (idx) => { if(confirm("Delete Deposit?")) { data.deposits.splice(idx,1); window.save(); } };
+    window.delMeal = (d) => { if(confirm("Delete Records for this Date?")) { delete data.meals[d]; window.save(); } };
     window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return alert("Date?"); const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseFloat(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
     window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
     window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
