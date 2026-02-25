@@ -116,7 +116,7 @@
         th { text-align: left; padding: 12px; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; }
         td { padding: 14px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
 
-        .badge { padding: 6px 10px; border-radius: 8px; font-weight: 800; font-size: 0.6rem; border: none; }
+        .badge { padding: 6px 10px; border-radius: 8px; font-weight: 800; font-size: 0.6rem; border: none; cursor: pointer; }
         .del-btn { background: rgba(251, 113, 133, 0.1); color: var(--rose); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
 
         .hidden { display: none !important; }
@@ -127,6 +127,13 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 15px 20px; background: var(--bg-card); border-radius: 18px;
             margin-bottom: 20px; border: 1px solid var(--primary-glow); cursor: pointer;
+        }
+
+        /* Pay Button Style */
+        .pay-link { 
+            display: block; width: 100%; text-align: center; background: #22c55e; 
+            color: white; text-decoration: none; padding: 12px; border-radius: 12px; 
+            font-weight: 800; margin-top: 10px; box-shadow: 0 4px 10px rgba(34,197,94,0.3);
         }
     </style>
 </head>
@@ -150,7 +157,7 @@
         <div style="margin-top: 25px;">
             <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20the%20ACCESS%20KEY%20for%20Mess%20Buddy" target="_blank" 
                style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px dashed var(--primary);">
-               GET ACCESS KEY
+                GET ACCESS KEY
             </a>
         </div>
     </div>
@@ -211,22 +218,25 @@
                 </div>
                 <div>
                     <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-main);">Mafuj Hossain</div>
-                    <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">@itzmafuj</div>
-                    <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20tech%20support%20for%20Mess%20Buddy" 
-                       style="color: #25D366; text-decoration: none; font-size: 0.75rem; font-weight: 700; display: flex; align-items: center; gap: 5px; margin-top: 5px;">
-                       <span>●</span> TECH SUPPORT ON WHATSAPP
-                    </a>
+                    <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Developer • @itzmafuj</div>
                 </div>
             </div>
 
+            <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20tech%20support%20for%20Mess%20Buddy" 
+               class="card" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); text-decoration: none; padding: 15px; margin-top: 10px;">
+                <span style="color: #25D366; font-size: 1.2rem; line-height: 1;">●</span>
+                <span style="color: #25D366; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px;">TECH SUPPORT ON WHATSAPP</span>
+            </a>
+
             <div id="qr-pay-card" class="card hidden" style="text-align:center;">
-                <p style="margin:0 0 15px; font-weight: 800; font-size: 0.8rem; color: var(--text-dim);">SCAN TO SETTLE DUE</p>
+                <p id="pay-text" style="margin:0 0 15px; font-weight: 800; font-size: 0.8rem; color: var(--text-dim);">SCAN TO SETTLE DUE</p>
                 <img id="generated-qr" src="" style="width:160px; height:160px; border-radius:15px; border: 4px solid #fff;">
-                <p id="qr-upi-text" style="font-size:0.75rem; color: var(--primary); margin-top:10px;"></p>
+                <p id="qr-upi-text" style="font-size:0.75rem; color: var(--primary); margin-top:10px; font-weight:700;"></p>
+                <a id="mobile-pay-btn" href="#" class="pay-link hidden">PAY VIA UPI APP</a>
             </div>
             
             <div style="text-align: center; padding: 10px; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px; color: var(--text-dim);">
-                VERSION 2.1.26 • SECURED SYSTEM 
+                VERSION 2.5.26 • SECURED SYSTEM 
             </div>
         </div>
 
@@ -277,7 +287,7 @@
         <div id="tab-settings" class="tab-content hidden">
             <div class="card">
                 <h3>Global Config</h3>
-                <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID">
+                <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID (Admin)">
                 <input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key">
                 <input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key">
                 <button class="btn" onclick="updateKeys()">Update Keys</button>
@@ -311,7 +321,7 @@
     const dataRef = ref(db, 'messData');
 
     let isAdmin = false;
-    let data = { members: [], meals: {}, bazar: [], deposits: [], keys: { admin: "MESS2026", viewer: "MESSMEAL" } };
+    let data = { members: [], meals: {}, bazar: [], deposits: [], keys: { admin: "MESS2026", viewer: "MESSMEAL" }, upiId: "" };
     let showOnlyMe = false;
 
     window.addEventListener('load', () => {
@@ -367,8 +377,29 @@
 
     onValue(dataRef, (snap) => {
         const cloud = snap.val();
-        if(cloud) { data = cloud; window.refreshUI(); window.refreshExtras(); }
+        if(cloud) { 
+            data = cloud; 
+            window.refreshUI(); 
+            window.refreshExtras(); 
+        }
     });
+
+    // PAYMENT INITIATION FUNCTION
+    window.startPay = (name, amount) => {
+        if(!data.upiId) return alert("Admin UPI not set!");
+        const upiLink = `upi://pay?pa=${data.upiId}&pn=MessBuddy&am=${amount}&cu=INR&tn=MessPayment_${name}`;
+        
+        document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+        document.getElementById('qr-upi-text').innerText = "Amount: ₹" + amount;
+        document.getElementById('pay-text').innerText = "PAYING FOR: " + name;
+        
+        const mBtn = document.getElementById('mobile-pay-btn');
+        mBtn.href = upiLink;
+        mBtn.classList.remove('hidden');
+        
+        document.getElementById('qr-pay-card').classList.remove('hidden');
+        document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
+    };
 
     window.refreshUI = () => {
         const m = document.getElementById('filter-month').value;
@@ -392,31 +423,56 @@
             });
         }
 
+        const yNum = parseInt(y);
+        const mNum = parseInt(m);
+        const today = new Date();
+        const lastDay = new Date(yNum, mNum, 0).getDate();
+        const endOfMonthDateStr = `${y}-${m}-${lastDay.toString().padStart(2, '0')}`;
+        
+        const isMonthComplete = (yNum < today.getFullYear()) || 
+                                (yNum === today.getFullYear() && mNum < (today.getMonth() + 1)) || 
+                                !!(data.meals && data.meals[endOfMonthDateStr]);
+
         const calc = (data.members || []).map(mem => {
             const act = mActual[mem.id] || 0;
             const min = mem.minMeal || 50;
-            const bill = (data.meals && data.meals[`${y}-${m}-${String(new Date(y, m, 0).getDate()).padStart(2, '0')}`]) ? (act < min ? min : act) : act;
+            const bill = (isMonthComplete && act < min) ? min : act; 
             totalMeals += act; totalBillable += bill;
             return { ...mem, act, bill };
         });
 
+        // FORCE INTEGERS FOR TOTAL COUNTS
+        totalMeals = Math.round(totalMeals);
+        totalBillable = Math.round(totalBillable);
+
         const filteredBazar = (data.bazar || []).filter(b => b.date.startsWith(filterStr));
-        const cost = filteredBazar.reduce((s, b) => s + parseFloat(b.amt), 0);
+        const cost = Math.round(filteredBazar.reduce((s, b) => s + parseFloat(b.amt), 0));
+        
         const rate = totalBillable > 0 ? cost / totalBillable : 0;
 
-        document.getElementById('stat-meals').innerText = Math.floor(totalMeals);
+        document.getElementById('stat-meals').innerText = totalMeals;
         document.getElementById('stat-cost').innerText = "₹" + cost;
-        document.getElementById('stat-balance').innerText = "₹" + (income - cost).toFixed(0);
+        document.getElementById('stat-balance').innerText = "₹" + Math.round(income - cost);
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
 
         document.getElementById('summary-body').innerHTML = calc
             .filter(mem => !showOnlyMe || mem.name === myName)
             .map(mem => {
-                const bill = mem.bill * rate;
-                const net = bill - (mDeps[mem.id] || 0);
-                const isDue = net > 0;
-                return `<tr><td>${mem.name}</td><td>₹${mDeps[mem.id] || 0}</td><td>${mem.act}</td><td>₹${bill.toFixed(0)}</td>
-                <td><button class="badge" onclick="window.scrollToQR()" style="background:${isDue?'rgba(251,113,133,0.15)':'rgba(52,211,153,0.15)'}; color:${isDue?'var(--rose)':'var(--emerald)'}">${isDue?'DUE ₹'+net.toFixed(0):'CR ₹'+Math.abs(net).toFixed(0)}</button></td></tr>`;
+                // Using standard mathematical rounding to ensure sheets balance perfectly
+                const billAmount = Math.round(mem.bill * rate);
+                const depAmount = Math.round(mDeps[mem.id] || 0);
+                const net = billAmount - depAmount;
+                
+                let statusHtml = '';
+                if (net > 0) {
+                    statusHtml = `<button class="badge" onclick="window.startPay('${mem.name}', ${net})" style="background:rgba(251,113,133,0.15); color:var(--rose)">DUE ₹${net}</button>`;
+                } else if (net < 0) {
+                    statusHtml = `<button class="badge" style="background:rgba(52,211,153,0.15); color:var(--emerald)">EXTRA ₹${Math.abs(net)}</button>`;
+                } else {
+                    statusHtml = `<button class="badge" style="background:rgba(148,163,184,0.15); color:var(--text-dim)">SETTLED</button>`;
+                }
+
+                return `<tr><td>${mem.name}</td><td>₹${depAmount}</td><td>${mem.act}</td><td>₹${billAmount}</td><td>${statusHtml}</td></tr>`;
             }).join('');
 
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
@@ -454,15 +510,15 @@
 
     window.refreshExtras = () => {
         if(data.upiId) {
-            document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent('upi://pay?pa='+data.upiId+'&pn=MessBuddy&cu=INR')}`;
-            document.getElementById('qr-upi-text').innerText = data.upiId;
-            document.getElementById('qr-pay-card').classList.remove('hidden');
+            document.getElementById('set-upi-id').value = data.upiId;
         }
-        if(data.notice) { document.getElementById('current-notice').innerText = data.notice; document.getElementById('notice-display-card').classList.remove('hidden'); }
+        if(data.notice) { 
+            document.getElementById('current-notice').innerText = data.notice; 
+            document.getElementById('notice-display-card').classList.remove('hidden'); 
+        }
     };
 
     window.delMember = (id) => { if(confirm("Delete Member?")) { data.members = data.members.filter(m => m.id !== id); window.save(); } };
-    window.scrollToQR = () => document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
     window.showTab = (id, b) => { 
         document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); 
         document.getElementById('tab-'+id).classList.remove('hidden'); 
@@ -477,7 +533,15 @@
     window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
     window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
     window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
-    window.updateKeys = () => { const u = document.getElementById('set-upi-id').value, a = document.getElementById('set-admin-key').value.toUpperCase(), v = document.getElementById('set-viewer-key').value.toUpperCase(); if(a&&v) { data.upiId=u; data.keys={admin:a, viewer:v}; window.save(); alert("Updated"); } };
+    window.updateKeys = () => { 
+        const u = document.getElementById('set-upi-id').value;
+        const a = document.getElementById('set-admin-key').value.toUpperCase();
+        const v = document.getElementById('set-viewer-key').value.toUpperCase();
+        if(a&&v) { 
+            data.upiId=u; data.keys={admin:a, viewer:v}; 
+            window.save(); alert("Updated Successfully"); 
+        } 
+    };
     window.updateNotice = () => { data.notice = document.getElementById('notice-input').value; window.save(); alert("Notice Posted"); };
     window.deleteNotice = () => { if(confirm("Clear?")) { data.notice = ""; window.save(); } };
     window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
