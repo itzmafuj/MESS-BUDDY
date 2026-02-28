@@ -197,10 +197,11 @@
             </div>
 
             <div class="grid-stats">
-                <div class="stat-box neon-blue"><span>Meals</span><h2 id="stat-meals">0</h2></div>
+                <div class="stat-box neon-blue"><span>Actual Meals</span><h2 id="stat-actual-meals">0</h2></div>
+                <div class="stat-box neon-blue" style="border-color: rgba(99, 102, 241, 0.3);"><span>Billable Meals</span><h2 id="stat-billable-meals">0</h2></div>
                 <div class="stat-box neon-red"><span>Cost</span><h2 id="stat-cost">₹0</h2></div>
                 <div class="stat-box neon-green"><span>Balance</span><h2 id="stat-balance">₹0</h2></div>
-                <div class="stat-box neon-gold"><span>Rate</span><h2 id="stat-rate">0</h2></div>
+                <div class="stat-box neon-gold" style="grid-column: span 2;"><span>Rate</span><h2 id="stat-rate">0</h2></div>
             </div>
 
             <div class="card" style="padding: 10px;">
@@ -236,7 +237,7 @@
             </div>
             
             <div style="text-align: center; padding: 10px; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px; color: var(--text-dim);">
-                VERSION 2.5.26 • SECURED SYSTEM 
+                VERSION 3.1.26 • SECURED SYSTEM 
             </div>
         </div>
 
@@ -384,7 +385,6 @@
         }
     });
 
-    // PAYMENT INITIATION FUNCTION
     window.startPay = (name, amount) => {
         if(!data.upiId) return alert("Admin UPI not set!");
         const upiLink = `upi://pay?pa=${data.upiId}&pn=MessBuddy&am=${amount}&cu=INR&tn=MessPayment_${name}`;
@@ -450,7 +450,10 @@
         
         const rate = totalBillable > 0 ? cost / totalBillable : 0;
 
-        document.getElementById('stat-meals').innerText = totalMeals;
+        // DISPLAY BOTH STATS
+        document.getElementById('stat-actual-meals').innerText = totalMeals;
+        document.getElementById('stat-billable-meals').innerText = totalBillable;
+        
         document.getElementById('stat-cost').innerText = "₹" + cost;
         document.getElementById('stat-balance').innerText = "₹" + Math.round(income - cost);
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
@@ -458,7 +461,6 @@
         document.getElementById('summary-body').innerHTML = calc
             .filter(mem => !showOnlyMe || mem.name === myName)
             .map(mem => {
-                // Using standard mathematical rounding to ensure sheets balance perfectly
                 const billAmount = Math.round(mem.bill * rate);
                 const depAmount = Math.round(mDeps[mem.id] || 0);
                 const net = billAmount - depAmount;
