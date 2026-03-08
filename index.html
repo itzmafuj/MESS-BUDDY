@@ -4,44 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mess Buddy</title>
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-8VY61W8T1D"></script>
-    <!-- Google Tag Manager -->
-<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','GTM-5L5KKV5V');</script>
-<!-- End Google Tag Manager -->
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-8VY61W8T1D');
-</script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-deep: #0f172a;
-            --bg-card: rgba(30, 41, 59, 0.7);
-            --primary: #6366f1;
-            --primary-glow: rgba(99, 102, 241, 0.3);
-            --rose: #fb7185;
-            --emerald: #34d399;
-            --amber: #fbbf24;
-            --text-main: #f8fafc;
-            --text-dim: #94a3b8;
+            /* Light Theme based on uploaded design */
+            --bg-deep: #f2f5eb; 
+            --bg-card: #ffffff;
+            
+            /* UI Palette from Image */
+            --primary: #caff33; /* Neon Green (Visa Card) */
+            --secondary: #ffcc00; /* Yellow (PayPal Card) */
+            --dark-navy: #111827; /* Dark Blue (Add New Card / Text) */
+            
+            /* Status Colors */
+            --rose: #ef4444;
+            --emerald: #10b981;
+            
+            /* Typography & Borders */
+            --text-main: #111827;
+            --text-dim: #6b7280;
             --radius: 24px;
         }
 
         * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            background: var(--bg-deep);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(251, 113, 133, 0.1) 0px, transparent 50%);
+            background-color: var(--bg-deep);
             margin: 0; 
             padding-bottom: 120px; 
             color: var(--text-main); 
@@ -52,88 +40,126 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         /* --- Login Screen --- */
         #login-screen { 
             position: fixed; inset: 0; 
-            background: #020617; 
+            background: rgba(242, 245, 235, 0.95); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
             display: flex; align-items: center; justify-content: center; 
             z-index: 9999; 
         }
         .login-card { 
             background: var(--bg-card);
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255,255,255,0.1); 
             padding: 40px 30px; 
             border-radius: 32px; 
             width: 90%; max-width: 380px; 
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.05);
         }
 
         /* --- Navigation --- */
         nav { 
             position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
-            width: 92%; max-width: 450px; 
-            background: rgba(15, 23, 42, 0.8); 
-            backdrop-filter: blur(20px);
-            padding: 8px; display: flex; z-index: 2000; 
-            border-radius: 24px; 
-            box-shadow: 0 0 20px rgba(0,0,0,0.4); 
-            border: 1px solid rgba(255,255,255,0.08); 
+            width: 90%; max-width: 400px; 
+            background: #ffffff; 
+            padding: 10px 15px; display: flex; z-index: 2000; 
+            border-radius: 40px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
         }
         nav button { 
             flex: 1; padding: 12px 5px; border: none; background: transparent; 
             color: var(--text-dim); font-weight: 700; font-size: 0.65rem; 
-            border-radius: 18px; transition: 0.3s; 
+            border-radius: 25px; transition: 0.3s; 
             text-transform: uppercase;
         }
         nav button.active { 
-            color: white; 
+            color: var(--text-main); 
             background: var(--primary); 
-            box-shadow: 0 0 15px var(--primary-glow); 
+            box-shadow: 0 4px 15px rgba(202, 255, 51, 0.4); 
         }
 
         /* --- Components --- */
         .container { padding: 20px; max-width: 600px; margin: 0 auto; }
         
         .header-card {
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
-            color: white; padding: 25px; border-radius: 28px;
-            margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 5px 20px;
         }
+        .profile-icon {
+            width: 50px; height: 50px; border-radius: 50%;
+            background: var(--primary); display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(202, 255, 51, 0.4); font-size: 1.2rem; font-weight: 800; color: var(--dark-navy);
+        }
+
+        /* Stacked Cards System (from Image) */
+        .stacked-cards-container {
+            position: relative; margin: 10px 0 30px; z-index: 1;
+        }
+        .card-layer-1 {
+            position: absolute; top: -20px; left: 15%; right: 15%; height: 60px; 
+            background: var(--dark-navy); border-radius: 20px 20px 0 0; z-index: -2;
+            display: flex; padding: 12px 20px; color: white; font-size: 0.7rem; font-weight: 700;
+        }
+        .card-layer-2 {
+            position: absolute; top: -10px; left: 8%; right: 8%; height: 60px; 
+            background: var(--secondary); border-radius: 20px 20px 0 0; z-index: -1;
+            display: flex; padding: 12px 20px; color: var(--dark-navy); font-size: 0.7rem; font-weight: 800;
+        }
+        .main-cc {
+            background: var(--primary); border-radius: 28px; padding: 25px; 
+            color: var(--dark-navy); box-shadow: 0 15px 35px rgba(202, 255, 51, 0.3);
+            position: relative; overflow: hidden;
+        }
+        .main-cc::after {
+            content: ''; position: absolute; top: -40px; right: -40px;
+            width: 150px; height: 150px; background: rgba(255,255,255,0.2); border-radius: 50%;
+        }
+
+        /* Income/Expense Pills (from Image) */
+        .pill-container { display: flex; gap: 15px; margin-bottom: 25px; }
+        .action-pill {
+            flex: 1; border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+        }
+        .action-pill.dark { background: var(--dark-navy); color: white; }
+        .action-pill.neon { background: var(--primary); color: var(--dark-navy); }
+        .action-pill .icon-box {
+            width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
+            background: rgba(255,255,255,0.2); font-size: 1.2rem;
+        }
+        .action-pill.neon .icon-box { background: rgba(0,0,0,0.1); }
 
         .card { 
             background: var(--bg-card); 
-            backdrop-filter: blur(10px);
-            border-radius: 24px; padding: 20px; 
-            margin-bottom: 20px; border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--radius); padding: 20px; 
+            margin-bottom: 20px; border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
         }
 
-        .grid-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-box { padding: 18px; border-radius: 22px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
-        .stat-box span { font-size: 0.65rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
-        .stat-box h2 { margin: 5px 0 0; font-size: 1.4rem; font-weight: 800; }
-
-        .neon-blue { border-left: 4px solid var(--primary); color: #a5b4fc; }
-        .neon-red { border-left: 4px solid var(--rose); color: #fecdd3; }
-        .neon-green { border-left: 4px solid var(--emerald); color: #a7f3d0; }
-        .neon-gold { border-left: 4px solid var(--amber); color: #fde68a; }
-
+        /* Form Inputs */
         .edit-input { 
-            width: 100%; height: 50px; padding: 0 16px; 
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; 
-            font-size: 0.95rem; margin-bottom: 12px; background: rgba(15, 23, 42, 0.5);
-            color: white;
+            width: 100%; height: 55px; padding: 0 20px; 
+            border: 1px solid #e5e7eb; border-radius: 18px; 
+            font-size: 0.95rem; margin-bottom: 12px; background: #f9fafb;
+            color: var(--text-main); font-weight: 600; outline: none; transition: 0.3s;
         }
+        .edit-input:focus { border-color: var(--dark-navy); background: #ffffff; }
         
-        .btn { height: 50px; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; width: 100%; background: var(--primary); color: white; transition: all 0.2s; }
+        .btn { 
+            height: 55px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; 
+            width: 100%; background: var(--dark-navy); 
+            color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(17, 24, 39, 0.2);
+        }
         .btn:active { transform: scale(0.97); }
 
+        /* Tables mimicking the "All Transactions" list */
         .table-wrap { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 12px; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; }
-        td { padding: 14px 12px; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.85rem; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        th { text-align: left; padding: 0 10px; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
+        td { padding: 16px 12px; font-size: 0.85rem; color: var(--text-main); background: #f9fafb; }
+        td:first-child { border-radius: 16px 0 0 16px; }
+        td:last-child { border-radius: 0 16px 16px 0; }
 
-        .badge { padding: 6px 10px; border-radius: 8px; font-weight: 800; font-size: 0.6rem; border: none; cursor: pointer; }
-        .del-btn { background: rgba(251, 113, 133, 0.1); color: var(--rose); border: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; }
+        .badge { padding: 8px 12px; border-radius: 12px; font-weight: 800; font-size: 0.65rem; border: none; cursor: pointer; }
+        .del-btn { background: #fee2e2; color: var(--rose); border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; font-weight: 800; }
 
         .hidden { display: none !important; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -141,42 +167,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
         .personal-toggle-bar {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 20px; background: var(--bg-card); border-radius: 18px;
-            margin-bottom: 20px; border: 1px solid var(--primary-glow); cursor: pointer;
+            padding: 16px 20px; background: var(--bg-card); border-radius: 20px;
+            margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.03); cursor: pointer;
         }
 
-        /* Pay Button Style */
         .pay-link { 
-            display: block; width: 100%; text-align: center; background: #22c55e; 
-            color: white; text-decoration: none; padding: 12px; border-radius: 12px; 
-            font-weight: 800; margin-top: 10px; box-shadow: 0 4px 10px rgba(34,197,94,0.3);
+            display: block; width: 100%; text-align: center; background: var(--primary); 
+            color: var(--dark-navy); text-decoration: none; padding: 16px; border-radius: 18px; 
+            font-weight: 800; margin-top: 15px; box-shadow: 0 8px 20px rgba(202, 255, 51, 0.3);
         }
+
+        select option { background: #ffffff; color: var(--text-main); }
     </style>
 </head>
 <body>
-<!-- Google Tag Manager (noscript) -->
-<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5L5KKV5V"
-height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-<!-- End Google Tag Manager (noscript) -->
+
 <div id="login-screen">
     <div class="login-card">
-        <h1 style="margin:0; color:white; letter-spacing: -1px; font-size: 2rem;">Mess Buddy</h1>
-        <p style="color: var(--text-dim); font-size: 0.8rem; margin-bottom: 30px;">Premium Mess Management</p>
+        
+        <div style="width: 85px; height: 85px; border-radius: 24px; margin: 0 auto 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); background: #fff; display: flex; align-items: center; justify-content: center;">
+            <img src="https://img.sanishtech.com/u/258cf478e555cfec3a311490cbccd8a6.jpeg" alt="Mess Buddy Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+
+        <h1 style="margin:0; color:var(--text-main); font-size: 2rem; font-weight: 800;">Mess Buddy</h1>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 35px; font-weight: 600;">Premium UI Experience</p>
         
         <div id="first-time-area" class="hidden">
             <input type="text" id="v-name-input" placeholder="Your Name" class="edit-input">
         </div>
         <div id="returning-area" class="hidden">
-            <p id="returning-msg" style="font-weight: 700; color: var(--emerald); margin-bottom: 20px;"></p>
+            <p id="returning-msg" style="font-weight: 800; color: var(--text-main); margin-bottom: 20px; background: #f3f4f6; padding: 12px; border-radius: 14px;"></p>
         </div>
 
-        <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px;">
-        <button class="btn" onclick="checkLogin()">Unlock Dashboard</button>
+        <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px; font-weight: 800;">
+        <button class="btn" style="background: var(--primary); color: var(--dark-navy); box-shadow: 0 8px 20px rgba(202, 255, 51, 0.4);" onclick="checkLogin()">Unlock Dashboard</button>
         
-        <div style="margin-top: 25px;">
+        <div style="margin-top: 30px;">
             <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20the%20ACCESS%20KEY%20for%20Mess%20Buddy" target="_blank" 
-               style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; border-bottom: 1px dashed var(--primary);">
-                GET ACCESS KEY
+               style="color: var(--text-dim); text-decoration: none; font-size: 0.8rem; font-weight: 600;">
+                Need Access? <span style="color: var(--dark-navy); border-bottom: 2px solid var(--primary);">Message Admin</span>
             </a>
         </div>
     </div>
@@ -186,20 +215,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="container">
         
         <div class="header-card">
-            <h2 id="dash-greeting" style="margin:0; font-weight: 800;">Welcome Back!</h2>
-            <p id="live-date" style="margin:5px 0 0; font-size: 0.75rem; opacity: 0.6;"></p>
+            <div>
+                <p style="margin:0 0 4px; font-size: 0.8rem; color: var(--text-dim); font-weight: 700;">Hi, welcome back!</p>
+                <h2 id="dash-greeting" style="margin:0; font-weight: 800; font-size: 1.6rem; color: var(--dark-navy);">Mafuj</h2>
+            </div>
+            <div class="profile-icon">M</div>
         </div>
 
-        <div class="card" style="display:flex; gap:10px; margin-bottom: 20px; background: rgba(99, 102, 241, 0.1);">
-            <select id="filter-month" class="edit-input" style="flex:2; margin:0;" onchange="refreshUI()"></select>
-            <select id="filter-year" class="edit-input" style="flex:1; margin:0;" onchange="refreshUI()">
+        <div style="display:flex; gap:12px; margin-bottom: 25px;">
+            <select id="filter-month" class="edit-input" style="flex:2; margin:0; font-weight: 700;" onchange="refreshUI()"></select>
+            <select id="filter-year" class="edit-input" style="flex:1; margin:0; font-weight: 700;" onchange="refreshUI()">
                 <option value="2025">2025</option><option value="2026" selected>2026</option>
             </select>
-        </div>
-
-        <div class="personal-toggle-bar" onclick="togglePersonalView()">
-            <span style="font-size: 0.85rem; font-weight: 700; color: var(--primary);">View My Stats Only</span>
-            <input type="checkbox" id="personal-toggle" style="accent-color: var(--primary); width: 18px; height: 18px;">
         </div>
 
         <nav>
@@ -211,19 +238,61 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </nav>
 
         <div id="tab-dashboard" class="tab-content">
-            <div id="notice-display-card" class="card hidden" style="background: rgba(251, 191, 36, 0.1); border-color: var(--amber);">
-                <div id="current-notice" style="font-weight:600; font-size: 0.85rem; color: var(--amber);"></div>
+            
+            <div class="personal-toggle-bar" onclick="togglePersonalView()">
+                <span style="font-size: 0.9rem; font-weight: 800; color: var(--dark-navy);">View My Stats Only</span>
+                <input type="checkbox" id="personal-toggle" style="accent-color: var(--dark-navy); width: 22px; height: 22px;">
             </div>
 
-            <div class="grid-stats">
-                <div class="stat-box neon-blue"><span>Actual Meals</span><h2 id="stat-actual-meals">0</h2></div>
-                <div class="stat-box neon-blue" style="border-color: rgba(99, 102, 241, 0.3);"><span>Billable Meals</span><h2 id="stat-billable-meals">0</h2></div>
-                <div class="stat-box neon-red"><span>Cost</span><h2 id="stat-cost">₹0</h2></div>
-                <div class="stat-box neon-green"><span>Balance</span><h2 id="stat-balance">₹0</h2></div>
-                <div class="stat-box neon-gold" style="grid-column: span 2;"><span>Rate</span><h2 id="stat-rate">0</h2></div>
+            <div class="stacked-cards-container">
+                <div class="card-layer-1">Admin Layer</div>
+                <div class="card-layer-2">Deposit Layer</div>
+                <div class="main-cc">
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 20px; align-items: center;">
+                        <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: 1px;">MESS BUDDY</div>
+                        <div style="background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.7rem;">PRO</div>
+                    </div>
+                    
+                    <div style="font-size: 0.75rem; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Total Cost</div>
+                    <h2 id="stat-cost" style="margin: 0 0 25px; font-size: 2.8rem; font-weight: 800; letter-spacing: -1px;">₹0</h2>
+
+                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                        <div>
+                            <div style="font-size: 0.7rem; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Balance</div>
+                            <div id="stat-balance" style="font-size: 1.2rem; font-weight: 800;">₹0</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 0.7rem; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Current Rate</div>
+                            <div id="stat-rate" style="font-size: 1.2rem; font-weight: 800;">₹0</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="card" style="padding: 10px;">
+            <div class="pill-container">
+                <div class="action-pill dark">
+                    <div class="icon-box">↑</div>
+                    <div>
+                        <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; opacity: 0.7;">Actual Meals</div>
+                        <div id="stat-actual-meals" style="font-size: 1.3rem; font-weight: 800;">0</div>
+                    </div>
+                </div>
+                <div class="action-pill neon">
+                    <div class="icon-box">↓</div>
+                    <div>
+                        <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; opacity: 0.7;">Billable Meals</div>
+                        <div id="stat-billable-meals" style="font-size: 1.3rem; font-weight: 800;">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="notice-display-card" class="card hidden" style="background: #fffbeb; border: 1px solid #fef3c7;">
+                <div style="font-size: 0.75rem; color: #d97706; font-weight: 800; text-transform: uppercase; margin-bottom: 6px;">📢 Notice</div>
+                <div id="current-notice" style="font-weight:700; font-size: 0.95rem; color: #92400e;"></div>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <h3 style="margin: 0 5px 15px; font-size: 1.1rem; font-weight: 800; color: var(--dark-navy);">All Transactions</h3>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>Member</th><th>Paid</th><th>Meal</th><th>Bill</th><th>Status</th></tr></thead>
@@ -232,42 +301,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
 
-            <div class="card" style="border: 1px solid var(--primary-glow); background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); display: flex; align-items: center; gap: 15px; margin-top: 10px;">
-                <div style="width: 50px; height: 50px; border-radius: 12px; background: #24292e; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255,255,255,0.1);">
-                    <svg height="32" viewBox="0 0 16 16" width="32" fill="white"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg>
-                </div>
-                <div>
-                    <div style="font-weight: 800; font-size: 0.9rem; color: var(--text-main);">Mafuj Hossain</div>
-                    <div style="font-size: 0.7rem; color: var(--primary); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">Developer • @itzmafuj</div>
-                </div>
-            </div>
-
             <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20tech%20support%20for%20Mess%20Buddy" 
-               class="card" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(37, 211, 102, 0.1); border: 1px solid rgba(37, 211, 102, 0.3); text-decoration: none; padding: 15px; margin-top: 10px;">
-                <span style="color: #25D366; font-size: 1.2rem; line-height: 1;">●</span>
-                <span style="color: #25D366; font-weight: 800; font-size: 0.8rem; letter-spacing: 1px;">TECH SUPPORT ON WHATSAPP</span>
+               class="card" style="display: flex; justify-content: space-between; align-items: center; text-decoration: none; padding: 20px; margin-top: 10px;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; border-radius: 14px; background: #f0fdf4; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">👨‍💻</div>
+                    <div>
+                        <div style="font-weight: 800; font-size: 0.95rem; color: var(--dark-navy);">Developer Support</div>
+                        <div style="font-size: 0.75rem; color: var(--text-dim); font-weight: 600;">Chat on WhatsApp</div>
+                    </div>
+                </div>
+                <div style="color: var(--emerald); font-weight: 800;">→</div>
             </a>
 
-            <div id="qr-pay-card" class="card hidden" style="text-align:center;">
-                <p id="pay-text" style="margin:0 0 15px; font-weight: 800; font-size: 0.8rem; color: var(--text-dim);">SCAN TO SETTLE DUE</p>
-                <img id="generated-qr" src="" style="width:160px; height:160px; border-radius:15px; border: 4px solid #fff;">
-                <p id="qr-upi-text" style="font-size:0.75rem; color: var(--primary); margin-top:10px; font-weight:700;"></p>
+            <div id="qr-pay-card" class="card hidden" style="text-align:center; padding: 30px 20px;">
+                <p id="pay-text" style="margin:0 0 20px; font-weight: 800; font-size: 0.9rem; color: var(--dark-navy); text-transform: uppercase;">SCAN TO SETTLE DUE</p>
+                <img id="generated-qr" src="" style="width:180px; height:180px; border-radius:24px; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
+                <p id="qr-upi-text" style="font-size:1rem; color: var(--dark-navy); margin-top:20px; font-weight:800;"></p>
                 <a id="mobile-pay-btn" href="#" class="pay-link hidden">PAY VIA UPI APP</a>
             </div>
             
-            <div style="text-align: center; padding: 10px; opacity: 0.3; font-size: 0.6rem; letter-spacing: 2px; color: var(--text-dim);">
-                VERSION 3.1.26 • SECURED SYSTEM 
+            <div style="text-align: center; padding: 20px; opacity: 0.4; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;">
+                VERSION 3.0.26 • SECURED SYSTEM 
             </div>
         </div>
 
         <div id="tab-meals" class="tab-content hidden">
             <div class="card admin-only hidden">
-                <h3>Daily Meal Entry</h3>
+                <h3 style="margin-top:0; color: var(--dark-navy);">Daily Meal Entry</h3>
                 <input type="date" id="meal-date" class="edit-input">
-                <div id="meal-inputs-area"></div>
-                <button class="btn" onclick="saveDailyMeals()">Save Records</button>
+                <div id="meal-inputs-area" style="margin-top: 20px;"></div>
+                <button class="btn" onclick="saveDailyMeals()" style="margin-top: 15px; background: var(--primary); color: var(--dark-navy);">Save Records</button>
             </div>
-            <div class="card" style="padding:10px;">
+            <div class="card" style="padding:10px 15px;">
                 <div class="table-wrap">
                     <table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table>
                 </div>
@@ -276,47 +341,50 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <div id="tab-bazar" class="tab-content hidden">
             <div class="card admin-only hidden">
-                <h3>New Expense</h3>
+                <h3 style="margin-top:0; color: var(--dark-navy);">New Expense</h3>
                 <input type="date" id="b-date" class="edit-input">
                 <input type="number" id="b-amt" placeholder="Amount (₹)" class="edit-input">
                 <input type="text" id="b-note" placeholder="Item Name" class="edit-input">
-                <button class="btn" style="background:var(--rose);" onclick="addBazar()">Add Cost</button>
+                <button class="btn" onclick="addBazar()">Add Cost</button>
             </div>
-            <div class="card" style="padding:10px;"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div>
+            <div class="card" style="padding:10px 15px;"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div>
         </div>
 
         <div id="tab-members" class="tab-content hidden">
             <div class="card admin-only hidden">
-                <h3>Manage Team</h3>
+                <h3 style="margin-top:0; color: var(--dark-navy);">Manage Team</h3>
                 <div style="display:flex; gap:10px;">
                     <input type="text" id="new-mem-name" placeholder="Name" class="edit-input" style="flex:2;">
                     <input type="number" id="new-mem-min" placeholder="Min" class="edit-input" style="flex:1;">
                 </div>
                 <button class="btn" onclick="addMember()">Add Member</button>
-                <hr style="margin:20px 0; border: none; border-top: 1px solid rgba(255,255,255,0.05);">
-                <h3>Deposit Money</h3>
+                <hr style="margin:30px 0; border: none; border-top: 2px dashed #e5e7eb;">
+                <h3 style="margin-top:0; color: var(--dark-navy);">Deposit Money</h3>
                 <input type="date" id="dep-date" class="edit-input">
                 <select id="dep-member" class="edit-input"></select>
                 <input type="number" id="dep-amt" placeholder="Amount (₹)" class="edit-input">
-                <button class="btn" style="background:var(--emerald);" onclick="addDeposit()">Save Deposit</button>
+                <button class="btn" style="background: var(--secondary); color: var(--dark-navy);" onclick="addDeposit()">Save Deposit</button>
             </div>
-            <div class="card"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Min</th><th id="admin-act-head"></th></tr></thead><tbody id="members-list-body"></tbody></table></div></div>
-            <div class="card"><h4 style="margin:0 0 15px;">Deposit History</h4><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
+            <div class="card" style="padding:10px 15px;"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Min</th><th id="admin-act-head"></th></tr></thead><tbody id="members-list-body"></tbody></table></div></div>
+            <div class="card" style="padding:10px 15px;"><h4 style="margin:10px 10px 15px; color: var(--dark-navy);">Deposit History</h4><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
         </div>
 
         <div id="tab-settings" class="tab-content hidden">
             <div class="card">
-                <h3>Global Config</h3>
+                <h3 style="margin-top:0; color: var(--dark-navy);">Global Config</h3>
                 <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID (Admin)">
                 <input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key">
                 <input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key">
                 <button class="btn" onclick="updateKeys()">Update Keys</button>
-                <button class="btn" style="background:#334155; margin-top:10px;" onclick="resetIdentity()">Logout</button>
+                <button class="btn" style="background: #f3f4f6; color: var(--rose); box-shadow: none; margin-top:15px;" onclick="resetIdentity()">Logout</button>
             </div>
             <div class="card">
-                <h3>Global Notice</h3>
-                <textarea id="notice-input" class="edit-input" style="height:80px;"></textarea>
-                <div style="display:flex; gap:10px;"><button class="btn" onclick="updateNotice()">Post</button><button class="btn" style="background:var(--rose); flex: 0.4;" onclick="deleteNotice()">Clear</button></div>
+                <h3 style="margin-top:0; color: var(--dark-navy);">Global Notice</h3>
+                <textarea id="notice-input" class="edit-input" style="height:100px; resize: none; padding-top: 15px;"></textarea>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="flex: 1;" onclick="updateNotice()">Post</button>
+                    <button class="btn" style="background: #fee2e2; color: var(--rose); box-shadow: none; flex: 0.4;" onclick="deleteNotice()">Clear</button>
+                </div>
             </div>
         </div>
     </div>
@@ -380,7 +448,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     window.login = (key) => {
         isAdmin = (key === data.keys.admin);
         const name = localStorage.getItem('mb_name') || "ADMIN";
-        document.getElementById('dash-greeting').innerText = "Welcome Back, " + name.split(' ')[0] + "!";
+        document.getElementById('dash-greeting').innerText = name.split(' ')[0];
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
@@ -391,7 +459,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             mSel.innerHTML = months.map((m, i) => `<option value="${m}">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]}</option>`).join('');
             mSel.value = String(new Date().getMonth() + 1).padStart(2, '0');
         }
-        document.getElementById('live-date').innerText = new Date().toDateString();
         window.refreshUI();
     };
 
@@ -408,7 +475,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if(!data.upiId) return alert("Admin UPI not set!");
         const upiLink = `upi://pay?pa=${data.upiId}&pn=MessBuddy&am=${amount}&cu=INR&tn=MessPayment_${name}`;
         
-        document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}`;
+        document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}&bgcolor=ffffff&color=111827`;
         document.getElementById('qr-upi-text').innerText = "Amount: ₹" + amount;
         document.getElementById('pay-text').innerText = "PAYING FOR: " + name;
         
@@ -460,7 +527,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             return { ...mem, act, bill };
         });
 
-        // FORCE INTEGERS FOR TOTAL COUNTS
         totalMeals = Math.round(totalMeals);
         totalBillable = Math.round(totalBillable);
 
@@ -469,7 +535,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         
         const rate = totalBillable > 0 ? cost / totalBillable : 0;
 
-        // DISPLAY BOTH STATS
         document.getElementById('stat-actual-meals').innerText = totalMeals;
         document.getElementById('stat-billable-meals').innerText = totalBillable;
         
@@ -486,25 +551,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 
                 let statusHtml = '';
                 if (net > 0) {
-                    statusHtml = `<button class="badge" onclick="window.startPay('${mem.name}', ${net})" style="background:rgba(251,113,133,0.15); color:var(--rose)">DUE ₹${net}</button>`;
+                    statusHtml = `<button class="badge" onclick="window.startPay('${mem.name}', ${net})" style="background:#fee2e2; color:var(--rose)">DUE ₹${net}</button>`;
                 } else if (net < 0) {
-                    statusHtml = `<button class="badge" style="background:rgba(52,211,153,0.15); color:var(--emerald)">EXTRA ₹${Math.abs(net)}</button>`;
+                    statusHtml = `<button class="badge" style="background:#d1fae5; color:var(--emerald)">EXTRA ₹${Math.abs(net)}</button>`;
                 } else {
-                    statusHtml = `<button class="badge" style="background:rgba(148,163,184,0.15); color:var(--text-dim)">SETTLED</button>`;
+                    statusHtml = `<button class="badge" style="background:#f3f4f6; color:var(--text-dim)">SETTLED</button>`;
                 }
 
-                return `<tr><td>${mem.name}</td><td>₹${depAmount}</td><td>${mem.act}</td><td>₹${billAmount}</td><td>${statusHtml}</td></tr>`;
+                return `<tr><td style="font-weight:700;">${mem.name}</td><td style="font-weight:700;">₹${depAmount}</td><td style="font-weight:700;">${mem.act}</td><td style="font-weight:700;">₹${billAmount}</td><td>${statusHtml}</td></tr>`;
             }).join('');
 
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
-            <tr><td>${mem.name}</td><td>${mem.minMeal}</td>${isAdmin ? `<td><button class="del-btn" onclick="window.delMember(${mem.id})">✕</button></td>` : '<td></td>'}</tr>
+            <tr><td style="font-weight:700;">${mem.name}</td><td>${mem.minMeal}</td>${isAdmin ? `<td><button class="del-btn" onclick="window.delMember(${mem.id})">✕</button></td>` : '<td></td>'}</tr>
         `).join('');
 
         const dates = Object.keys(data.meals || {}).sort().reverse();
         const filteredDates = dates.filter(d => d.startsWith(filterStr));
         const filteredMembers = (data.members || []).filter(mem => !showOnlyMe || mem.name === myName);
         document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th></th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td>${d}</td>${filteredMembers.map(mem => `<td>${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" style="color:var(--rose); border:none; background:none;">✕</button></td>`:''}</tr>`).join('');
+        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.substring(5)}</td>${filteredMembers.map(mem => `<td style="font-weight:700;">${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" class="del-btn" style="width:28px; height:28px; font-size:0.6rem;">✕</button></td>`:''}</tr>`).join('');
         
         document.getElementById('deposit-history-body').innerHTML = (data.deposits || [])
             .filter(d => d.date.startsWith(filterStr))
@@ -513,18 +578,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             .map((d) => {
                 const realIdx = data.deposits.indexOf(d);
                 const mem = data.members.find(m => m.id == d.mId);
-                return `<tr><td>${d.date}</td><td>${mem?mem.name:'?'}</td><td>₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn">✕</button></td>`:''}</tr>`;
+                return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.date.substring(5)}</td><td style="font-weight:700;">${mem?mem.name:'?'}</td><td style="color:var(--dark-navy); font-weight:800;">₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn" style="width:28px; height:28px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
             }).join('');
 
         document.getElementById('bazar-body').innerHTML = filteredBazar.slice().reverse().map((b) => {
             const realIdx = data.bazar.indexOf(b);
-            return `<tr><td>${b.date}</td><td>${b.note}</td><td>₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn">✕</button></td>`:''}</tr>`;
+            return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${b.date.substring(5)}</td><td style="font-weight:600;">${b.note}</td><td style="color:var(--dark-navy); font-weight:800;">₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn" style="width:28px; height:28px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
         }).join('');
 
         document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
         if(isAdmin) {
             document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(mem => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;"><span style="font-weight:600;">${mem.name}</span><input type="number" step="0.5" class="m-val edit-input" style="width:80px; margin:0; text-align:center;" data-id="${mem.id}" value="0"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom: 1px solid #f1f5f9;"><span style="font-weight:700; color:var(--text-main);">${mem.name}</span><input type="number" step="0.5" class="m-val edit-input" style="width:80px; height:45px; margin:0; text-align:center;" data-id="${mem.id}" value="0"></div>
             `).join('');
         }
     };
@@ -536,6 +601,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         if(data.notice) { 
             document.getElementById('current-notice').innerText = data.notice; 
             document.getElementById('notice-display-card').classList.remove('hidden'); 
+        } else {
+            document.getElementById('notice-display-card').classList.add('hidden');
         }
     };
 
@@ -569,5 +636,3 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </script>
 </body>
 </html>
-
-
