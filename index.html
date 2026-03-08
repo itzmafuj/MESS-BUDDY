@@ -89,7 +89,7 @@
             box-shadow: 0 5px 15px rgba(202, 255, 51, 0.4); font-size: 1.2rem; font-weight: 800; color: var(--dark-navy);
         }
 
-        /* Stacked Cards System (from Image) */
+        /* Stacked Cards System */
         .stacked-cards-container {
             position: relative; margin: 10px 0 30px; z-index: 1;
         }
@@ -113,7 +113,7 @@
             width: 150px; height: 150px; background: rgba(255,255,255,0.2); border-radius: 50%;
         }
 
-        /* Income/Expense Pills (from Image) */
+        /* Income/Expense Pills */
         .pill-container { display: flex; gap: 15px; margin-bottom: 25px; }
         .action-pill {
             flex: 1; border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 12px;
@@ -150,7 +150,7 @@
         }
         .btn:active { transform: scale(0.97); }
 
-        /* Tables mimicking the "All Transactions" list */
+        /* Tables */
         .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
         th { text-align: left; padding: 0 10px; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
@@ -190,7 +190,7 @@
         </div>
 
         <h1 style="margin:0; color:var(--text-main); font-size: 2rem; font-weight: 800;">Mess Buddy</h1>
-        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 35px; font-weight: 600;">Premium UI Experience</p>
+        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 35px; font-weight: 600;">Clear dues, zero confusion.</p>
         
         <div id="first-time-area" class="hidden">
             <input type="text" id="v-name-input" placeholder="Your Name" class="edit-input">
@@ -318,10 +318,11 @@
                 <img id="generated-qr" src="" style="width:180px; height:180px; border-radius:24px; box-shadow: 0 15px 35px rgba(0,0,0,0.08);">
                 <p id="qr-upi-text" style="font-size:1rem; color: var(--dark-navy); margin-top:20px; font-weight:800;"></p>
                 <a id="mobile-pay-btn" href="#" class="pay-link hidden">PAY VIA UPI APP</a>
+                <button class="btn" style="margin-top: 15px; background: var(--secondary); color: var(--dark-navy);" onclick="sendPaymentRequest()">I Have Paid (Notify Admin)</button>
             </div>
             
             <div style="text-align: center; padding: 20px; opacity: 0.4; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;">
-                VERSION 3.0.26 • SECURED SYSTEM 
+                VERSION 2.1.26 • SECURED SYSTEM 
             </div>
         </div>
 
@@ -351,6 +352,14 @@
         </div>
 
         <div id="tab-members" class="tab-content hidden">
+            
+            <div id="pending-requests-card" class="card admin-only hidden" style="background: #fffbeb; border: 1px solid #fef3c7;">
+                <h3 style="margin-top:0; color: #d97706;">Pending Requests</h3>
+                <div class="table-wrap">
+                    <table><tbody id="pending-requests-body"></tbody></table>
+                </div>
+            </div>
+
             <div class="card admin-only hidden">
                 <h3 style="margin-top:0; color: var(--dark-navy);">Manage Team</h3>
                 <div style="display:flex; gap:10px;">
@@ -409,8 +418,12 @@
     const dataRef = ref(db, 'messData');
 
     let isAdmin = false;
-    let data = { members: [], meals: {}, bazar: [], deposits: [], keys: { admin: "MESS2026", viewer: "MESSMEAL" }, upiId: "" };
+    let data = { members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], keys: { admin: "MESS2026", viewer: "MESSMEAL" }, upiId: "" };
     let showOnlyMe = false;
+    
+    // Variables to track who is paying
+    let currentPayName = "";
+    let currentPayAmount = 0;
 
     window.addEventListener('load', () => {
         const saved = localStorage.getItem('mb_name');
@@ -473,6 +486,11 @@
 
     window.startPay = (name, amount) => {
         if(!data.upiId) return alert("Admin UPI not set!");
+        
+        // Save who is currently paying to global variables
+        currentPayName = name;
+        currentPayAmount = amount;
+        
         const upiLink = `upi://pay?pa=${data.upiId}&pn=MessBuddy&am=${amount}&cu=INR&tn=MessPayment_${name}`;
         
         document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}&bgcolor=ffffff&color=111827`;
@@ -485,6 +503,50 @@
         
         document.getElementById('qr-pay-card').classList.remove('hidden');
         document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
+    };
+
+    // --- NEW: SEND PAYMENT REQUEST ---
+    window.sendPaymentRequest = () => {
+        const mem = (data.members || []).find(m => m.name === currentPayName);
+        if(!mem) return;
+        
+        if(!data.pendingDeposits) data.pendingDeposits = [];
+        
+        // Prevent spam clicking
+        const alreadyExists = data.pendingDeposits.find(r => r.mId === mem.id && r.amt === currentPayAmount);
+        if (alreadyExists) return alert("Request already sent to Admin!");
+
+        const today = new Date().toISOString().split('T')[0];
+        data.pendingDeposits.push({ id: Date.now(), mId: mem.id, amt: currentPayAmount, date: today, name: mem.name });
+        
+        // Force write to Firebase so viewers can submit requests
+        set(dataRef, data).then(() => {
+            alert("Request sent! The Admin will approve it shortly.");
+            document.getElementById('qr-pay-card').classList.add('hidden');
+        });
+    };
+
+    // --- NEW: ADMIN APPROVE/REJECT ---
+    window.approveRequest = (idx) => {
+        if(!isAdmin) return;
+        const req = data.pendingDeposits[idx];
+        if(!data.deposits) data.deposits = [];
+        
+        // Add to real deposits
+        data.deposits.push({date: req.date, mId: req.mId, amt: req.amt});
+        // Remove from pending
+        data.pendingDeposits.splice(idx, 1);
+        
+        window.save();
+        alert("Payment Approved & Deposited!");
+    };
+
+    window.rejectRequest = (idx) => {
+        if(!isAdmin) return;
+        if(confirm("Are you sure you want to reject this payment request?")) {
+            data.pendingDeposits.splice(idx, 1);
+            window.save();
+        }
     };
 
     window.refreshUI = () => {
@@ -560,6 +622,24 @@
 
                 return `<tr><td style="font-weight:700;">${mem.name}</td><td style="font-weight:700;">₹${depAmount}</td><td style="font-weight:700;">${mem.act}</td><td style="font-weight:700;">₹${billAmount}</td><td>${statusHtml}</td></tr>`;
             }).join('');
+
+        // RENDER PENDING REQUESTS FOR ADMIN
+        const pendingCard = document.getElementById('pending-requests-card');
+        if (isAdmin && data.pendingDeposits && data.pendingDeposits.length > 0) {
+            pendingCard.classList.remove('hidden');
+            document.getElementById('pending-requests-body').innerHTML = data.pendingDeposits.map((req, idx) => `
+                <tr>
+                    <td style="font-weight:700; color:var(--dark-navy);">${req.name}</td>
+                    <td style="font-weight:800; color:var(--emerald);">₹${req.amt}</td>
+                    <td style="text-align:right;">
+                        <button onclick="window.approveRequest(${idx})" style="background:var(--emerald); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer; margin-right:5px;">✓</button>
+                        <button onclick="window.rejectRequest(${idx})" style="background:var(--rose); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer;">✕</button>
+                    </td>
+                </tr>
+            `).join('');
+        } else if (pendingCard) {
+            pendingCard.classList.add('hidden');
+        }
 
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
             <tr><td style="font-weight:700;">${mem.name}</td><td>${mem.minMeal}</td>${isAdmin ? `<td><button class="del-btn" onclick="window.delMember(${mem.id})">✕</button></td>` : '<td></td>'}</tr>
