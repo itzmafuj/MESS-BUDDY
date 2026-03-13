@@ -7,14 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Light Theme based on uploaded design */
+            /* Light Theme */
             --bg-deep: #f2f5eb; 
             --bg-card: #ffffff;
             
-            /* UI Palette from Image */
-            --primary: #caff33; /* Neon Green (Visa Card) */
-            --secondary: #ffcc00; /* Yellow (PayPal Card) */
-            --dark-navy: #111827; /* Dark Blue (Add New Card / Text) */
+            /* UI Palette */
+            --primary: #caff33; /* Neon Green */
+            --secondary: #ffcc00; /* Yellow */
+            --dark-navy: #111827; /* Dark Blue */
             
             /* Status Colors */
             --rose: #ef4444;
@@ -37,6 +37,24 @@
             overflow-x: hidden;
         }
 
+        /* --- Animations --- */
+        @keyframes slideUpFade {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-12px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 8px 20px rgba(202, 255, 51, 0.4); }
+            50% { box-shadow: 0 12px 30px rgba(202, 255, 51, 0.7); }
+            100% { box-shadow: 0 8px 20px rgba(202, 255, 51, 0.4); }
+        }
+
         /* --- Login Screen --- */
         #login-screen { 
             position: fixed; inset: 0; 
@@ -45,6 +63,7 @@
             -webkit-backdrop-filter: blur(15px);
             display: flex; align-items: center; justify-content: center; 
             z-index: 9999; 
+            overflow-y: auto;
         }
         .login-card { 
             background: var(--bg-card);
@@ -53,7 +72,17 @@
             width: 90%; max-width: 380px; 
             text-align: center;
             box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+            opacity: 0;
+            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            margin: auto;
         }
+
+        .login-card > * { opacity: 0; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .login-anim-1 { animation-delay: 0.1s !important; }
+        .login-anim-2 { animation-delay: 0.2s !important; }
+        .login-anim-3 { animation-delay: 0.3s !important; }
+
+        .logo-floating { animation: float 3.5s ease-in-out infinite !important; }
 
         /* --- Navigation --- */
         nav { 
@@ -90,9 +119,7 @@
         }
 
         /* Stacked Cards System */
-        .stacked-cards-container {
-            position: relative; margin: 10px 0 30px; z-index: 1;
-        }
+        .stacked-cards-container { position: relative; margin: 10px 0 30px; z-index: 1; }
         .card-layer-1 {
             position: absolute; top: -20px; left: 15%; right: 15%; height: 60px; 
             background: var(--dark-navy); border-radius: 20px 20px 0 0; z-index: -2;
@@ -139,16 +166,25 @@
             width: 100%; height: 55px; padding: 0 20px; 
             border: 1px solid #e5e7eb; border-radius: 18px; 
             font-size: 0.95rem; margin-bottom: 12px; background: #f9fafb;
-            color: var(--text-main); font-weight: 600; outline: none; transition: 0.3s;
+            color: var(--text-main); font-weight: 600; outline: none; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .edit-input:focus { border-color: var(--dark-navy); background: #ffffff; }
+        .edit-input:focus { 
+            border-color: var(--dark-navy); background: #ffffff; 
+            transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
         
         .btn { 
             height: 55px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; 
             width: 100%; background: var(--dark-navy); 
             color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(17, 24, 39, 0.2);
         }
-        .btn:active { transform: scale(0.97); }
+        .btn:active { transform: scale(0.95); }
+        
+        /* Animated Login Button */
+        .login-btn {
+            background: var(--primary); color: var(--dark-navy);
+            animation: pulseGlow 3s infinite; margin-top: 10px;
+        }
 
         /* Tables */
         .table-wrap { overflow-x: auto; }
@@ -159,11 +195,11 @@
         td:last-child { border-radius: 0 16px 16px 0; }
 
         .badge { padding: 8px 12px; border-radius: 12px; font-weight: 800; font-size: 0.65rem; border: none; cursor: pointer; }
-        .del-btn { background: #fee2e2; color: var(--rose); border: none; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; font-weight: 800; }
+        .del-btn { background: #fee2e2; color: var(--rose); border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 800; }
+        .edit-btn-small { background: var(--secondary); color: var(--dark-navy); border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 800; margin-right: 5px; }
 
         .hidden { display: none !important; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .tab-content { animation: fadeIn 0.3s ease-out; }
+        .fade-in-section { animation: slideUpFade 0.4s ease forwards; }
 
         .personal-toggle-bar {
             display: flex; align-items: center; justify-content: space-between;
@@ -185,29 +221,56 @@
 <div id="login-screen">
     <div class="login-card">
         
-        <div style="width: 85px; height: 85px; border-radius: 24px; margin: 0 auto 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); background: #fff; display: flex; align-items: center; justify-content: center;">
-            <img src="https://getshared.com/d/mM6L0cfI" alt="Mess Buddy Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        <div class="login-anim-1 logo-floating" style="width: 95px; height: 95px; border-radius: 28px; margin: 0 auto 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); background: #fff; display: flex; align-items: center; justify-content: center;">
+            <img id="app-logo" src="https://i.postimg.cc/5Q2QxNNC/image.png" alt="Mess Buddy Logo" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
 
-        <h1 style="margin:0; color:var(--text-main); font-size: 2rem; font-weight: 800;">Mess Buddy</h1>
-        <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 35px; font-weight: 600;">Clear dues, zero confusion.</p>
-        
-        <div id="first-time-area" class="hidden">
-            <input type="text" id="v-name-input" placeholder="Your Name" class="edit-input">
+        <div class="login-anim-2">
+            <h1 style="margin:0; color:var(--text-main); font-size: 2rem; font-weight: 800;">Mess Buddy</h1>
+            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 35px; font-weight: 600;">Clear dues, zero confusion.</p>
         </div>
-        <div id="returning-area" class="hidden">
-            <p id="returning-msg" style="font-weight: 800; color: var(--text-main); margin-bottom: 20px; background: #f3f4f6; padding: 12px; border-radius: 14px;"></p>
+        
+        <div id="options-area" class="login-anim-3">
+            <button class="btn" style="margin-bottom: 15px; background: var(--dark-navy); color: white;" onclick="switchView('login')">Existing User Login</button>
+            <button class="btn" style="background: #f9fafb; color: var(--dark-navy); border: 2px solid var(--primary); box-shadow: none;" onclick="switchView('register')">Register New Mess</button>
+            
+            <div style="margin-top: 35px;">
+                <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20help%20with%20Mess%20Buddy" target="_blank" 
+                   style="color: var(--text-dim); text-decoration: none; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <span>Need Help? <span style="color: var(--dark-navy); border-bottom: 2px solid var(--primary);">Contact Developer</span></span>
+                </a>
+            </div>
         </div>
 
-        <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px; font-weight: 800;">
-        <button class="btn" style="background: var(--primary); color: var(--dark-navy); box-shadow: 0 8px 20px rgba(202, 255, 51, 0.4);" onclick="checkLogin()">Unlock Dashboard</button>
-        
-        <div style="margin-top: 30px;">
-            <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20the%20ACCESS%20KEY%20for%20Mess%20Buddy" target="_blank" 
-               style="color: var(--text-dim); text-decoration: none; font-size: 0.8rem; font-weight: 600;">
-                Need Access? <span style="color: var(--dark-navy); border-bottom: 2px solid var(--primary);">Message Admin</span>
-            </a>
+        <div id="login-form-area" class="hidden fade-in-section">
+            <div id="first-time-area" class="hidden">
+                <input type="text" id="v-name-input" placeholder="Your Name" class="edit-input">
+            </div>
+            <div id="returning-area" class="hidden">
+                <p id="returning-msg" style="font-weight: 800; color: var(--text-main); margin-bottom: 20px; background: #f3f4f6; padding: 12px; border-radius: 14px;"></p>
+            </div>
+
+            <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px; font-weight: 800;">
+            <button class="btn login-btn" onclick="checkLogin()">Unlock Dashboard</button>
+            
+            <div style="margin-top: 25px;">
+                <button onclick="switchView('options')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer; font-size:0.8rem;">← Back to Options</button>
+            </div>
         </div>
+
+        <div id="register-mess-area" class="hidden fade-in-section">
+            <h3 style="margin:0 0 15px; color: var(--dark-navy);">Create New Mess</h3>
+            <input type="text" id="reg-mess-name" placeholder="Mess / PG Name" class="edit-input">
+            <input type="text" id="reg-admin-key" placeholder="Create Admin Key" class="edit-input" style="text-transform: uppercase;">
+            <input type="text" id="reg-viewer-key" placeholder="Create Viewer Key" class="edit-input" style="text-transform: uppercase;">
+            <button class="btn" style="background: var(--primary); color: var(--dark-navy); box-shadow: 0 8px 20px rgba(202, 255, 51, 0.4); margin-top: 10px;" onclick="submitMessRegistration()">Submit Request</button>
+            
+            <div style="margin-top: 20px;">
+                <button onclick="switchView('options')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer; font-size:0.8rem;">← Back to Options</button>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -217,7 +280,7 @@
         <div class="header-card">
             <div>
                 <p style="margin:0 0 4px; font-size: 0.8rem; color: var(--text-dim); font-weight: 700;">Hi, welcome back!</p>
-                <h2 id="dash-greeting" style="margin:0; font-weight: 800; font-size: 1.6rem; color: var(--dark-navy);">Mafuj</h2>
+                <h2 id="dash-greeting" style="margin:0; font-weight: 800; font-size: 1.6rem; color: var(--dark-navy);">User</h2>
             </div>
             <div class="profile-icon">M</div>
         </div>
@@ -249,7 +312,7 @@
                 <div class="card-layer-2">Deposit Layer</div>
                 <div class="main-cc">
                     <div style="display:flex; justify-content:space-between; margin-bottom: 20px; align-items: center;">
-                        <div style="font-weight: 800; font-size: 1.3rem; letter-spacing: 1px;">MESS BUDDY</div>
+                        <div id="display-mess-name" style="font-weight: 800; font-size: 1.3rem; letter-spacing: 1px; text-transform: uppercase;">SCHOLAR'S NEST</div>
                         <div style="background: rgba(0,0,0,0.1); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.7rem;">PRO</div>
                     </div>
                     
@@ -322,7 +385,7 @@
             </div>
             
             <div style="text-align: center; padding: 20px; opacity: 0.4; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;">
-                VERSION 2.1.26 • SECURED SYSTEM 
+                POWERED BY MESS BUDDY
             </div>
         </div>
 
@@ -354,7 +417,7 @@
         <div id="tab-members" class="tab-content hidden">
             
             <div id="pending-requests-card" class="card admin-only hidden" style="background: #fffbeb; border: 1px solid #fef3c7;">
-                <h3 style="margin-top:0; color: #d97706;">Pending Requests</h3>
+                <h3 style="margin-top:0; color: #d97706;">Pending Payments</h3>
                 <div class="table-wrap">
                     <table><tbody id="pending-requests-body"></tbody></table>
                 </div>
@@ -379,14 +442,46 @@
         </div>
 
         <div id="tab-settings" class="tab-content hidden">
-            <div class="card">
-                <h3 style="margin-top:0; color: var(--dark-navy);">Global Config</h3>
-                <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID (Admin)">
-                <input type="text" id="set-admin-key" class="edit-input" placeholder="Admin Key">
-                <input type="text" id="set-viewer-key" class="edit-input" placeholder="Viewer Key">
-                <button class="btn" onclick="updateKeys()">Update Keys</button>
-                <button class="btn" style="background: #f3f4f6; color: var(--rose); box-shadow: none; margin-top:15px;" onclick="resetIdentity()">Logout</button>
+            
+            <div id="master-admin-logo-card" class="card hidden" style="background: var(--bg-card); border: 2px solid var(--primary);">
+                <h3 style="margin-top:0; color: var(--dark-navy);">App Logo Setup</h3>
+                <p style="font-size: 0.75rem; color: var(--text-dim);">Paste a direct image link (like from postimg.cc) to update the login logo instantly for all users.</p>
+                <input type="text" id="logo-url-input" class="edit-input" placeholder="Paste Direct Image Link (https://...)">
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="flex: 1; background: var(--primary); color: var(--dark-navy);" onclick="updateGlobalLogo()">Update Logo</button>
+                    <button class="btn" style="background: #fee2e2; color: var(--rose); box-shadow: none; flex: 0.4;" onclick="deleteGlobalLogo()">Remove</button>
+                </div>
             </div>
+
+            <div id="master-admin-registry-card" class="card hidden" style="background: var(--dark-navy); color: white;">
+                <h3 style="margin-top:0; color: var(--primary);">Mess Registrations</h3>
+                <p style="font-size: 0.75rem; color: #94a3b8;">Approve new messes requesting to use the app.</p>
+                <div class="table-wrap">
+                    <table><tbody id="registry-requests-body"></tbody></table>
+                </div>
+            </div>
+
+            <div id="master-admin-active-card" class="card hidden" style="background: #fff1f2; border: 1px solid #fecdd3;">
+                <h3 style="margin-top:0; color: #e11d48;">Active Messes</h3>
+                <p style="font-size: 0.75rem; color: #9f1239;">Manage active messes. Edit their login keys or delete them.</p>
+                <div class="table-wrap">
+                    <table><tbody id="active-messes-body"></tbody></table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-top:0; color: var(--dark-navy);">System Config</h3>
+                <p style="font-size: 0.75rem; color: var(--text-dim);">Update your Mess Name, UPI ID, or securely change your Mess access keys.</p>
+                
+                <input type="text" id="set-mess-name" class="edit-input" placeholder="Mess Name">
+                <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID (For Receiving Payments)">
+                <input type="text" id="set-admin-key" class="edit-input" placeholder="New Admin Key (Master Only)" style="text-transform: uppercase;">
+                <input type="text" id="set-viewer-key" class="edit-input" placeholder="New Viewer Key (Master Only)" style="text-transform: uppercase;">
+                
+                <button class="btn" onclick="updateKeys()">Save Settings</button>
+                <button class="btn" style="background: #f3f4f6; color: var(--rose); box-shadow: none; margin-top:15px;" onclick="resetIdentity()">Logout Account</button>
+            </div>
+            
             <div class="card">
                 <h3 style="margin-top:0; color: var(--dark-navy);">Global Notice</h3>
                 <textarea id="notice-input" class="edit-input" style="height:100px; resize: none; padding-top: 15px;"></textarea>
@@ -401,7 +496,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAnfWzHfN2qBGw68lOkTttSZ3Mz3D0T274",
@@ -415,15 +510,32 @@
 
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
-    const dataRef = ref(db, 'messData');
 
+    // Instantly listen for Global Logo updates to display on Login Screen
+    const globalBrandRef = ref(db, 'globalBranding');
+    onValue(globalBrandRef, (snap) => {
+        const val = snap.val();
+        if (val && val.logo) {
+            document.getElementById('app-logo').src = val.logo;
+        } else {
+            // Revert back to the permanent default logo if none is set
+            document.getElementById('app-logo').src = "https://i.postimg.cc/5Q2QxNNC/image.png";
+        }
+    });
+
+    // Core App Variables
+    let currentDataRef = null; 
     let isAdmin = false;
-    let data = { members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], keys: { admin: "MESS2026", viewer: "MESSMEAL" }, upiId: "" };
-    let showOnlyMe = false;
+    let isMasterAdmin = false;
+    let data = { members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], upiId: "", keys: {} };
     
-    // Variables to track who is paying
+    // State Variables
+    let showOnlyMe = false;
     let currentPayName = "";
     let currentPayAmount = 0;
+    let globalPendingMesses = {};
+    let globalActiveMesses = {};
+    let globalCurrentMessId = null;
 
     window.addEventListener('load', () => {
         const saved = localStorage.getItem('mb_name');
@@ -435,36 +547,79 @@
         }
     });
 
+    window.switchView = (view) => {
+        document.getElementById('options-area').classList.add('hidden');
+        document.getElementById('login-form-area').classList.add('hidden');
+        document.getElementById('register-mess-area').classList.add('hidden');
+
+        if (view === 'login') {
+            document.getElementById('login-form-area').classList.remove('hidden');
+        } else if (view === 'register') {
+            document.getElementById('register-mess-area').classList.remove('hidden');
+        } else {
+            document.getElementById('options-area').classList.remove('hidden');
+        }
+    };
+
     window.togglePersonalView = () => {
         showOnlyMe = !showOnlyMe;
         document.getElementById('personal-toggle').checked = showOnlyMe;
         window.refreshUI();
     };
 
-    window.checkLogin = () => {
+    window.checkLogin = async () => {
         const pass = document.getElementById('pass').value.toUpperCase();
         const saved = localStorage.getItem('mb_name');
         const input = document.getElementById('v-name-input').value.trim();
+        const nameToSave = (saved || input).toUpperCase();
 
-        if(pass === data.keys.admin || pass === data.keys.viewer) {
-            if(pass === data.keys.viewer) {
-                const name = (saved || input).toUpperCase();
-                if(!name) return alert("Enter your name!");
-                localStorage.setItem('mb_name', name);
-            }
-            window.login(pass);
+        if(!pass) return alert("Enter an Access Key");
+
+        const masterKeysSnap = await get(child(ref(db), 'messData/keys'));
+        let masterAdminKey = "MESS2026";
+        let masterViewerKey = "MESSMEAL";
+        if (masterKeysSnap.exists()) {
+            const k = masterKeysSnap.val();
+            if(k.admin) masterAdminKey = k.admin;
+            if(k.viewer) masterViewerKey = k.viewer;
+        }
+
+        if(pass === masterAdminKey || pass === masterViewerKey) {
+            if(pass === masterViewerKey && !nameToSave) return alert("Enter your name!");
+            if(pass === masterViewerKey) localStorage.setItem('mb_name', nameToSave);
+            
+            isAdmin = (pass === masterAdminKey);
+            isMasterAdmin = isAdmin; 
+            
+            window.executeLogin('DEFAULT', isAdmin, "Scholar's Nest");
+            return;
+        }
+
+        const keySnap = await get(child(ref(db), `messRegistry/keys/${pass}`));
+        if (keySnap.exists()) {
+            const keyInfo = keySnap.val();
+            
+            if(keyInfo.role === 'viewer' && !nameToSave) return alert("Enter your name!");
+            if(keyInfo.role === 'viewer') localStorage.setItem('mb_name', nameToSave);
+            
+            isAdmin = (keyInfo.role === 'admin');
+            isMasterAdmin = false;
+            
+            window.executeLogin(keyInfo.messId, isAdmin, keyInfo.messName);
         } else {
-            alert("Incorrect Key, please contact Admin.");
+            alert("Incorrect Key or Mess not registered!");
         }
     };
 
-    window.login = (key) => {
-        isAdmin = (key === data.keys.admin);
+    window.executeLogin = (messId, adminStatus, messTitle) => {
+        globalCurrentMessId = messId;
         const name = localStorage.getItem('mb_name') || "ADMIN";
         document.getElementById('dash-greeting').innerText = name.split(' ')[0];
+        document.getElementById('display-mess-name').innerText = messTitle.toUpperCase();
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
-        document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !isAdmin));
+        
+        document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !adminStatus));
         
         const mSel = document.getElementById('filter-month');
         if(mSel.options.length === 0) {
@@ -472,78 +627,213 @@
             mSel.innerHTML = months.map((m, i) => `<option value="${m}">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]}</option>`).join('');
             mSel.value = String(new Date().getMonth() + 1).padStart(2, '0');
         }
-        window.refreshUI();
+
+        currentDataRef = ref(db, messId === 'DEFAULT' ? 'messData' : `messes/${messId}`);
+        onValue(currentDataRef, (snap) => {
+            const cloud = snap.val();
+            if(cloud) { 
+                data = cloud; 
+                if(data.messName) document.getElementById('display-mess-name').innerText = data.messName.toUpperCase();
+                window.refreshUI(); 
+                window.refreshExtras(); 
+            }
+        });
+
+        // Initialize Master Admin Panels
+        const masterRegCard = document.getElementById('master-admin-registry-card');
+        const masterActiveCard = document.getElementById('master-admin-active-card');
+        const masterLogoCard = document.getElementById('master-admin-logo-card');
+
+        if (isMasterAdmin) {
+            if(masterRegCard) masterRegCard.classList.remove('hidden');
+            if(masterActiveCard) masterActiveCard.classList.remove('hidden');
+            if(masterLogoCard) masterLogoCard.classList.remove('hidden');
+
+            onValue(ref(db, 'messRegistry/pending'), (snap) => {
+                globalPendingMesses = snap.val() || {};
+                window.refreshUI(); 
+            });
+            onValue(ref(db, 'messRegistry/active'), (snap) => {
+                globalActiveMesses = snap.val() || {};
+                window.refreshUI(); 
+            });
+        }
     };
 
-    onValue(dataRef, (snap) => {
-        const cloud = snap.val();
-        if(cloud) { 
-            data = cloud; 
-            window.refreshUI(); 
-            window.refreshExtras(); 
+    // --- NEW: UPLOAD LOGO FUNCTION ---
+    window.updateGlobalLogo = () => {
+        if(!isMasterAdmin) return;
+        const url = document.getElementById('logo-url-input').value.trim();
+        if(!url) return alert("Please paste an image link first.");
+
+        set(ref(db, 'globalBranding/logo'), url).then(() => {
+            alert("Global Logo Updated Successfully! Everyone will see it instantly.");
+            document.getElementById('logo-url-input').value = "";
+        });
+    };
+
+    // --- NEW: DELETE LOGO FUNCTION ---
+    window.deleteGlobalLogo = () => {
+        if(!isMasterAdmin) return;
+        if(confirm("Remove the custom logo? It will return to the default logo.")) {
+            set(ref(db, 'globalBranding/logo'), null).then(() => {
+                alert("Logo successfully removed.");
+            });
         }
-    });
+    };
+
+    window.submitMessRegistration = async () => {
+        const mName = document.getElementById('reg-mess-name').value.trim();
+        const aKey = document.getElementById('reg-admin-key').value.toUpperCase().trim();
+        const vKey = document.getElementById('reg-viewer-key').value.toUpperCase().trim();
+
+        if(!mName || !aKey || !vKey) return alert("Please fill all fields.");
+        if(aKey === vKey) return alert("Admin and Viewer keys must be different.");
+        
+        if(["MESS2026", "MESSMEAL"].includes(aKey) || ["MESS2026", "MESSMEAL"].includes(vKey)) {
+            return alert("That key is reserved. Please pick a unique key.");
+        }
+
+        const aSnap = await get(child(ref(db), `messRegistry/keys/${aKey}`));
+        const vSnap = await get(child(ref(db), `messRegistry/keys/${vKey}`));
+
+        if(aSnap.exists() || vSnap.exists()) return alert("One of these keys is already in use. Please pick unique ones.");
+
+        const reqId = "mess_" + Date.now().toString();
+        await set(ref(db, `messRegistry/pending/${reqId}`), {
+            messName: mName,
+            adminKey: aKey,
+            viewerKey: vKey,
+            timestamp: new Date().toISOString()
+        });
+        
+        alert("Registration Sent! Waiting for the Master Admin to approve.");
+        window.switchView('options');
+    };
+
+    window.approveNewMess = async (reqId) => {
+        if(!isMasterAdmin) return;
+        const req = globalPendingMesses[reqId];
+        if(!req) return;
+
+        const aSnap = await get(child(ref(db), `messRegistry/keys/${req.adminKey}`));
+        if(aSnap.exists()) return alert("Error: Key was taken while pending. Reject this request.");
+
+        await set(ref(db, `messRegistry/keys/${req.adminKey}`), { messId: reqId, role: 'admin', messName: req.messName });
+        await set(ref(db, `messRegistry/keys/${req.viewerKey}`), { messId: reqId, role: 'viewer', messName: req.messName });
+
+        await set(ref(db, `messes/${reqId}`), {
+            messName: req.messName,
+            members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], upiId: ""
+        });
+        
+        await set(ref(db, `messRegistry/active/${reqId}`), {
+            messName: req.messName,
+            adminKey: req.adminKey,
+            viewerKey: req.viewerKey,
+            timestamp: new Date().toISOString()
+        });
+
+        await set(ref(db, `messRegistry/pending/${reqId}`), null);
+        alert(`Mess '${req.messName}' Approved!`);
+    };
+
+    window.rejectNewMess = async (reqId) => {
+        if(!isMasterAdmin) return;
+        if(confirm("Reject this mess registration?")) {
+            await set(ref(db, `messRegistry/pending/${reqId}`), null);
+        }
+    };
+    
+    window.changeMessKeys = async (reqId) => {
+        if(!isMasterAdmin) return;
+        const r = globalActiveMesses[reqId];
+        if(!r) return;
+        
+        const newAdmin = prompt("Enter new ADMIN Key for this mess:", r.adminKey)?.trim().toUpperCase();
+        if(!newAdmin) return;
+        const newViewer = prompt("Enter new VIEWER Key for this mess:", r.viewerKey)?.trim().toUpperCase();
+        if(!newViewer) return;
+        
+        if(newAdmin === newViewer) return alert("Admin and Viewer keys must be different.");
+        
+        if(newAdmin !== r.adminKey) {
+            const aSnap = await get(child(ref(db), `messRegistry/keys/${newAdmin}`));
+            if(aSnap.exists()) return alert(`Key ${newAdmin} is already taken!`);
+        }
+        if(newViewer !== r.viewerKey) {
+            const vSnap = await get(child(ref(db), `messRegistry/keys/${newViewer}`));
+            if(vSnap.exists()) return alert(`Key ${newViewer} is already taken!`);
+        }
+        
+        if(newAdmin !== r.adminKey) await set(ref(db, `messRegistry/keys/${r.adminKey}`), null);
+        if(newViewer !== r.viewerKey) await set(ref(db, `messRegistry/keys/${r.viewerKey}`), null);
+        
+        await set(ref(db, `messRegistry/keys/${newAdmin}`), { messId: reqId, role: 'admin', messName: r.messName });
+        await set(ref(db, `messRegistry/keys/${newViewer}`), { messId: reqId, role: 'viewer', messName: r.messName });
+        
+        await set(ref(db, `messRegistry/active/${reqId}/adminKey`), newAdmin);
+        await set(ref(db, `messRegistry/active/${reqId}/viewerKey`), newViewer);
+        
+        alert("Keys updated successfully! Provide the new keys to the mess admin.");
+    };
+
+    window.deleteActiveMess = async (reqId) => {
+        if(!isMasterAdmin) return;
+        if(confirm("DANGER: Are you sure you want to permanently delete this mess? All their data will be wiped!")) {
+            const messInfo = globalActiveMesses[reqId];
+            if(messInfo) {
+                await set(ref(db, `messRegistry/keys/${messInfo.adminKey}`), null);
+                await set(ref(db, `messRegistry/keys/${messInfo.viewerKey}`), null);
+            }
+            await set(ref(db, `messRegistry/active/${reqId}`), null);
+            await set(ref(db, `messes/${reqId}`), null);
+            alert("Mess permanently deleted.");
+        }
+    };
 
     window.startPay = (name, amount) => {
-        if(!data.upiId) return alert("Admin UPI not set!");
-        
-        // Save who is currently paying to global variables
+        if(!data.upiId) return alert("Admin UPI not set! Have your Admin update their Settings.");
         currentPayName = name;
         currentPayAmount = amount;
-        
-        const upiLink = `upi://pay?pa=${data.upiId}&pn=MessBuddy&am=${amount}&cu=INR&tn=MessPayment_${name}`;
-        
+        const upiLink = `upi://pay?pa=${data.upiId}&pn=MessPayment&am=${amount}&cu=INR&tn=MessPayment_${name}`;
         document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiLink)}&bgcolor=ffffff&color=111827`;
         document.getElementById('qr-upi-text').innerText = "Amount: ₹" + amount;
         document.getElementById('pay-text').innerText = "PAYING FOR: " + name;
-        
         const mBtn = document.getElementById('mobile-pay-btn');
         mBtn.href = upiLink;
         mBtn.classList.remove('hidden');
-        
         document.getElementById('qr-pay-card').classList.remove('hidden');
         document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
     };
 
-    // --- NEW: SEND PAYMENT REQUEST ---
     window.sendPaymentRequest = () => {
         const mem = (data.members || []).find(m => m.name === currentPayName);
         if(!mem) return;
-        
         if(!data.pendingDeposits) data.pendingDeposits = [];
-        
-        // Prevent spam clicking
         const alreadyExists = data.pendingDeposits.find(r => r.mId === mem.id && r.amt === currentPayAmount);
         if (alreadyExists) return alert("Request already sent to Admin!");
-
         const today = new Date().toISOString().split('T')[0];
         data.pendingDeposits.push({ id: Date.now(), mId: mem.id, amt: currentPayAmount, date: today, name: mem.name });
-        
-        // Force write to Firebase so viewers can submit requests
-        set(dataRef, data).then(() => {
+        set(currentDataRef, data).then(() => {
             alert("Request sent! The Admin will approve it shortly.");
             document.getElementById('qr-pay-card').classList.add('hidden');
         });
     };
 
-    // --- NEW: ADMIN APPROVE/REJECT ---
     window.approveRequest = (idx) => {
         if(!isAdmin) return;
         const req = data.pendingDeposits[idx];
         if(!data.deposits) data.deposits = [];
-        
-        // Add to real deposits
         data.deposits.push({date: req.date, mId: req.mId, amt: req.amt});
-        // Remove from pending
         data.pendingDeposits.splice(idx, 1);
-        
         window.save();
-        alert("Payment Approved & Deposited!");
+        alert("Payment Approved!");
     };
 
     window.rejectRequest = (idx) => {
         if(!isAdmin) return;
-        if(confirm("Are you sure you want to reject this payment request?")) {
+        if(confirm("Reject this payment request?")) {
             data.pendingDeposits.splice(idx, 1);
             window.save();
         }
@@ -594,12 +884,10 @@
 
         const filteredBazar = (data.bazar || []).filter(b => b.date.startsWith(filterStr));
         const cost = Math.round(filteredBazar.reduce((s, b) => s + parseFloat(b.amt), 0));
-        
         const rate = totalBillable > 0 ? cost / totalBillable : 0;
 
         document.getElementById('stat-actual-meals').innerText = totalMeals;
         document.getElementById('stat-billable-meals').innerText = totalBillable;
-        
         document.getElementById('stat-cost').innerText = "₹" + cost;
         document.getElementById('stat-balance').innerText = "₹" + Math.round(income - cost);
         document.getElementById('stat-rate').innerText = "₹" + rate.toFixed(2);
@@ -623,7 +911,6 @@
                 return `<tr><td style="font-weight:700;">${mem.name}</td><td style="font-weight:700;">₹${depAmount}</td><td style="font-weight:700;">${mem.act}</td><td style="font-weight:700;">₹${billAmount}</td><td>${statusHtml}</td></tr>`;
             }).join('');
 
-        // RENDER PENDING REQUESTS FOR ADMIN
         const pendingCard = document.getElementById('pending-requests-card');
         if (isAdmin && data.pendingDeposits && data.pendingDeposits.length > 0) {
             pendingCard.classList.remove('hidden');
@@ -641,6 +928,44 @@
             pendingCard.classList.add('hidden');
         }
 
+        if (isMasterAdmin) {
+            const reqs = Object.keys(globalPendingMesses);
+            if(reqs.length > 0) {
+                document.getElementById('registry-requests-body').innerHTML = reqs.map(reqId => {
+                    const r = globalPendingMesses[reqId];
+                    return `
+                    <tr>
+                        <td style="font-weight:700; color:var(--primary);">${r.messName}</td>
+                        <td style="font-size:0.65rem; color:white;">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
+                        <td style="text-align:right;">
+                            <button onclick="window.approveNewMess('${reqId}')" style="background:var(--emerald); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer; margin-right:5px;">✓</button>
+                            <button onclick="window.rejectNewMess('${reqId}')" style="background:var(--rose); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer;">✕</button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } else {
+                document.getElementById('registry-requests-body').innerHTML = '<tr><td colspan="3" style="color:var(--text-dim); text-align:center; padding:15px;">No pending registrations</td></tr>';
+            }
+
+            const activeReqs = Object.keys(globalActiveMesses);
+            if(activeReqs.length > 0) {
+                document.getElementById('active-messes-body').innerHTML = activeReqs.map(reqId => {
+                    const r = globalActiveMesses[reqId];
+                    return `
+                    <tr>
+                        <td style="font-weight:700; color:#e11d48;">${r.messName}</td>
+                        <td style="font-size:0.65rem; color:var(--text-main);">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
+                        <td style="text-align:right;">
+                            <button onclick="window.changeMessKeys('${reqId}')" class="edit-btn-small">Edit Keys</button>
+                            <button onclick="window.deleteActiveMess('${reqId}')" class="del-btn">Delete</button>
+                        </td>
+                    </tr>`;
+                }).join('');
+            } else {
+                document.getElementById('active-messes-body').innerHTML = '<tr><td colspan="3" style="color:var(--text-dim); text-align:center; padding:15px;">No active messes</td></tr>';
+            }
+        }
+
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
             <tr><td style="font-weight:700;">${mem.name}</td><td>${mem.minMeal}</td>${isAdmin ? `<td><button class="del-btn" onclick="window.delMember(${mem.id})">✕</button></td>` : '<td></td>'}</tr>
         `).join('');
@@ -649,7 +974,7 @@
         const filteredDates = dates.filter(d => d.startsWith(filterStr));
         const filteredMembers = (data.members || []).filter(mem => !showOnlyMe || mem.name === myName);
         document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th></th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.substring(5)}</td>${filteredMembers.map(mem => `<td style="font-weight:700;">${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" class="del-btn" style="width:28px; height:28px; font-size:0.6rem;">✕</button></td>`:''}</tr>`).join('');
+        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.substring(5)}</td>${filteredMembers.map(mem => `<td style="font-weight:700;">${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" class="del-btn" style="padding:4px 8px; font-size:0.6rem;">✕</button></td>`:''}</tr>`).join('');
         
         document.getElementById('deposit-history-body').innerHTML = (data.deposits || [])
             .filter(d => d.date.startsWith(filterStr))
@@ -658,12 +983,12 @@
             .map((d) => {
                 const realIdx = data.deposits.indexOf(d);
                 const mem = data.members.find(m => m.id == d.mId);
-                return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.date.substring(5)}</td><td style="font-weight:700;">${mem?mem.name:'?'}</td><td style="color:var(--dark-navy); font-weight:800;">₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn" style="width:28px; height:28px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
+                return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.date.substring(5)}</td><td style="font-weight:700;">${mem?mem.name:'?'}</td><td style="color:var(--dark-navy); font-weight:800;">₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn" style="padding:4px 8px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
             }).join('');
 
         document.getElementById('bazar-body').innerHTML = filteredBazar.slice().reverse().map((b) => {
             const realIdx = data.bazar.indexOf(b);
-            return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${b.date.substring(5)}</td><td style="font-weight:600;">${b.note}</td><td style="color:var(--dark-navy); font-weight:800;">₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn" style="width:28px; height:28px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
+            return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${b.date.substring(5)}</td><td style="font-weight:600;">${b.note}</td><td style="color:var(--dark-navy); font-weight:800;">₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn" style="padding:4px 8px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
         }).join('');
 
         document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
@@ -675,9 +1000,22 @@
     };
 
     window.refreshExtras = () => {
-        if(data.upiId) {
-            document.getElementById('set-upi-id').value = data.upiId;
+        if(data.messName) {
+            document.getElementById('set-mess-name').value = data.messName;
+        } else {
+            document.getElementById('set-mess-name').value = document.getElementById('display-mess-name').innerText;
         }
+        
+        if(data.upiId) document.getElementById('set-upi-id').value = data.upiId;
+        
+        if(isMasterAdmin && data.keys) {
+            document.getElementById('set-admin-key').value = data.keys.admin || "";
+            document.getElementById('set-viewer-key').value = data.keys.viewer || "";
+        } else {
+            document.getElementById('set-admin-key').value = "";
+            document.getElementById('set-viewer-key').value = "";
+        }
+
         if(data.notice) { 
             document.getElementById('current-notice').innerText = data.notice; 
             document.getElementById('notice-display-card').classList.remove('hidden'); 
@@ -693,7 +1031,45 @@
         document.querySelectorAll('nav button').forEach(nb=>nb.classList.remove('active')); 
         b.classList.add('active'); 
     };
-    window.save = () => { if(isAdmin) set(dataRef, data); };
+    
+    window.save = () => { if(isAdmin && currentDataRef) set(currentDataRef, data); };
+    
+    window.updateKeys = () => { 
+        const nName = document.getElementById('set-mess-name').value.trim();
+        const u = document.getElementById('set-upi-id').value;
+        const a = document.getElementById('set-admin-key').value.toUpperCase().trim();
+        const v = document.getElementById('set-viewer-key').value.toUpperCase().trim();
+        
+        data.upiId = u; 
+        
+        if(nName) {
+            data.messName = nName;
+            document.getElementById('display-mess-name').innerText = nName.toUpperCase();
+            if(!isMasterAdmin && globalCurrentMessId && globalCurrentMessId !== 'DEFAULT') {
+                set(ref(db, `messRegistry/active/${globalCurrentMessId}/messName`), nName);
+            }
+        }
+
+        if(isMasterAdmin) {
+            if(!data.keys) data.keys = {};
+            if(a) data.keys.admin = a;
+            if(v) data.keys.viewer = v;
+            window.save(); 
+            alert("Settings and Master Keys Updated Successfully!"); 
+        } else {
+            window.save();
+            if(a || v) {
+                alert("Mess Name & UPI ID Updated! (Note: Sub-Messes cannot change keys here. Contact Master Admin).");
+            } else {
+                alert("Settings Updated Successfully!");
+            }
+        }
+        
+        document.getElementById('set-admin-key').value = "";
+        document.getElementById('set-viewer-key').value = "";
+        window.refreshExtras();
+    };
+    
     window.delBazar = (idx) => { if(confirm("Delete Expense?")) { data.bazar.splice(idx,1); window.save(); } };
     window.delDep = (idx) => { if(confirm("Delete Deposit?")) { data.deposits.splice(idx,1); window.save(); } };
     window.delMeal = (d) => { if(confirm("Delete Records for this Date?")) { delete data.meals[d]; window.save(); } };
@@ -701,19 +1077,9 @@
     window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
     window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
     window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
-    window.updateKeys = () => { 
-        const u = document.getElementById('set-upi-id').value;
-        const a = document.getElementById('set-admin-key').value.toUpperCase();
-        const v = document.getElementById('set-viewer-key').value.toUpperCase();
-        if(a&&v) { 
-            data.upiId=u; data.keys={admin:a, viewer:v}; 
-            window.save(); alert("Updated Successfully"); 
-        } 
-    };
     window.updateNotice = () => { data.notice = document.getElementById('notice-input').value; window.save(); alert("Notice Posted"); };
     window.deleteNotice = () => { if(confirm("Clear?")) { data.notice = ""; window.save(); } };
     window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
 </script>
 </body>
 </html>
-
