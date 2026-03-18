@@ -59,7 +59,7 @@
             100% { box-shadow: 0 8px 20px rgba(202, 255, 51, 0.4); }
         }
 
-        /* --- Login Screen --- */
+        /* --- Screens & Modals --- */
         #login-screen { 
             position: fixed; inset: 0; 
             background: rgba(242, 245, 235, 0.95); 
@@ -69,6 +69,16 @@
             z-index: 9999; 
             overflow-y: auto;
         }
+        
+        #update-modal { 
+            position: fixed; inset: 0; 
+            background: rgba(17,24,39,0.9); 
+            backdrop-filter: blur(10px);
+            z-index: 20000; 
+            align-items: center; justify-content: center; 
+        }
+        #update-modal:not(.hidden) { display: flex !important; }
+
         .login-card { 
             background: var(--bg-card);
             padding: 40px 30px; 
@@ -221,6 +231,21 @@
     </style>
 </head>
 <body>
+
+<div id="update-modal" class="hidden">
+    <div class="card" style="width: 90%; max-width: 350px; text-align: center; padding: 30px; margin: auto; animation: slideUpFade 0.5s ease forwards;">
+        <div style="font-size: 3.5rem; margin-bottom: 10px; animation: float 3s ease-in-out infinite;">🚀</div>
+        <h2 style="margin: 0 0 10px; color: var(--dark-navy); font-weight: 800;">App Update Available!</h2>
+        <p style="color: var(--text-dim); font-size: 0.9rem; font-weight: 600; margin-bottom: 20px;">Version <span id="update-v-text" style="color: var(--emerald); font-weight: 800;"></span> is out.</p>
+        
+        <div style="background: #f3f4f6; padding: 15px; border-radius: 14px; font-size: 0.85rem; text-align: left; margin-bottom: 25px; font-weight: 600; color: var(--text-main);">
+            <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">Release Notes:</div>
+            <div id="update-n-text" style="white-space: pre-wrap;"></div>
+        </div>
+        
+        <button class="btn" style="background: var(--primary); color: var(--dark-navy); animation: pulseGlow 2s infinite;" onclick="downloadUpdate()">Download & Install</button>
+    </div>
+</div>
 
 <div id="login-screen">
     <div class="login-card">
@@ -450,6 +475,16 @@
 
         <div id="tab-settings" class="tab-content hidden">
             
+            <div id="master-admin-update-card" class="card hidden" style="background: var(--dark-navy); color: white;">
+                <h3 style="margin-top:0; color: var(--primary);">Push OTA App Update</h3>
+                <p style="font-size: 0.75rem; color: #94a3b8;">Paste the download link to your new APK. A mandatory update screen will block the app for all users until they install it.</p>
+                <input type="number" step="0.1" id="update-version-input" class="edit-input" placeholder="New Version Number (e.g., 1.1)">
+                <input type="text" id="update-link-input" class="edit-input" placeholder="Direct APK Download Link (Google Drive, etc.)">
+                <textarea id="update-notes-input" class="edit-input" style="height:80px; resize:none; padding-top:15px;" placeholder="Release Notes: What's new in this version?"></textarea>
+                <button class="btn" style="background: var(--primary); color: var(--dark-navy);" onclick="pushAppUpdate()">Blast Update to All Devices</button>
+                <button class="btn" style="background: transparent; border: 1px solid #ef4444; color: #ef4444; margin-top: 10px;" onclick="clearAppUpdate()">Remove Update Prompt</button>
+            </div>
+
             <div id="master-admin-logo-card" class="card hidden" style="background: var(--bg-card); border: 2px solid var(--primary);">
                 <h3 style="margin-top:0; color: var(--dark-navy);">App Logo Setup</h3>
                 <p style="font-size: 0.75rem; color: var(--text-dim);">Paste a direct image link to update the login logo instantly for all users.</p>
@@ -524,7 +559,31 @@
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
-    // Instantly listen for Global Logo updates to display on Login Screen
+    // --- HARDCODED CURRENT APP VERSION ---
+    // Change this number in your Android Studio HTML file every time you build a new APK!
+    const CURRENT_APP_VERSION = 1.0;
+    let globalUpdateLink = "";
+
+    // OTA UPDATE LISTENER (Runs instantly when app opens)
+    onValue(ref(db, 'globalUpdate'), (snap) => {
+        const updateData = snap.val();
+        if (updateData && parseFloat(updateData.version) > CURRENT_APP_VERSION) {
+            // A newer version exists! Show the un-skippable update screen.
+            document.getElementById('update-v-text').innerText = updateData.version;
+            document.getElementById('update-n-text').innerText = updateData.notes || "Bug fixes and improvements.";
+            globalUpdateLink = updateData.link;
+            document.getElementById('update-modal').classList.remove('hidden');
+        } else {
+            // App is up to date.
+            document.getElementById('update-modal').classList.add('hidden');
+        }
+    });
+
+    window.downloadUpdate = () => {
+        if(globalUpdateLink) window.open(globalUpdateLink, '_blank');
+    };
+
+    // Listen for Global Logo updates
     const globalBrandRef = ref(db, 'globalBranding');
     onValue(globalBrandRef, (snap) => {
         const val = snap.val();
@@ -655,11 +714,13 @@
         const masterRegCard = document.getElementById('master-admin-registry-card');
         const masterActiveCard = document.getElementById('master-admin-active-card');
         const masterLogoCard = document.getElementById('master-admin-logo-card');
+        const masterUpdateCard = document.getElementById('master-admin-update-card');
 
         if (isMasterAdmin) {
             if(masterRegCard) masterRegCard.classList.remove('hidden');
             if(masterActiveCard) masterActiveCard.classList.remove('hidden');
             if(masterLogoCard) masterLogoCard.classList.remove('hidden');
+            if(masterUpdateCard) masterUpdateCard.classList.remove('hidden');
 
             onValue(ref(db, 'messRegistry/pending'), (snap) => {
                 globalPendingMesses = snap.val() || {};
@@ -668,6 +729,38 @@
             onValue(ref(db, 'messRegistry/active'), (snap) => {
                 globalActiveMesses = snap.val() || {};
                 window.refreshUI(); 
+            });
+        }
+    };
+
+    // --- NEW: MASTER ADMIN APP UPDATE LOGIC ---
+    window.pushAppUpdate = () => {
+        if(!isMasterAdmin) return;
+        const v = document.getElementById('update-version-input').value.trim();
+        const l = document.getElementById('update-link-input').value.trim();
+        const n = document.getElementById('update-notes-input').value.trim();
+
+        if(!v || !l) return alert("Please provide both a Version Number and a Download Link.");
+
+        if(confirm(`Are you sure you want to force all users to download version ${v}?`)) {
+            set(ref(db, 'globalUpdate'), {
+                version: v,
+                link: l,
+                notes: n
+            }).then(() => {
+                alert(`Update ${v} blasted to all devices successfully!`);
+                document.getElementById('update-version-input').value = "";
+                document.getElementById('update-link-input').value = "";
+                document.getElementById('update-notes-input').value = "";
+            });
+        }
+    };
+
+    window.clearAppUpdate = () => {
+        if(!isMasterAdmin) return;
+        if(confirm("Remove the update prompt for all users?")) {
+            set(ref(db, 'globalUpdate'), null).then(() => {
+                alert("Update prompt removed.");
             });
         }
     };
@@ -849,7 +942,6 @@
         }
     };
 
-    // --- NEW: ANDROID WEBVIEW PDF GENERATION LOGIC ---
     window.generatePDF = () => {
         if (!window.jspdf) return alert("Please wait a moment for the PDF system to load...");
         
@@ -983,18 +1075,14 @@
             headStyles: { fillColor: [17, 24, 39] }
         });
 
-        // --- NEW: ANDROID WEBVIEW BRIDGE INTEGRATION ---
         const safeTitle = messTitle.replace(/[^a-zA-Z0-9]/g, '_');
         const fileName = `${safeTitle}_Report_${y}_${m}.pdf`;
 
-        // Check if the app is running inside Android Studio's WebView
+        // ANDROID WEBVIEW BRIDGE INTEGRATION
         if (window.Android && window.Android.savePDF) {
-            // Convert the PDF to a Base64 Text String
             const base64PDF = doc.output('datauristring');
-            // Send it to the Android Java code!
             window.Android.savePDF(base64PDF, fileName);
         } else {
-            // Fallback for computer browsers
             doc.save(fileName); 
         }
     };
@@ -1091,11 +1179,13 @@
         const masterRegCard = document.getElementById('master-admin-registry-card');
         const masterActiveCard = document.getElementById('master-admin-active-card');
         const masterLogoCard = document.getElementById('master-admin-logo-card');
+        const masterUpdateCard = document.getElementById('master-admin-update-card');
         
         if (isMasterAdmin) {
             if(masterRegCard) masterRegCard.classList.remove('hidden');
             if(masterActiveCard) masterActiveCard.classList.remove('hidden');
             if(masterLogoCard) masterLogoCard.classList.remove('hidden');
+            if(masterUpdateCard) masterUpdateCard.classList.remove('hidden');
 
             const reqs = Object.keys(globalPendingMesses);
             if(reqs.length > 0) {
@@ -1136,6 +1226,7 @@
             if(masterRegCard) masterRegCard.classList.add('hidden');
             if(masterActiveCard) masterActiveCard.classList.add('hidden');
             if(masterLogoCard) masterLogoCard.classList.add('hidden');
+            if(masterUpdateCard) masterUpdateCard.classList.add('hidden');
         }
 
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
