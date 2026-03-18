@@ -849,8 +849,10 @@
         }
     };
 
-    // --- PDF GENERATION LOGIC ---
+    // --- NEW: ANDROID WEBVIEW PDF GENERATION LOGIC ---
     window.generatePDF = () => {
+        if (!window.jspdf) return alert("Please wait a moment for the PDF system to load...");
+        
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
         
@@ -981,8 +983,20 @@
             headStyles: { fillColor: [17, 24, 39] }
         });
 
+        // --- NEW: ANDROID WEBVIEW BRIDGE INTEGRATION ---
         const safeTitle = messTitle.replace(/[^a-zA-Z0-9]/g, '_');
-        doc.save(`${safeTitle}_Report_${y}_${m}.pdf`);
+        const fileName = `${safeTitle}_Report_${y}_${m}.pdf`;
+
+        // Check if the app is running inside Android Studio's WebView
+        if (window.Android && window.Android.savePDF) {
+            // Convert the PDF to a Base64 Text String
+            const base64PDF = doc.output('datauristring');
+            // Send it to the Android Java code!
+            window.Android.savePDF(base64PDF, fileName);
+        } else {
+            // Fallback for computer browsers
+            doc.save(fileName); 
+        }
     };
 
     window.refreshUI = () => {
@@ -1236,7 +1250,6 @@
     window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
     window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
     
-    // --- UPDATED WHATSAPP LOGIC ---
     window.updateNotice = () => { 
         data.notice = document.getElementById('notice-input').value; 
         window.save(); 
@@ -1247,15 +1260,12 @@
         const noticeText = document.getElementById('notice-input').value.trim();
         if(!noticeText) return alert("Write a notice first!");
         
-        // 1. Save to the App
         data.notice = noticeText; 
         window.save(); 
         
-        // 2. Format the text for WhatsApp
         const messName = document.getElementById('display-mess-name').innerText;
         const waText = `📢 *NOTICE | ${messName}*\n\n${noticeText}\n\n_Open the Mess Buddy app to check details._`;
         
-        // 3. Open WhatsApp
         window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
     };
 
