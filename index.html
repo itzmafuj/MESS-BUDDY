@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mess Buddy</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         :root {
             /* Light Theme */
@@ -222,7 +226,7 @@
     <div class="login-card">
         
         <div class="login-anim-1 logo-floating" style="width: 95px; height: 95px; border-radius: 28px; margin: 0 auto 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.08); background: #fff; display: flex; align-items: center; justify-content: center;">
-            <img id="app-logo" src="https://i.postimg.cc/5Q2QxNNC/image.png" alt="Mess Buddy Logo" style="width: 100%; height: 100%; object-fit: cover;">
+            <img id="app-logo" src="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg" alt="Mess Buddy Logo" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
 
         <div class="login-anim-2">
@@ -285,11 +289,14 @@
             <div class="profile-icon">M</div>
         </div>
 
-        <div style="display:flex; gap:12px; margin-bottom: 25px;">
+        <div style="display:flex; gap:12px; margin-bottom: 25px; align-items: center;">
             <select id="filter-month" class="edit-input" style="flex:2; margin:0; font-weight: 700;" onchange="refreshUI()"></select>
             <select id="filter-year" class="edit-input" style="flex:1; margin:0; font-weight: 700;" onchange="refreshUI()">
                 <option value="2025">2025</option><option value="2026" selected>2026</option>
             </select>
+            <button class="btn" style="flex: 0.5; margin:0; background: var(--primary); color: var(--dark-navy); padding: 0; display:flex; align-items:center; justify-content:center;" onclick="generatePDF()" title="Download PDF Report">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            </button>
         </div>
 
         <nav>
@@ -445,7 +452,7 @@
             
             <div id="master-admin-logo-card" class="card hidden" style="background: var(--bg-card); border: 2px solid var(--primary);">
                 <h3 style="margin-top:0; color: var(--dark-navy);">App Logo Setup</h3>
-                <p style="font-size: 0.75rem; color: var(--text-dim);">Paste a direct image link (like from postimg.cc) to update the login logo instantly for all users.</p>
+                <p style="font-size: 0.75rem; color: var(--text-dim);">Paste a direct image link to update the login logo instantly for all users.</p>
                 <input type="text" id="logo-url-input" class="edit-input" placeholder="Paste Direct Image Link (https://...)">
                 <div style="display:flex; gap:10px;">
                     <button class="btn" style="flex: 1; background: var(--primary); color: var(--dark-navy);" onclick="updateGlobalLogo()">Update Logo</button>
@@ -484,11 +491,17 @@
             
             <div class="card">
                 <h3 style="margin-top:0; color: var(--dark-navy);">Global Notice</h3>
-                <textarea id="notice-input" class="edit-input" style="height:100px; resize: none; padding-top: 15px;"></textarea>
-                <div style="display:flex; gap:10px;">
-                    <button class="btn" style="flex: 1;" onclick="updateNotice()">Post</button>
+                <textarea id="notice-input" class="edit-input" style="height:100px; resize: none; padding-top: 15px;" placeholder="Write your announcement here..."></textarea>
+                
+                <div style="display:flex; gap:10px; margin-bottom: 10px;">
+                    <button class="btn" style="flex: 1;" onclick="updateNotice()">Post in App</button>
                     <button class="btn" style="background: #fee2e2; color: var(--rose); box-shadow: none; flex: 0.4;" onclick="deleteNotice()">Clear</button>
                 </div>
+                
+                <button class="btn" style="background: #25D366; color: white; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="updateAndShareNotice()">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    Post & Forward to WhatsApp
+                </button>
             </div>
         </div>
     </div>
@@ -518,8 +531,7 @@
         if (val && val.logo) {
             document.getElementById('app-logo').src = val.logo;
         } else {
-            // Revert back to the permanent default logo if none is set
-            document.getElementById('app-logo').src = "https://i.postimg.cc/5Q2QxNNC/image.png";
+            document.getElementById('app-logo').src = "https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg";
         }
     });
 
@@ -660,7 +672,6 @@
         }
     };
 
-    // --- NEW: UPLOAD LOGO FUNCTION ---
     window.updateGlobalLogo = () => {
         if(!isMasterAdmin) return;
         const url = document.getElementById('logo-url-input').value.trim();
@@ -672,7 +683,6 @@
         });
     };
 
-    // --- NEW: DELETE LOGO FUNCTION ---
     window.deleteGlobalLogo = () => {
         if(!isMasterAdmin) return;
         if(confirm("Remove the custom logo? It will return to the default logo.")) {
@@ -839,6 +849,142 @@
         }
     };
 
+    // --- PDF GENERATION LOGIC ---
+    window.generatePDF = () => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const m = document.getElementById('filter-month').value;
+        const y = document.getElementById('filter-year').value;
+        const filterStr = `${y}-${m}`;
+        const monthName = document.getElementById('filter-month').options[document.getElementById('filter-month').selectedIndex].text;
+        const messTitle = document.getElementById('display-mess-name').innerText || "Mess Report";
+
+        doc.setFontSize(18);
+        doc.text(`${messTitle} - Monthly Report`, 14, 22);
+        doc.setFontSize(12);
+        doc.setTextColor(100);
+        doc.text(`Period: ${monthName} ${y}`, 14, 30);
+        doc.setTextColor(0);
+
+        let totalMeals = 0, totalBillable = 0, cost = 0, income = 0;
+        let mActual = {}, mDeps = {};
+        
+        (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
+        
+        (data.deposits || []).filter(d => d.date.startsWith(filterStr)).forEach(d => {
+            mDeps[d.mId] += parseFloat(d.amt);
+            income += parseFloat(d.amt);
+        });
+        
+        if(data.meals) {
+            Object.entries(data.meals).forEach(([date, dayData]) => {
+                if(date.startsWith(filterStr)) {
+                    Object.entries(dayData).forEach(([id, q]) => { if(mActual[id] !== undefined) mActual[id] += q; });
+                }
+            });
+        }
+
+        const yNum = parseInt(y);
+        const mNum = parseInt(m);
+        const today = new Date();
+        const lastDay = new Date(yNum, mNum, 0).getDate();
+        const endOfMonthDateStr = `${y}-${m}-${lastDay.toString().padStart(2, '0')}`;
+        
+        const isMonthComplete = (yNum < today.getFullYear()) || 
+                                (yNum === today.getFullYear() && mNum < (today.getMonth() + 1)) || 
+                                !!(data.meals && data.meals[endOfMonthDateStr]);
+
+        const filteredBazar = (data.bazar || []).filter(b => b.date.startsWith(filterStr));
+        cost = Math.round(filteredBazar.reduce((s, b) => s + parseFloat(b.amt), 0));
+
+        const summaryBody = (data.members || []).map(mem => {
+            const act = mActual[mem.id] || 0;
+            const min = mem.minMeal || 50;
+            const bill = (isMonthComplete && act < min) ? min : act; 
+            totalMeals += act; totalBillable += bill;
+            return { name: mem.name, act, bill, id: mem.id };
+        }).map(mem => {
+            const rate = totalBillable > 0 ? cost / totalBillable : 0;
+            const billAmount = Math.round(mem.bill * rate);
+            const depAmount = Math.round(mDeps[mem.id] || 0);
+            const net = billAmount - depAmount;
+            let status = net > 0 ? `DUE Rs ${net}` : (net < 0 ? `EXTRA Rs ${Math.abs(net)}` : `SETTLED`);
+            return [mem.name, `Rs ${depAmount}`, mem.act, `Rs ${billAmount}`, status];
+        });
+
+        let startY = 40;
+        doc.setFontSize(14);
+        doc.text("1. Bill Summary", 14, startY);
+        doc.autoTable({
+            startY: startY + 5,
+            head: [['Member', 'Deposited', 'Meals', 'Bill', 'Status']],
+            body: summaryBody,
+            headStyles: { fillColor: [17, 24, 39] } 
+        });
+
+        let finalY = doc.lastAutoTable.finalY + 15;
+        doc.text("2. Daily Meals", 14, finalY);
+        
+        const dates = Object.keys(data.meals || {}).sort().reverse().filter(d => d.startsWith(filterStr));
+        const membersList = data.members || [];
+        
+        let mealHead = ['Date', ...membersList.map(m => m.name.substring(0,3))];
+        let mealBody = dates.map(d => {
+            let row = [d.substring(5)]; 
+            membersList.forEach(mem => {
+                row.push(data.meals[d][mem.id] || 0);
+            });
+            return row;
+        });
+
+        doc.autoTable({
+            startY: finalY + 5,
+            head: [mealHead],
+            body: mealBody,
+            headStyles: { fillColor: [17, 24, 39] }
+        });
+
+        finalY = doc.lastAutoTable.finalY + 15;
+        if(finalY > 250) { doc.addPage(); finalY = 20; }
+        
+        doc.text("3. Daily Expenses (Bazar)", 14, finalY);
+        let bazarBody = filteredBazar.slice().reverse().map(b => [b.date.substring(5), b.note, `Rs ${b.amt}`]);
+        bazarBody.push(['', 'TOTAL COST', `Rs ${cost}`]); 
+        
+        doc.autoTable({
+            startY: finalY + 5,
+            head: [['Date', 'Item/Note', 'Amount']],
+            body: bazarBody,
+            headStyles: { fillColor: [17, 24, 39] },
+            didParseCell: function(data) {
+                if (data.row.index === bazarBody.length - 1) {
+                    data.cell.styles.fontStyle = 'bold';
+                    data.cell.styles.textColor = [239, 68, 68]; 
+                }
+            }
+        });
+
+        finalY = doc.lastAutoTable.finalY + 15;
+        if(finalY > 250) { doc.addPage(); finalY = 20; }
+        
+        doc.text("4. Deposit History", 14, finalY);
+        let depositBody = (data.deposits || []).filter(d => d.date.startsWith(filterStr)).slice().reverse().map(d => {
+            const mem = data.members.find(m => m.id == d.mId);
+            return [d.date.substring(5), mem ? mem.name : 'Unknown', `Rs ${d.amt}`];
+        });
+        
+        doc.autoTable({
+            startY: finalY + 5,
+            head: [['Date', 'Member Name', 'Amount']],
+            body: depositBody,
+            headStyles: { fillColor: [17, 24, 39] }
+        });
+
+        const safeTitle = messTitle.replace(/[^a-zA-Z0-9]/g, '_');
+        doc.save(`${safeTitle}_Report_${y}_${m}.pdf`);
+    };
+
     window.refreshUI = () => {
         const m = document.getElementById('filter-month').value;
         const y = document.getElementById('filter-year').value;
@@ -928,7 +1074,15 @@
             pendingCard.classList.add('hidden');
         }
 
+        const masterRegCard = document.getElementById('master-admin-registry-card');
+        const masterActiveCard = document.getElementById('master-admin-active-card');
+        const masterLogoCard = document.getElementById('master-admin-logo-card');
+        
         if (isMasterAdmin) {
+            if(masterRegCard) masterRegCard.classList.remove('hidden');
+            if(masterActiveCard) masterActiveCard.classList.remove('hidden');
+            if(masterLogoCard) masterLogoCard.classList.remove('hidden');
+
             const reqs = Object.keys(globalPendingMesses);
             if(reqs.length > 0) {
                 document.getElementById('registry-requests-body').innerHTML = reqs.map(reqId => {
@@ -964,6 +1118,10 @@
             } else {
                 document.getElementById('active-messes-body').innerHTML = '<tr><td colspan="3" style="color:var(--text-dim); text-align:center; padding:15px;">No active messes</td></tr>';
             }
+        } else {
+            if(masterRegCard) masterRegCard.classList.add('hidden');
+            if(masterActiveCard) masterActiveCard.classList.add('hidden');
+            if(masterLogoCard) masterLogoCard.classList.add('hidden');
         }
 
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
@@ -1077,7 +1235,30 @@
     window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
     window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
     window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
-    window.updateNotice = () => { data.notice = document.getElementById('notice-input').value; window.save(); alert("Notice Posted"); };
+    
+    // --- UPDATED WHATSAPP LOGIC ---
+    window.updateNotice = () => { 
+        data.notice = document.getElementById('notice-input').value; 
+        window.save(); 
+        alert("Notice Posted in App!"); 
+    };
+
+    window.updateAndShareNotice = () => {
+        const noticeText = document.getElementById('notice-input').value.trim();
+        if(!noticeText) return alert("Write a notice first!");
+        
+        // 1. Save to the App
+        data.notice = noticeText; 
+        window.save(); 
+        
+        // 2. Format the text for WhatsApp
+        const messName = document.getElementById('display-mess-name').innerText;
+        const waText = `📢 *NOTICE | ${messName}*\n\n${noticeText}\n\n_Open the Mess Buddy app to check details._`;
+        
+        // 3. Open WhatsApp
+        window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
+    };
+
     window.deleteNotice = () => { if(confirm("Clear?")) { data.notice = ""; window.save(); } };
     window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
 </script>
