@@ -478,7 +478,7 @@
             <div id="master-admin-update-card" class="card hidden" style="background: var(--dark-navy); color: white;">
                 <h3 style="margin-top:0; color: var(--primary);">Push OTA App Update</h3>
                 <p style="font-size: 0.75rem; color: #94a3b8;">Paste the download link to your new APK. A mandatory update screen will block the app for all users until they install it.</p>
-                <input type="number" step="0.1" id="update-version-input" class="edit-input" placeholder="New Version Number (e.g., 1.1)">
+                <input type="number" step="0.1" id="update-version-input" class="edit-input" placeholder="New Version Number (e.g., 2.0)">
                 <input type="text" id="update-link-input" class="edit-input" placeholder="Direct APK Download Link (Google Drive, etc.)">
                 <textarea id="update-notes-input" class="edit-input" style="height:80px; resize:none; padding-top:15px;" placeholder="Release Notes: What's new in this version?"></textarea>
                 <button class="btn" style="background: var(--primary); color: var(--dark-navy);" onclick="pushAppUpdate()">Blast Update to All Devices</button>
@@ -560,21 +560,18 @@
     const db = getDatabase(fbApp);
 
     // --- HARDCODED CURRENT APP VERSION ---
-    // Change this number in your Android Studio HTML file every time you build a new APK!
-    const CURRENT_APP_VERSION = 1.0;
+    const CURRENT_APP_VERSION = 2.0;
     let globalUpdateLink = "";
 
-    // OTA UPDATE LISTENER (Runs instantly when app opens)
+    // OTA UPDATE LISTENER
     onValue(ref(db, 'globalUpdate'), (snap) => {
         const updateData = snap.val();
         if (updateData && parseFloat(updateData.version) > CURRENT_APP_VERSION) {
-            // A newer version exists! Show the un-skippable update screen.
             document.getElementById('update-v-text').innerText = updateData.version;
             document.getElementById('update-n-text').innerText = updateData.notes || "Bug fixes and improvements.";
             globalUpdateLink = updateData.link;
             document.getElementById('update-modal').classList.remove('hidden');
         } else {
-            // App is up to date.
             document.getElementById('update-modal').classList.add('hidden');
         }
     });
@@ -733,7 +730,6 @@
         }
     };
 
-    // --- NEW: MASTER ADMIN APP UPDATE LOGIC ---
     window.pushAppUpdate = () => {
         if(!isMasterAdmin) return;
         const v = document.getElementById('update-version-input').value.trim();
@@ -1229,8 +1225,17 @@
             if(masterUpdateCard) masterUpdateCard.classList.add('hidden');
         }
 
+        // --- RENDER MEMBER LIST WITH EDIT BUTTON ---
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
-            <tr><td style="font-weight:700;">${mem.name}</td><td>${mem.minMeal}</td>${isAdmin ? `<td><button class="del-btn" onclick="window.delMember(${mem.id})">✕</button></td>` : '<td></td>'}</tr>
+            <tr>
+                <td style="font-weight:700;">${mem.name}</td>
+                <td>${mem.minMeal}</td>
+                ${isAdmin ? `
+                <td style="text-align: right;">
+                    <button class="edit-btn-small" style="padding:4px 8px; font-size:0.7rem;" onclick="window.editMinMeal(${mem.id}, ${mem.minMeal})">✎ Edit</button>
+                    <button class="del-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="window.delMember(${mem.id})">✕</button>
+                </td>` : '<td></td>'}
+            </tr>
         `).join('');
 
         const dates = Object.keys(data.meals || {}).sort().reverse();
@@ -1284,6 +1289,25 @@
             document.getElementById('notice-display-card').classList.remove('hidden'); 
         } else {
             document.getElementById('notice-display-card').classList.add('hidden');
+        }
+    };
+
+    // --- NEW: EDIT MINIMUM MEAL LOGIC ---
+    window.editMinMeal = (id, currentMin) => {
+        if (!isAdmin) return;
+        const newMin = prompt("Enter new minimum meal limit for this member:", currentMin);
+        if (newMin !== null && newMin.trim() !== "") {
+            const parsedMin = parseInt(newMin);
+            if (!isNaN(parsedMin)) {
+                const memIndex = data.members.findIndex(m => m.id === id);
+                if (memIndex !== -1) {
+                    data.members[memIndex].minMeal = parsedMin;
+                    window.save();
+                    alert("Minimum meal updated successfully!");
+                }
+            } else {
+                alert("Please enter a valid number.");
+            }
         }
     };
 
