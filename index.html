@@ -5,271 +5,387 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mess Buddy</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         :root {
-            /* Ultra-Premium Crypto Dark Theme */
-            --bg-deep: #000000;       /* Pure Black */
-            --bg-card: #151515;       /* Dark Gray Cards */
-            --bg-input: #1E1E1E;      /* Input Fields */
+            /* Premium Fintech Color Palette */
+            --bg-base: #050505;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
             
-            /* UI Palette */
-            --primary: #E53935;       /* Bold Red Accent */
-            --secondary: #222222;     /* Dark Buttons */
-            --dark-navy: #FFFFFF;     /* Mapped to White to preserve your HTML structure */
+            /* Vibrant Brand Colors */
+            --primary: #caff33;       /* Neon Green */
+            --primary-gradient: linear-gradient(135deg, #caff33, #10b981);
+            --card-gradient: linear-gradient(135deg, #fc466b, #3f5efb); /* Holographic Card */
+            --secondary: #3f5efb;
             
             /* Status Colors */
-            --rose: #EF4444;
-            --emerald: #10B981;
+            --rose: #ff4757;
+            --rose-dim: rgba(255, 71, 87, 0.15);
+            --emerald: #2ed573;
+            --emerald-dim: rgba(46, 213, 115, 0.15);
             
-            /* Typography & Borders */
-            --text-main: #FFFFFF;
-            --text-dim: #888888;
-            --radius: 24px;
+            /* Typography */
+            --text-main: #ffffff;
+            --text-dim: #9ca3af;
+            --radius: 28px;
+            
+            /* 3D Shadows */
+            --shadow-3d: 
+                0 15px 35px rgba(0,0,0,0.5), 
+                inset 0 2px 2px rgba(255,255,255,0.2), 
+                inset 0 -2px 5px rgba(0,0,0,0.5);
+            --btn-shadow: 
+                0 10px 20px rgba(0,0,0,0.4), 
+                inset 0 1px 1px rgba(255,255,255,0.4), 
+                inset 0 -3px 5px rgba(0,0,0,0.2);
         }
 
-        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
-        
+        * { 
+            box-sizing: border-box; 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent; 
+        }
+
+        /* Animated Ambient Background */
         body { 
-            background-color: var(--bg-deep);
+            background-color: var(--bg-base);
             margin: 0; 
             padding-bottom: 120px; 
             color: var(--text-main); 
             min-height: 100vh;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(100px);
+            z-index: -1;
+            opacity: 0.5;
+            animation: floatOrb 10s infinite alternate ease-in-out;
+        }
+        body::before {
+            top: -50px; left: -50px;
+            background: #fc466b;
+        }
+        body::after {
+            bottom: 100px; right: -50px;
+            background: #3f5efb;
+            animation-delay: -5s;
         }
 
         /* --- Animations --- */
         @keyframes slideUpFade {
-            0% { opacity: 0; transform: translateY(30px); }
-            100% { opacity: 1; transform: translateY(0); }
+            0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); box-shadow: 0 15px 35px rgba(229, 57, 53, 0.15); }
-            100% { transform: translateY(0px); }
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 40px) scale(1.2); }
         }
 
         @keyframes pulseGlow {
-            0% { box-shadow: 0 8px 20px rgba(229, 57, 53, 0.3); }
-            50% { box-shadow: 0 12px 30px rgba(229, 57, 53, 0.5); }
-            100% { box-shadow: 0 8px 20px rgba(229, 57, 53, 0.3); }
+            0% { box-shadow: 0 0 15px rgba(202, 255, 51, 0.2); }
+            50% { box-shadow: 0 0 30px rgba(202, 255, 51, 0.6); }
+            100% { box-shadow: 0 0 15px rgba(202, 255, 51, 0.2); }
+        }
+
+        @keyframes cardTilt {
+            0% { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg); }
+            50% { transform: perspective(1000px) rotateX(-2deg) rotateY(2deg); }
+            100% { transform: perspective(1000px) rotateX(2deg) rotateY(-2deg); }
         }
 
         /* --- Screens & Modals --- */
-        #login-screen { 
+        #login-screen, #update-modal { 
             position: fixed; inset: 0; 
-            background: rgba(0, 0, 0, 0.95); 
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(5, 5, 5, 0.7); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex; align-items: center; justify-content: center; 
             z-index: 9999; 
             overflow-y: auto;
         }
         
-        #update-modal { 
-            position: fixed; inset: 0; 
-            background: rgba(0,0,0,0.9); 
-            backdrop-filter: blur(10px);
-            z-index: 20000; 
-            align-items: center; justify-content: center; 
-        }
+        #update-modal { z-index: 20000; }
         #update-modal:not(.hidden) { display: flex !important; }
 
-        .login-card { 
-            background: var(--bg-card);
+        .login-card, .modal-card { 
+            background: var(--glass-bg);
             padding: 40px 30px; 
-            border-radius: 32px; 
+            border-radius: 36px; 
             width: 90%; max-width: 380px; 
             text-align: center;
-            border: 1px solid #222;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid var(--glass-highlight);
+            border-left: 1px solid var(--glass-highlight);
+            box-shadow: var(--shadow-3d);
             opacity: 0;
             animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
             margin: auto;
         }
 
-        .login-card > * { opacity: 0; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .login-card > * { opacity: 0; animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .login-anim-1 { animation-delay: 0.1s !important; }
         .login-anim-2 { animation-delay: 0.2s !important; }
         .login-anim-3 { animation-delay: 0.3s !important; }
 
-        .logo-floating { animation: float 3.5s ease-in-out infinite !important; }
-
-        /* --- Floating Pill Navigation --- */
+        /* --- Navigation --- */
         nav { 
-            position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); 
-            width: 90%; max-width: 400px; 
-            background: #111111; border: 1px solid #222;
-            padding: 10px 15px; display: flex; z-index: 2000; 
-            border-radius: 40px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.8); 
-            justify-content: space-around; align-items: center;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); 
+            width: 85%; max-width: 380px; 
+            background: rgba(20, 20, 20, 0.65); 
+            border: 1px solid var(--glass-border);
+            border-top: 1px solid rgba(255,255,255,0.15);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 12px 20px; display: flex; z-index: 2000; 
+            border-radius: 50px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 -2px 10px rgba(0,0,0,0.3); 
+            justify-content: space-between; align-items: center;
         }
         nav button { 
-            width: 50px; height: 50px; border: none; background: transparent; 
-            color: #666666; border-radius: 50%; transition: 0.3s; 
+            width: 54px; height: 54px; border: none; background: transparent; 
+            color: var(--text-dim); border-radius: 50%; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             display: flex; justify-content: center; align-items: center; cursor: pointer;
+            position: relative;
         }
-        nav button svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2.5; fill: none; }
+        nav button svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 2.2; fill: none; transition: 0.3s; z-index: 2;}
+        nav button::before {
+            content: ''; position: absolute; inset: 0; border-radius: 50%;
+            background: var(--primary-gradient); opacity: 0; transition: 0.3s; z-index: 1;
+        }
         nav button.active { 
-            color: #FFFFFF; 
-            background: var(--primary); 
-            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4); 
+            color: #000; 
+            transform: translateY(-8px);
+            box-shadow: 0 10px 25px rgba(202, 255, 51, 0.3);
         }
+        nav button.active::before { opacity: 1; }
 
         /* --- Components --- */
-        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
-        
+        .container { padding: 25px 20px; max-width: 600px; margin: 0 auto; }
+
         .header-card {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 5px 20px;
+            padding: 10px 5px 30px;
         }
         .profile-icon {
-            width: 50px; height: 50px; border-radius: 50%;
-            background: var(--bg-input); display: flex; align-items: center; justify-content: center;
-            border: 1px solid #333; font-size: 1.2rem; font-weight: 800; color: #FFFFFF; overflow: hidden;
+            width: 55px; height: 55px; border-radius: 20px;
+            background: var(--glass-bg); display: flex; align-items: center; justify-content: center;
+            border: 1px solid var(--glass-highlight); box-shadow: var(--shadow-3d); 
+            overflow: hidden; padding: 4px;
         }
+        .profile-icon img { border-radius: 16px; }
 
-        /* Stacked Cards System */
-        .stacked-cards-container { position: relative; margin: 10px 0 30px; z-index: 1; }
+        /* Holographic Credit Card System */
+        .stacked-cards-container { position: relative; margin: 10px 0 40px; z-index: 1; }
         .card-layer-1 {
-            position: absolute; top: -20px; left: 15%; right: 15%; height: 60px; 
-            background: #111111; border-radius: 20px 20px 0 0; z-index: -2;
-            display: flex; padding: 12px 20px; color: var(--text-dim); font-size: 0.7rem; font-weight: 700; border: 1px solid #222;
+            position: absolute; top: -25px; left: 14%; right: 14%; height: 60px; 
+            background: rgba(255,255,255,0.02); border-radius: 30px 30px 0 0; z-index: -2;
+            border: 1px solid var(--glass-border); backdrop-filter: blur(10px);
         }
         .card-layer-2 {
-            position: absolute; top: -10px; left: 8%; right: 8%; height: 60px; 
-            background: #222222; border-radius: 20px 20px 0 0; z-index: -1;
-            display: flex; padding: 12px 20px; color: #FFFFFF; font-size: 0.7rem; font-weight: 800; border: 1px solid #333;
+            position: absolute; top: -12px; left: 7%; right: 7%; height: 60px; 
+            background: rgba(255,255,255,0.05); border-radius: 30px 30px 0 0; z-index: -1;
+            border: 1px solid var(--glass-highlight); backdrop-filter: blur(15px);
         }
         .main-cc {
-            background: linear-gradient(135deg, var(--primary) 0%, #B71C1C 100%); border-radius: 28px; padding: 25px; 
-            color: #FFFFFF; box-shadow: 0 15px 35px rgba(229, 57, 53, 0.3);
+            background: var(--card-gradient); 
+            border: 1px solid rgba(255,255,255,0.3);
+            border-bottom: 1px solid rgba(0,0,0,0.5);
+            border-radius: 32px; padding: 35px 30px; 
+            color: #fff; box-shadow: var(--shadow-3d), 0 20px 40px rgba(252, 70, 107, 0.2);
             position: relative; overflow: hidden;
+            animation: cardTilt 6s ease-in-out infinite;
+            transform-style: preserve-3d;
+        }
+        /* Holographic glass overlay */
+        .main-cc::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(125deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0) 100%);
+            z-index: 1; pointer-events: none;
         }
         .main-cc::after {
-            content: ''; position: absolute; top: -40px; right: -40px;
-            width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;
+            content: ''; position: absolute; top: -50%; right: -50%;
+            width: 200%; height: 200%; 
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 60%);
+            transform: rotate(45deg); z-index: 0; pointer-events: none;
         }
+        .main-cc > * { position: relative; z-index: 2; transform: translateZ(20px); }
 
         /* Income/Expense Pills */
-        .pill-container { display: flex; gap: 15px; margin-bottom: 25px; }
+        .pill-container { display: flex; gap: 15px; margin-bottom: 30px; }
         .action-pill {
-            flex: 1; border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5); border: 1px solid #222;
+            flex: 1; border-radius: 28px; padding: 18px; display: flex; align-items: center; gap: 15px;
+            background: var(--glass-bg); backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border); border-top: 1px solid var(--glass-highlight);
+            box-shadow: var(--shadow-3d);
         }
-        .action-pill.dark { background: #151515; color: white; }
-        .action-pill.neon { background: var(--primary); color: #FFFFFF; border: none; }
+        .action-pill.neon { 
+            background: rgba(202, 255, 51, 0.05); 
+            border: 1px solid rgba(202, 255, 51, 0.2);
+            border-top: 1px solid rgba(202, 255, 51, 0.5);
+        }
+        /* 3D Icon Box */
         .action-pill .icon-box {
-            width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center;
-            background: rgba(255,255,255,0.1); font-size: 1.2rem;
+            width: 46px; height: 46px; border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.3); font-size: 1.2rem; color: var(--text-main);
+            box-shadow: inset 2px 2px 5px rgba(255,255,255,0.1), inset -2px -2px 5px rgba(0,0,0,0.8), 0 5px 10px rgba(0,0,0,0.3);
+        }
+        .action-pill.neon .icon-box { 
+            color: var(--primary); 
+            background: rgba(202, 255, 51, 0.1);
+            box-shadow: inset 2px 2px 5px rgba(202,255,51,0.2), inset -2px -2px 5px rgba(0,0,0,0.5), 0 5px 15px rgba(202, 255, 51, 0.2);
         }
 
         .card { 
-            background: var(--bg-card); 
-            border-radius: var(--radius); padding: 20px; 
-            margin-bottom: 20px; border: 1px solid #222;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: var(--radius); padding: 25px; 
+            margin-bottom: 25px; 
+            border: 1px solid var(--glass-border); border-top: 1px solid var(--glass-highlight); border-left: 1px solid var(--glass-highlight);
+            box-shadow: var(--shadow-3d);
         }
 
-        /* Form Inputs */
+        /* Form Inputs - Neumorphic Inset */
         .edit-input { 
-            width: 100%; height: 55px; padding: 0 20px; color-scheme: dark;
-            border: 1px solid transparent; border-radius: 18px; 
-            font-size: 0.95rem; margin-bottom: 12px; background: var(--bg-input);
-            color: var(--text-main); font-weight: 600; outline: none; transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            width: 100%; height: 58px; padding: 0 22px; color-scheme: dark;
+            border: 1px solid rgba(0,0,0,0.5); border-radius: 20px; 
+            font-size: 1rem; margin-bottom: 15px; 
+            background: rgba(0,0,0,0.25);
+            color: var(--text-main); font-weight: 600; outline: none; transition: 0.3s;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.05);
         }
         .edit-input:focus { 
-            border-color: var(--primary); background: #222222; 
-            transform: scale(1.02); box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: rgba(0,0,0,0.4);
+            border-color: var(--primary);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.6), 0 0 0 2px rgba(202, 255, 51, 0.2);
         }
-        
+
+        /* 3D Buttons */
         .btn { 
-            height: 55px; border: none; border-radius: 18px; font-weight: 800; cursor: pointer; 
-            width: 100%; background: #222222; 
-            color: white; transition: all 0.2s; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            height: 58px; border: none; border-radius: 20px; font-weight: 800; cursor: pointer; 
+            width: 100%; background: #222; 
+            color: #fff; transition: all 0.2s; 
+            font-size: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: var(--btn-shadow);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .btn:active { transform: scale(0.95); }
+        .btn:active { transform: scale(0.95) translateY(2px); box-shadow: inset 0 4px 10px rgba(0,0,0,0.5); }
+
+        .login-btn, .btn.primary-btn {
+            background: var(--primary-gradient); color: #000;
+            border: 1px solid rgba(255,255,255,0.5);
+            box-shadow: 0 10px 25px rgba(202, 255, 51, 0.4), inset 0 2px 2px rgba(255,255,255,0.6), inset 0 -4px 6px rgba(0,0,0,0.2);
+        }
+        .login-btn { animation: pulseGlow 3s infinite; margin-top: 15px; }
+
+        /* Tables */
+        .table-wrap { overflow-x: auto; margin: 0 -5px; padding: 0 5px; }
+        .table-wrap::-webkit-scrollbar { height: 6px; }
+        .table-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         
-        /* Animated Login Button */
-        .login-btn {
-            background: var(--primary); color: #FFFFFF;
-            animation: pulseGlow 3s infinite; margin-top: 10px;
-        }
-
-        /* Tables (Dark Style) */
-        .table-wrap { overflow-x: auto; }
         table { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
-        th { text-align: left; padding: 0 10px; font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; }
-        td { padding: 16px 12px; font-size: 0.85rem; color: var(--text-main); background: var(--bg-input); }
-        td:first-child { border-radius: 16px 0 0 16px; border-left: 1px solid #222; border-top: 1px solid #222; border-bottom: 1px solid #222;}
-        td:last-child { border-radius: 0 16px 16px 0; border-right: 1px solid #222; border-top: 1px solid #222; border-bottom: 1px solid #222;}
+        th { text-align: left; padding: 0 12px 10px; font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+        td { padding: 20px 15px; font-size: 0.95rem; color: var(--text-main); background: rgba(0,0,0,0.2); box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); }
+        td:first-child { border-radius: 20px 0 0 20px; border-left: 1px solid rgba(255,255,255,0.05); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.02);}
+        td:last-child { border-radius: 0 20px 20px 0; border-right: 1px solid rgba(255,255,255,0.02); border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.02);}
 
-        .badge { padding: 8px 12px; border-radius: 12px; font-weight: 800; font-size: 0.65rem; border: none; cursor: pointer; }
-        .del-btn { background: rgba(229, 57, 53, 0.15); color: var(--rose); border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 800; }
-        .edit-btn-small { background: #333333; color: #FFFFFF; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 800; margin-right: 5px; }
+        /* 3D Badges */
+        .badge { 
+            padding: 10px 14px; border-radius: 12px; font-weight: 800; font-size: 0.75rem; border: none; cursor: pointer; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.3);
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .del-btn { background: linear-gradient(135deg, #ff4757, #ff6b81); color: #fff; border: none; padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 800; box-shadow: var(--btn-shadow); }
+        .edit-btn-small { background: linear-gradient(135deg, #4b4b4b, #2f3542); color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; cursor: pointer; font-weight: 800; margin-right: 5px; box-shadow: var(--btn-shadow); }
 
         .hidden { display: none !important; }
-        .fade-in-section { animation: slideUpFade 0.4s ease forwards; }
+        .fade-in-section { animation: slideUpFade 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
         .personal-toggle-bar {
             display: flex; align-items: center; justify-content: space-between;
-            padding: 16px 20px; background: var(--bg-card); border-radius: 20px; border: 1px solid #222;
-            margin-bottom: 25px; box-shadow: 0 8px 25px rgba(0,0,0,0.5); cursor: pointer;
+            padding: 20px 25px; background: var(--glass-bg); border-radius: 24px; 
+            border: 1px solid var(--glass-border); border-top: 1px solid var(--glass-highlight);
+            margin-bottom: 30px; box-shadow: var(--shadow-3d); cursor: pointer;
+            backdrop-filter: blur(15px);
         }
 
         .pay-link { 
-            display: block; width: 100%; text-align: center; background: var(--primary); 
-            color: #FFFFFF; text-decoration: none; padding: 16px; border-radius: 18px; 
-            font-weight: 800; margin-top: 15px; box-shadow: 0 8px 20px rgba(229, 57, 53, 0.3);
+            display: block; width: 100%; text-align: center; background: var(--primary-gradient); 
+            color: #000; text-decoration: none; padding: 18px; border-radius: 20px; 
+            font-weight: 800; margin-top: 20px; box-shadow: var(--btn-shadow), 0 10px 20px rgba(202, 255, 51, 0.3);
+            border: 1px solid rgba(255,255,255,0.5);
         }
 
-        select option { background: var(--bg-card); color: var(--text-main); }
+        select option { background: #111; color: var(--text-main); }
+        
+        .notice-card { background: rgba(46, 213, 115, 0.1); border: 1px solid rgba(46, 213, 115, 0.3); }
+        .notice-header { font-size: 0.8rem; color: var(--emerald); font-weight: 800; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; }
+        .notice-text { font-weight:600; font-size: 1rem; color: #fff; line-height: 1.6; }
+        
+        .admin-card-header { margin: 0 0 20px; font-size: 1.2rem; font-weight: 800; color: #fff; letter-spacing: 0.5px; }
+
+        /* 3D Checkbox */
+        input[type="checkbox"] {
+            appearance: none; width: 28px; height: 28px; background: rgba(0,0,0,0.3);
+            border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); cursor: pointer; position: relative;
+        }
+        input[type="checkbox"]:checked { background: var(--primary); box-shadow: 0 0 15px rgba(202,255,51,0.4), inset 0 2px 2px rgba(255,255,255,0.5); border: none; }
+        input[type="checkbox"]:checked::after {
+            content: '✔'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            color: #000; font-size: 16px; font-weight: 900;
+        }
     </style>
 </head>
 <body>
 
 <div id="update-modal" class="hidden">
-    <div class="card" style="width: 90%; max-width: 350px; text-align: center; padding: 30px; margin: auto; border: 1px solid #222; animation: slideUpFade 0.5s ease forwards;">
-        <div style="font-size: 3.5rem; margin-bottom: 10px; animation: float 3s ease-in-out infinite;">🚀</div>
-        <h2 style="margin: 0 0 10px; color: #FFFFFF; font-weight: 800;">App Update Available!</h2>
-        <p style="color: var(--text-dim); font-size: 0.9rem; font-weight: 600; margin-bottom: 20px;">Version <span id="update-v-text" style="color: var(--primary); font-weight: 800;"></span> is out.</p>
-        
-        <div style="background: var(--bg-input); padding: 15px; border-radius: 14px; font-size: 0.85rem; text-align: left; margin-bottom: 25px; font-weight: 600; color: var(--text-main);">
-            <div style="font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 5px;">Release Notes:</div>
-            <div id="update-n-text" style="white-space: pre-wrap;"></div>
+    <div class="modal-card">
+        <div style="font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));">🚀</div>
+        <h2 style="margin: 0 0 10px; color: #fff; font-weight: 800; font-size: 1.8rem;">App Update</h2>
+        <p style="color: var(--text-dim); font-size: 1rem; font-weight: 600; margin-bottom: 25px;">Version <span id="update-v-text" style="color: var(--primary); font-weight: 800;"></span> is out.</p>
+
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 20px; border-radius: 20px; font-size: 0.9rem; text-align: left; margin-bottom: 30px; font-weight: 500; color: #fff; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+            <div style="font-size: 0.75rem; color: var(--primary); text-transform: uppercase; margin-bottom: 10px; font-weight: 800; letter-spacing: 1px;">Release Notes:</div>
+            <div id="update-n-text" style="white-space: pre-wrap; line-height: 1.6;"></div>
         </div>
-        
-        <button class="btn" style="background: var(--primary); color: #FFFFFF; animation: pulseGlow 2s infinite;" onclick="downloadUpdate()">Download & Install</button>
+
+        <button class="btn login-btn" onclick="downloadUpdate()">Install Update</button>
     </div>
 </div>
 
 <div id="login-screen">
     <div class="login-card">
-        
-        <div class="login-anim-1 logo-floating" style="width: 95px; height: 95px; border-radius: 28px; margin: 0 auto 20px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5); background: var(--bg-input); display: flex; align-items: center; justify-content: center;">
+        <div class="login-anim-1 logo-floating" style="width: 110px; height: 110px; border-radius: 35px; margin: 0 auto 30px; overflow: hidden; box-shadow: var(--shadow-3d); border: 2px solid rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
             <img id="app-logo" src="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg" alt="Mess Buddy Logo" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
 
         <div class="login-anim-2">
-            <h1 style="margin:0; color:var(--text-main); font-size: 2rem; font-weight: 800;">Mess Buddy</h1>
-            <p style="color: var(--text-dim); font-size: 0.85rem; margin-bottom: 35px; font-weight: 600;">Clear dues, zero confusion.</p>
+            <h1 style="margin:0; color:#fff; font-size: 2.5rem; font-weight: 800; letter-spacing: -1px; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">Mess Buddy</h1>
+            <p style="color: var(--text-dim); font-size: 0.95rem; margin: 10px 0 40px; font-weight: 600;">Clear dues, zero confusion.</p>
         </div>
-        
+
         <div id="options-area" class="login-anim-3">
-            <button class="btn" style="margin-bottom: 15px; background: #222222; color: white;" onclick="switchView('login')">Existing User Login</button>
-            <button class="btn" style="background: transparent; color: var(--text-main); border: 2px solid #333; box-shadow: none;" onclick="switchView('register')">Register New Mess</button>
-            
-            <div style="margin-top: 35px;">
+            <button class="btn primary-btn" style="margin-bottom: 15px;" onclick="switchView('login')">Existing User Login</button>
+            <button class="btn" style="background: rgba(255,255,255,0.05);" onclick="switchView('register')">Register New Mess</button>
+
+            <div style="margin-top: 40px;">
                 <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20help%20with%20Mess%20Buddy" target="_blank" 
-                   style="color: var(--text-dim); text-decoration: none; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--emerald)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                    <span>Need Help? <span style="color: var(--text-main); border-bottom: 2px solid var(--primary);">Contact Developer</span></span>
+                   style="color: var(--text-dim); text-decoration: none; font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <div style="background: rgba(202,255,51,0.1); padding: 8px; border-radius: 50%; display: flex;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    </div>
+                    <span>Need Help? <span style="color: #fff;">Contact Developer</span></span>
                 </a>
             </div>
         </div>
@@ -279,26 +395,26 @@
                 <input type="text" id="v-name-input" placeholder="Your Name" class="edit-input">
             </div>
             <div id="returning-area" class="hidden">
-                <p id="returning-msg" style="font-weight: 800; color: var(--text-main); margin-bottom: 20px; background: var(--bg-input); padding: 12px; border-radius: 14px;"></p>
+                <p id="returning-msg" style="font-weight: 700; color: var(--primary); margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);"></p>
             </div>
 
-            <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px; font-weight: 800;">
+            <input type="password" id="pass" placeholder="Enter Access Key" class="edit-input" style="text-align: center; letter-spacing: 5px; font-weight: 800; font-size: 1.2rem;">
             <button class="btn login-btn" onclick="checkLogin()">Unlock Dashboard</button>
-            
-            <div style="margin-top: 25px;">
-                <button onclick="switchView('options')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer; font-size:0.8rem;">← Back to Options</button>
+
+            <div style="margin-top: 30px;">
+                <button onclick="switchView('options')" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; font-weight:700; cursor:pointer; font-size:0.9rem; padding: 12px 25px; border-radius: 20px; box-shadow: var(--btn-shadow);">← Back</button>
             </div>
         </div>
 
         <div id="register-mess-area" class="hidden fade-in-section">
-            <h3 style="margin:0 0 15px; color: var(--text-main);">Create New Mess</h3>
+            <h3 style="margin:0 0 25px; color: #fff; font-size: 1.5rem; font-weight: 800;">Create New Mess</h3>
             <input type="text" id="reg-mess-name" placeholder="Mess / PG Name" class="edit-input">
             <input type="text" id="reg-admin-key" placeholder="Create Admin Key" class="edit-input" style="text-transform: uppercase;">
             <input type="text" id="reg-viewer-key" placeholder="Create Viewer Key" class="edit-input" style="text-transform: uppercase;">
-            <button class="btn" style="background: var(--primary); color: #FFFFFF; box-shadow: 0 8px 20px rgba(229, 57, 53, 0.4); margin-top: 10px;" onclick="submitMessRegistration()">Submit Request</button>
-            
-            <div style="margin-top: 20px;">
-                <button onclick="switchView('options')" style="background:none; border:none; color:var(--text-dim); font-weight:700; cursor:pointer; font-size:0.8rem;">← Back to Options</button>
+            <button class="btn login-btn" style="margin-top: 15px;" onclick="submitMessRegistration()">Submit Request</button>
+
+            <div style="margin-top: 25px;">
+                <button onclick="switchView('options')" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; font-weight:700; cursor:pointer; font-size:0.9rem; padding: 12px 25px; border-radius: 20px; box-shadow: var(--btn-shadow);">← Back</button>
             </div>
         </div>
 
@@ -307,24 +423,24 @@
 
 <div id="app" class="hidden">
     <div class="container">
-        
+
         <div class="header-card">
             <div>
-                <p style="margin:0 0 4px; font-size: 0.8rem; color: var(--text-dim); font-weight: 700;">Hi, welcome back!</p>
-                <h2 id="dash-greeting" style="margin:0; font-weight: 800; font-size: 1.6rem; color: var(--text-main);">User</h2>
+                <p style="margin:0 0 6px; font-size: 0.9rem; color: var(--text-dim); font-weight: 600; letter-spacing: 0.5px;">Welcome back,</p>
+                <h2 id="dash-greeting" style="margin:0; font-weight: 800; font-size: 2rem; color: #fff; letter-spacing: -0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">User</h2>
             </div>
             <div class="profile-icon">
                 <img id="header-logo-img" src="" style="width:100%; height:100%; object-fit:cover;">
             </div>
         </div>
 
-        <div style="display:flex; gap:12px; margin-bottom: 25px; align-items: center;">
+        <div style="display:flex; gap:15px; margin-bottom: 30px; align-items: center;">
             <select id="filter-month" class="edit-input" style="flex:2; margin:0; font-weight: 700;" onchange="refreshUI()"></select>
             <select id="filter-year" class="edit-input" style="flex:1; margin:0; font-weight: 700;" onchange="refreshUI()">
                 <option value="2025">2025</option><option value="2026" selected>2026</option>
             </select>
-            <button class="btn" style="flex: 0.5; margin:0; background: var(--primary); color: #FFFFFF; padding: 0; display:flex; align-items:center; justify-content:center;" onclick="generatePDF()" title="Download PDF Report">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <button class="btn" style="flex: 0.6; margin:0; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 0;" onclick="generatePDF()" title="Download PDF Report">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             </button>
         </div>
 
@@ -347,32 +463,34 @@
         </nav>
 
         <div id="tab-dashboard" class="tab-content">
-            
+
             <div class="personal-toggle-bar" onclick="togglePersonalView()">
-                <span style="font-size: 0.9rem; font-weight: 800; color: var(--text-main);">View My Stats Only</span>
-                <input type="checkbox" id="personal-toggle" style="accent-color: var(--primary); width: 22px; height: 22px;">
+                <span style="font-size: 1rem; font-weight: 800; color: #fff;">View My Stats Only</span>
+                <input type="checkbox" id="personal-toggle">
             </div>
 
             <div class="stacked-cards-container">
                 <div class="card-layer-1">Admin Layer</div>
                 <div class="card-layer-2">Deposit Layer</div>
                 <div class="main-cc">
-                    <div style="display:flex; justify-content:space-between; margin-bottom: 20px; align-items: center;">
-                        <div id="display-mess-name" style="font-weight: 800; font-size: 1.3rem; letter-spacing: 1px; text-transform: uppercase;">SCHOLAR'S NEST</div>
-                        <div style="background: rgba(0,0,0,0.2); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.7rem;">PRO</div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 30px; align-items: center; position: relative; z-index: 2;">
+                        <div id="display-mess-name" style="font-weight: 800; font-size: 1.4rem; letter-spacing: 2px; text-transform: uppercase;">SCHOLAR'S NEST</div>
+                        <div style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 0.75rem; letter-spacing: 1px; box-shadow: 0 4px 10px rgba(0,0,0,0.2);">PRO</div>
                     </div>
-                    
-                    <div style="font-size: 0.75rem; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Total Cost</div>
-                    <h2 id="stat-cost" style="margin: 0 0 25px; font-size: 2.8rem; font-weight: 800; letter-spacing: -1px;">₹0</h2>
 
-                    <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-                        <div>
-                            <div style="font-size: 0.7rem; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Balance</div>
-                            <div id="stat-balance" style="font-size: 1.2rem; font-weight: 800;">₹0</div>
-                        </div>
-                        <div style="text-align: right;">
-                            <div style="font-size: 0.7rem; font-weight: 700; opacity: 0.8; text-transform: uppercase;">Current Rate</div>
-                            <div id="stat-rate" style="font-size: 1.2rem; font-weight: 800;">₹0</div>
+                    <div style="position: relative; z-index: 2;">
+                        <div style="font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px;">Total Cost</div>
+                        <h2 id="stat-cost" style="margin: 5px 0 35px; font-size: 3.5rem; font-weight: 800; letter-spacing: -2px; text-shadow: 0 5px 15px rgba(0,0,0,0.4);">₹0</h2>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                            <div>
+                                <div style="font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px;">Balance</div>
+                                <div id="stat-balance" style="font-size: 1.5rem; font-weight: 800; text-shadow: 0 2px 5px rgba(0,0,0,0.3);">₹0</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.8rem; font-weight: 700; color: rgba(255,255,255,0.8); text-transform: uppercase; letter-spacing: 1px;">Current Rate</div>
+                                <div id="stat-rate" style="font-size: 1.5rem; font-weight: 800; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.3);">₹0</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -380,28 +498,32 @@
 
             <div class="pill-container">
                 <div class="action-pill dark">
-                    <div class="icon-box">↑</div>
+                    <div class="icon-box">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                    </div>
                     <div>
-                        <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; opacity: 0.7;">Actual Meals</div>
-                        <div id="stat-actual-meals" style="font-size: 1.3rem; font-weight: 800;">0</div>
+                        <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-dim); letter-spacing: 0.5px;">Actual Meals</div>
+                        <div id="stat-actual-meals" style="font-size: 1.6rem; font-weight: 800; margin-top: 2px;">0</div>
                     </div>
                 </div>
                 <div class="action-pill neon">
-                    <div class="icon-box">↓</div>
+                    <div class="icon-box">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                    </div>
                     <div>
-                        <div style="font-size: 0.65rem; font-weight: 700; text-transform: uppercase; opacity: 0.7;">Billable Meals</div>
-                        <div id="stat-billable-meals" style="font-size: 1.3rem; font-weight: 800;">0</div>
+                        <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary); letter-spacing: 0.5px;">Billable Meals</div>
+                        <div id="stat-billable-meals" style="font-size: 1.6rem; font-weight: 800; margin-top: 2px; color: #fff;">0</div>
                     </div>
                 </div>
             </div>
 
-            <div id="notice-display-card" class="card hidden" style="background: rgba(229, 57, 53, 0.1); border: 1px solid rgba(229, 57, 53, 0.3);">
-                <div style="font-size: 0.75rem; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 6px;">📢 Notice</div>
-                <div id="current-notice" style="font-weight:700; font-size: 0.95rem; color: var(--text-main);"></div>
+            <div id="notice-display-card" class="card hidden notice-card">
+                <div class="notice-header">📢 Notice</div>
+                <div id="current-notice" class="notice-text"></div>
             </div>
 
-            <div style="margin-top: 10px;">
-                <h3 style="margin: 0 5px 15px; font-size: 1.1rem; font-weight: 800; color: var(--text-main);">All Transactions</h3>
+            <div style="margin-top: 20px;">
+                <h3 class="admin-card-header">All Transactions</h3>
                 <div class="table-wrap">
                     <table>
                         <thead><tr><th>Member</th><th>Paid</th><th>Meal</th><th>Bill</th><th>Status</th></tr></thead>
@@ -411,40 +533,42 @@
             </div>
 
             <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20tech%20support%20for%20Mess%20Buddy" 
-               class="card" style="display: flex; justify-content: space-between; align-items: center; text-decoration: none; padding: 20px; margin-top: 10px; background: #1E1E1E;">
+               class="card" style="display: flex; justify-content: space-between; align-items: center; text-decoration: none; padding: 20px; margin-top: 20px; background: rgba(0,0,0,0.4);">
                 <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 45px; height: 45px; border-radius: 14px; background: #222; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">👨‍💻</div>
+                    <div style="width: 50px; height: 50px; border-radius: 16px; background: rgba(63, 94, 251, 0.15); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; border: 1px solid rgba(63, 94, 251, 0.4); box-shadow: inset 0 2px 5px rgba(255,255,255,0.1);">👨‍💻</div>
                     <div>
-                        <div style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">Developer Support</div>
-                        <div style="font-size: 0.75rem; color: var(--text-dim); font-weight: 600;">Chat on WhatsApp</div>
+                        <div style="font-weight: 800; font-size: 1rem; color: #fff;">Developer Support</div>
+                        <div style="font-size: 0.8rem; color: var(--text-dim); font-weight: 700; margin-top: 4px;">Chat on WhatsApp</div>
                     </div>
                 </div>
-                <div style="color: var(--emerald); font-weight: 800;">→</div>
+                <div style="background: #fff; color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900;">→</div>
             </a>
 
-            <div id="qr-pay-card" class="card hidden" style="text-align:center; padding: 30px 20px;">
-                <p id="pay-text" style="margin:0 0 20px; font-weight: 800; font-size: 0.9rem; color: var(--text-main); text-transform: uppercase;">SCAN TO SETTLE DUE</p>
-                <img id="generated-qr" src="" style="width:180px; height:180px; border-radius:24px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); background: white; padding: 10px;">
-                <p id="qr-upi-text" style="font-size:1rem; color: var(--text-main); margin-top:20px; font-weight:800;"></p>
+            <div id="qr-pay-card" class="card hidden" style="text-align:center; padding: 40px 20px;">
+                <p id="pay-text" style="margin:0 0 25px; font-weight: 800; font-size: 1rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px;">SCAN TO SETTLE DUE</p>
+                <div style="background: linear-gradient(135deg, #fff, #f0f0f0); padding: 15px; border-radius: 28px; display: inline-block; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 2px 5px rgba(255,255,255,0.8);">
+                    <img id="generated-qr" src="" style="width:190px; height:190px; border-radius:16px;">
+                </div>
+                <p id="qr-upi-text" style="font-size:1.2rem; color: #fff; font-weight:800; margin: 0 0 25px;"></p>
                 <a id="mobile-pay-btn" href="#" class="pay-link hidden">PAY VIA UPI APP</a>
-                <button class="btn" style="margin-top: 15px; background: #222222; color: #FFFFFF;" onclick="sendPaymentRequest()">I Have Paid (Notify Admin)</button>
+                <button class="btn" style="margin-top: 15px;" onclick="sendPaymentRequest()">I Have Paid (Notify Admin)</button>
             </div>
-            
-            <div style="text-align: center; padding: 20px; opacity: 0.4; font-size: 0.65rem; font-weight: 700; letter-spacing: 2px;">
+
+            <div style="text-align: center; padding: 30px 20px 50px; opacity: 0.3; font-size: 0.7rem; font-weight: 800; letter-spacing: 3px; text-transform: uppercase;">
                 POWERED BY MESS BUDDY
             </div>
         </div>
 
         <div id="tab-meals" class="tab-content hidden">
-            <button id="undo-meal-btn" class="btn hidden admin-only" style="background: var(--secondary); color: var(--text-main); margin-bottom: 15px;" onclick="undoMeal()">↺ Undo Deleted Meal Record</button>
+            <button id="undo-meal-btn" class="btn hidden admin-only" style="margin-bottom: 25px;" onclick="undoMeal()">↺ Undo Deleted Meal Record</button>
 
             <div class="card admin-only hidden">
-                <h3 style="margin-top:0; color: var(--text-main);">Daily Meal Entry</h3>
+                <h3 class="admin-card-header">Daily Meal Entry</h3>
                 <input type="date" id="meal-date" class="edit-input">
-                <div id="meal-inputs-area" style="margin-top: 20px;"></div>
-                <button class="btn" onclick="saveDailyMeals()" style="margin-top: 15px; background: var(--primary); color: #FFFFFF;">Save Records</button>
+                <div id="meal-inputs-area" style="margin-top: 25px;"></div>
+                <button class="btn login-btn" onclick="saveDailyMeals()" style="margin-top: 20px;">Save Records</button>
             </div>
-            <div class="card" style="padding:10px 15px;">
+            <div class="card" style="padding:20px 15px;">
                 <div class="table-wrap">
                     <table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table>
                 </div>
@@ -452,110 +576,124 @@
         </div>
 
         <div id="tab-bazar" class="tab-content hidden">
-            <button id="undo-bazar-btn" class="btn hidden admin-only" style="background: var(--secondary); color: var(--text-main); margin-bottom: 15px;" onclick="undoBazar()">↺ Undo Deleted Expense</button>
+            <button id="undo-bazar-btn" class="btn hidden admin-only" style="margin-bottom: 25px;" onclick="undoBazar()">↺ Undo Deleted Expense</button>
 
             <div class="card admin-only hidden">
-                <h3 style="margin-top:0; color: var(--text-main);">New Expense</h3>
+                <h3 class="admin-card-header">New Expense</h3>
                 <input type="date" id="b-date" class="edit-input">
                 <input type="number" id="b-amt" placeholder="Amount (₹)" class="edit-input">
                 <input type="text" id="b-note" placeholder="Item Name" class="edit-input">
-                <button class="btn" style="background: var(--primary); color: #FFFFFF;" onclick="addBazar()">Add Cost</button>
+                <button class="btn login-btn" onclick="addBazar()">Add Cost</button>
             </div>
-            <div class="card" style="padding:10px 15px;"><div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div></div>
+            <div class="card" style="padding:20px 15px;">
+                <div class="table-wrap"><table><tbody id="bazar-body"></tbody></table></div>
+            </div>
         </div>
 
         <div id="tab-members" class="tab-content hidden">
-            
-            <div id="pending-requests-card" class="card admin-only hidden" style="background: rgba(229, 57, 53, 0.1); border: 1px solid rgba(229, 57, 53, 0.3);">
-                <h3 style="margin-top:0; color: var(--primary);">Pending Payments</h3>
+            <div id="pending-requests-card" class="card admin-only hidden" style="background: rgba(202, 255, 51, 0.1); border: 1px solid rgba(202, 255, 51, 0.3); box-shadow: inset 0 2px 10px rgba(202,255,51,0.1);">
+                <h3 style="margin:0 0 20px; color: var(--primary); font-size: 1.2rem; font-weight: 800; letter-spacing: 0.5px;">Pending Payments</h3>
                 <div class="table-wrap">
                     <table><tbody id="pending-requests-body"></tbody></table>
                 </div>
             </div>
 
             <div class="card admin-only hidden">
-                <h3 style="margin-top:0; color: var(--text-main);">Manage Team</h3>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="new-mem-name" placeholder="Name" class="edit-input" style="flex:2;">
-                    <input type="number" id="new-mem-min" placeholder="Min" class="edit-input" style="flex:1;">
+                <h3 class="admin-card-header">Manage Team</h3>
+                <div style="display:flex; gap:12px; margin-bottom: 15px;">
+                    <input type="text" id="new-mem-name" placeholder="Name" class="edit-input" style="flex:2; margin: 0;">
+                    <input type="number" id="new-mem-min" placeholder="Min" class="edit-input" style="flex:1; margin: 0;">
                 </div>
-                <button class="btn" style="background: var(--primary); color: #FFFFFF;" onclick="addMember()">Add Member</button>
-                <hr style="margin:30px 0; border: none; border-top: 1px solid #333;">
-                <h3 style="margin-top:0; color: var(--text-main);">Deposit Money</h3>
+                <button class="btn primary-btn" onclick="addMember()">Add Member</button>
+                
+                <hr style="margin:35px 0; border: none; border-top: 1px dashed rgba(255,255,255,0.2);">
+                
+                <h3 class="admin-card-header">Deposit Money</h3>
                 <input type="date" id="dep-date" class="edit-input">
                 <select id="dep-member" class="edit-input"></select>
                 <input type="number" id="dep-amt" placeholder="Amount (₹)" class="edit-input">
-                <button class="btn" style="background: #222222; color: #FFFFFF;" onclick="addDeposit()">Save Deposit</button>
+                <button class="btn" style="margin-top: 10px;" onclick="addDeposit()">Save Deposit</button>
             </div>
-            <div class="card" style="padding:10px 15px;"><div class="table-wrap"><table><thead><tr><th>Name</th><th>Min</th><th id="admin-act-head"></th></tr></thead><tbody id="members-list-body"></tbody></table></div></div>
             
-            <button id="undo-dep-btn" class="btn hidden admin-only" style="background: var(--secondary); color: var(--text-main); margin-bottom: 15px;" onclick="undoDep()">↺ Undo Deleted Deposit</button>
+            <div class="card" style="padding:20px 15px;">
+                <div class="table-wrap">
+                    <table>
+                        <thead><tr><th>Name</th><th>Min</th><th id="admin-act-head"></th></tr></thead>
+                        <tbody id="members-list-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <button id="undo-dep-btn" class="btn hidden admin-only" style="margin-bottom: 25px;" onclick="undoDep()">↺ Undo Deleted Deposit</button>
 
-            <div class="card" style="padding:10px 15px;"><h4 style="margin:10px 10px 15px; color: var(--text-main);">Deposit History</h4><div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div></div>
+            <div class="card" style="padding:20px 15px;">
+                <h4 style="margin:5px 10px 25px; font-size: 1.2rem; color: #fff; font-weight: 800; letter-spacing: 0.5px;">Deposit History</h4>
+                <div class="table-wrap"><table><tbody id="deposit-history-body"></tbody></table></div>
+            </div>
         </div>
 
         <div id="tab-settings" class="tab-content hidden">
-            
-            <div id="master-admin-update-card" class="card hidden" style="background: #111111; border: 1px solid #333;">
-                <h3 style="margin-top:0; color: var(--primary);">Push OTA App Update</h3>
-                <p style="font-size: 0.75rem; color: var(--text-dim);">Paste the download link to your new APK. A mandatory update screen will block the app for all users until they install it.</p>
+
+            <div id="master-admin-update-card" class="card hidden" style="background: rgba(63, 94, 251, 0.15); border: 1px solid rgba(63, 94, 251, 0.4);">
+                <h3 style="margin:0 0 15px; color: #74b9ff; font-weight: 900; font-size: 1.2rem; letter-spacing: 1px;">Push OTA App Update</h3>
+                <p style="font-size: 0.85rem; color: #fff; margin-bottom: 20px; line-height: 1.5; font-weight: 500;">Paste the download link to your new APK. A mandatory update screen will block the app for all users until they install it.</p>
                 <input type="number" step="0.1" id="update-version-input" class="edit-input" placeholder="New Version Number (e.g., 2.0)">
                 <input type="text" id="update-link-input" class="edit-input" placeholder="Direct APK Download Link (Google Drive, etc.)">
-                <textarea id="update-notes-input" class="edit-input" style="height:80px; resize:none; padding-top:15px;" placeholder="Release Notes: What's new in this version?"></textarea>
-                <button class="btn" style="background: var(--primary); color: #FFFFFF;" onclick="pushAppUpdate()">Blast Update to All Devices</button>
-                <button class="btn" style="background: transparent; border: 1px solid #ef4444; color: #ef4444; margin-top: 10px;" onclick="clearAppUpdate()">Remove Update Prompt</button>
+                <textarea id="update-notes-input" class="edit-input" style="height:100px; resize:none; padding-top:18px;" placeholder="Release Notes: What's new in this version?"></textarea>
+                <button class="btn" style="background: linear-gradient(135deg, #0984e3, #74b9ff); color: #fff; border:none;" onclick="pushAppUpdate()">Blast Update to All Devices</button>
+                <button class="btn" style="background: rgba(0,0,0,0.5); border: 1px solid var(--rose); color: var(--rose); margin-top: 15px;" onclick="clearAppUpdate()">Remove Update Prompt</button>
             </div>
 
-            <div id="master-admin-logo-card" class="card hidden" style="background: var(--bg-card); border: 1px solid #333;">
-                <h3 style="margin-top:0; color: var(--text-main);">App Logo Setup</h3>
-                <p style="font-size: 0.75rem; color: var(--text-dim);">Paste a direct image link to update the login logo instantly for all users.</p>
+            <div id="master-admin-logo-card" class="card hidden">
+                <h3 class="admin-card-header">App Logo Setup</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 20px; line-height: 1.5;">Paste a direct image link to update the login logo instantly for all users.</p>
                 <input type="text" id="logo-url-input" class="edit-input" placeholder="Paste Direct Image Link (https://...)">
-                <div style="display:flex; gap:10px;">
-                    <button class="btn" style="flex: 1; background: var(--primary); color: #FFFFFF;" onclick="updateGlobalLogo()">Update Logo</button>
-                    <button class="btn" style="background: rgba(229, 57, 53, 0.15); color: var(--rose); box-shadow: none; flex: 0.4;" onclick="deleteGlobalLogo()">Remove</button>
+                <div style="display:flex; gap:15px;">
+                    <button class="btn" style="flex: 1;" onclick="updateGlobalLogo()">Update Logo</button>
+                    <button class="btn" style="background: var(--rose-dim); color: var(--rose); border: 1px solid rgba(255,71,87,0.3); flex: 0.4;" onclick="deleteGlobalLogo()">Remove</button>
                 </div>
             </div>
 
-            <div id="master-admin-registry-card" class="card hidden" style="background: #111111; border: 1px solid #333;">
-                <h3 style="margin-top:0; color: var(--primary);">Mess Registrations</h3>
-                <p style="font-size: 0.75rem; color: var(--text-dim);">Approve new messes requesting to use the app.</p>
+            <div id="master-admin-registry-card" class="card hidden">
+                <h3 class="admin-card-header">Mess Registrations</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 20px;">Approve new messes requesting to use the app.</p>
                 <div class="table-wrap">
                     <table><tbody id="registry-requests-body"></tbody></table>
                 </div>
             </div>
 
-            <div id="master-admin-active-card" class="card hidden" style="background: rgba(229, 57, 53, 0.1); border: 1px solid rgba(229, 57, 53, 0.3);">
-                <h3 style="margin-top:0; color: var(--primary);">Active Messes</h3>
-                <p style="font-size: 0.75rem; color: var(--text-dim);">Manage active messes. Edit their login keys or delete them.</p>
+            <div id="master-admin-active-card" class="card hidden" style="background: rgba(252, 70, 107, 0.1); border: 1px solid rgba(252, 70, 107, 0.3);">
+                <h3 style="margin:0 0 15px; color: #ff9ff3; font-weight: 800; font-size: 1.2rem;">Active Messes</h3>
+                <p style="font-size: 0.85rem; color: #fff; margin-bottom: 20px;">Manage active messes. Edit their login keys or delete them.</p>
                 <div class="table-wrap">
                     <table><tbody id="active-messes-body"></tbody></table>
                 </div>
             </div>
 
             <div class="card">
-                <h3 style="margin-top:0; color: var(--text-main);">System Config</h3>
-                <p style="font-size: 0.75rem; color: var(--text-dim);">Update your Mess Name, UPI ID, or securely change your Mess access keys.</p>
-                
+                <h3 class="admin-card-header">System Config</h3>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 25px; line-height: 1.5;">Update your Mess Name, UPI ID, or securely change your Mess access keys.</p>
+
                 <input type="text" id="set-mess-name" class="edit-input" placeholder="Mess Name">
                 <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID (For Receiving Payments)">
                 <input type="text" id="set-admin-key" class="edit-input" placeholder="New Admin Key (Master Only)" style="text-transform: uppercase;">
                 <input type="text" id="set-viewer-key" class="edit-input" placeholder="New Viewer Key (Master Only)" style="text-transform: uppercase;">
-                
-                <button class="btn" style="background: var(--primary); color: #FFFFFF;" onclick="updateKeys()">Save Settings</button>
-                <button class="btn" style="background: #1E1E1E; color: var(--rose); box-shadow: none; margin-top:15px;" onclick="resetIdentity()">Logout Account</button>
+
+                <button class="btn login-btn" style="margin-top: 10px;" onclick="updateKeys()">Save Settings</button>
+                <button class="btn" style="background: rgba(0,0,0,0.5); border: 1px solid var(--rose); color: var(--rose); margin-top:20px;" onclick="resetIdentity()">Logout Account</button>
             </div>
-            
+
             <div class="card">
-                <h3 style="margin-top:0; color: var(--text-main);">Global Notice</h3>
-                <textarea id="notice-input" class="edit-input" style="height:100px; resize: none; padding-top: 15px;" placeholder="Write your announcement here..."></textarea>
-                
-                <div style="display:flex; gap:10px; margin-bottom: 10px;">
-                    <button class="btn" style="flex: 1; background: #333;" onclick="updateNotice()">Post in App</button>
-                    <button class="btn" style="background: rgba(229, 57, 53, 0.15); color: var(--rose); box-shadow: none; flex: 0.4;" onclick="deleteNotice()">Clear</button>
+                <h3 class="admin-card-header">Global Notice</h3>
+                <textarea id="notice-input" class="edit-input" style="height:120px; resize: none; padding-top: 18px;" placeholder="Write your announcement here..."></textarea>
+
+                <div style="display:flex; gap:15px; margin-bottom: 15px;">
+                    <button class="btn" style="flex: 1;" onclick="updateNotice()">Post in App</button>
+                    <button class="btn" style="background: var(--rose-dim); color: var(--rose); border: 1px solid rgba(255,71,87,0.3); flex: 0.4;" onclick="deleteNotice()">Clear</button>
                 </div>
-                
-                <button class="btn" style="background: #25D366; color: white; box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; gap: 10px;" onclick="updateAndShareNotice()">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+
+                <button class="btn" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid #34d399; margin-top: 15px;" onclick="updateAndShareNotice()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                     Post & Forward to WhatsApp
                 </button>
             </div>
@@ -581,7 +719,7 @@
     const db = getDatabase(fbApp);
 
     // --- HARDCODED CURRENT APP VERSION ---
-    const CURRENT_APP_VERSION = 1.0;
+    const CURRENT_APP_VERSION = 2.0;
     let globalUpdateLink = "";
 
     // OTA UPDATE LISTENER
@@ -620,7 +758,7 @@
     let isAdmin = false;
     let isMasterAdmin = false;
     let data = { members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], upiId: "", keys: {} };
-    
+
     // State Variables
     let showOnlyMe = false;
     let currentPayName = "";
@@ -679,10 +817,10 @@
         if(pass === masterAdminKey || pass === masterViewerKey) {
             if(pass === masterViewerKey && !nameToSave) return alert("Enter your name!");
             if(pass === masterViewerKey) localStorage.setItem('mb_name', nameToSave);
-            
+
             isAdmin = (pass === masterAdminKey);
             isMasterAdmin = isAdmin; 
-            
+
             window.executeLogin('DEFAULT', isAdmin, "Scholar's Nest");
             return;
         }
@@ -690,13 +828,13 @@
         const keySnap = await get(child(ref(db), `messRegistry/keys/${pass}`));
         if (keySnap.exists()) {
             const keyInfo = keySnap.val();
-            
+
             if(keyInfo.role === 'viewer' && !nameToSave) return alert("Enter your name!");
             if(keyInfo.role === 'viewer') localStorage.setItem('mb_name', nameToSave);
-            
+
             isAdmin = (keyInfo.role === 'admin');
             isMasterAdmin = false;
-            
+
             window.executeLogin(keyInfo.messId, isAdmin, keyInfo.messName);
         } else {
             alert("Incorrect Key or Mess not registered!");
@@ -711,9 +849,9 @@
         
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
-        
+
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !adminStatus));
-        
+
         const mSel = document.getElementById('filter-month');
         if(mSel.options.length === 0) {
             const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
@@ -726,7 +864,9 @@
             const cloud = snap.val();
             if(cloud) { 
                 data = cloud; 
-                if(data.messName && document.getElementById('display-mess-name')) document.getElementById('display-mess-name').innerText = data.messName.toUpperCase();
+                if(data.messName && document.getElementById('display-mess-name')) {
+                    document.getElementById('display-mess-name').innerText = data.messName.toUpperCase();
+                }
                 window.refreshUI(); 
                 window.refreshExtras(); 
             }
@@ -813,7 +953,7 @@
 
         if(!mName || !aKey || !vKey) return alert("Please fill all fields.");
         if(aKey === vKey) return alert("Admin and Viewer keys must be different.");
-        
+
         if(["MESS2026", "MESSMEAL"].includes(aKey) || ["MESS2026", "MESSMEAL"].includes(vKey)) {
             return alert("That key is reserved. Please pick a unique key.");
         }
@@ -830,7 +970,7 @@
             viewerKey: vKey,
             timestamp: new Date().toISOString()
         });
-        
+
         alert("Registration Sent! Waiting for the Master Admin to approve.");
         window.switchView('options');
     };
@@ -850,7 +990,7 @@
             messName: req.messName,
             members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], upiId: ""
         });
-        
+
         await set(ref(db, `messRegistry/active/${reqId}`), {
             messName: req.messName,
             adminKey: req.adminKey,
@@ -868,19 +1008,19 @@
             await set(ref(db, `messRegistry/pending/${reqId}`), null);
         }
     };
-    
+
     window.changeMessKeys = async (reqId) => {
         if(!isMasterAdmin) return;
         const r = globalActiveMesses[reqId];
         if(!r) return;
-        
+
         const newAdmin = prompt("Enter new ADMIN Key for this mess:", r.adminKey)?.trim().toUpperCase();
         if(!newAdmin) return;
         const newViewer = prompt("Enter new VIEWER Key for this mess:", r.viewerKey)?.trim().toUpperCase();
         if(!newViewer) return;
-        
+
         if(newAdmin === newViewer) return alert("Admin and Viewer keys must be different.");
-        
+
         if(newAdmin !== r.adminKey) {
             const aSnap = await get(child(ref(db), `messRegistry/keys/${newAdmin}`));
             if(aSnap.exists()) return alert(`Key ${newAdmin} is already taken!`);
@@ -889,16 +1029,16 @@
             const vSnap = await get(child(ref(db), `messRegistry/keys/${newViewer}`));
             if(vSnap.exists()) return alert(`Key ${newViewer} is already taken!`);
         }
-        
+
         if(newAdmin !== r.adminKey) await set(ref(db, `messRegistry/keys/${r.adminKey}`), null);
         if(newViewer !== r.viewerKey) await set(ref(db, `messRegistry/keys/${r.viewerKey}`), null);
-        
+
         await set(ref(db, `messRegistry/keys/${newAdmin}`), { messId: reqId, role: 'admin', messName: r.messName });
         await set(ref(db, `messRegistry/keys/${newViewer}`), { messId: reqId, role: 'viewer', messName: r.messName });
-        
+
         await set(ref(db, `messRegistry/active/${reqId}/adminKey`), newAdmin);
         await set(ref(db, `messRegistry/active/${reqId}/viewerKey`), newViewer);
-        
+
         alert("Keys updated successfully! Provide the new keys to the mess admin.");
     };
 
@@ -965,10 +1105,10 @@
 
     window.generatePDF = () => {
         if (!window.jspdf) return alert("Please wait a moment for the PDF system to load...");
-        
+
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        
+
         const m = document.getElementById('filter-month').value;
         const y = document.getElementById('filter-year').value;
         const filterStr = `${y}-${m}`;
@@ -984,14 +1124,14 @@
 
         let totalMeals = 0, totalBillable = 0, cost = 0, income = 0;
         let mActual = {}, mDeps = {};
-        
+
         (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
-        
+
         (data.deposits || []).filter(d => d.date.startsWith(filterStr)).forEach(d => {
             mDeps[d.mId] += parseFloat(d.amt);
             income += parseFloat(d.amt);
         });
-        
+
         if(data.meals) {
             Object.entries(data.meals).forEach(([date, dayData]) => {
                 if(date.startsWith(filterStr)) {
@@ -1005,7 +1145,7 @@
         const today = new Date();
         const lastDay = new Date(yNum, mNum, 0).getDate();
         const endOfMonthDateStr = `${y}-${m}-${lastDay.toString().padStart(2, '0')}`;
-        
+
         const isMonthComplete = (yNum < today.getFullYear()) || 
                                 (yNum === today.getFullYear() && mNum < (today.getMonth() + 1)) || 
                                 !!(data.meals && data.meals[endOfMonthDateStr]);
@@ -1035,15 +1175,15 @@
             startY: startY + 5,
             head: [['Member', 'Deposited', 'Meals', 'Bill', 'Status']],
             body: summaryBody,
-            headStyles: { fillColor: [17, 24, 39] } 
+            headStyles: { fillColor: [5, 5, 5] } 
         });
 
         let finalY = doc.lastAutoTable.finalY + 15;
         doc.text("2. Daily Meals", 14, finalY);
-        
+
         const dates = Object.keys(data.meals || {}).sort().reverse().filter(d => d.startsWith(filterStr));
         const membersList = data.members || [];
-        
+
         let mealHead = ['Date', ...membersList.map(m => m.name.substring(0,3))];
         let mealBody = dates.map(d => {
             let row = [d.substring(5)]; 
@@ -1057,43 +1197,43 @@
             startY: finalY + 5,
             head: [mealHead],
             body: mealBody,
-            headStyles: { fillColor: [17, 24, 39] }
+            headStyles: { fillColor: [5, 5, 5] }
         });
 
         finalY = doc.lastAutoTable.finalY + 15;
         if(finalY > 250) { doc.addPage(); finalY = 20; }
-        
+
         doc.text("3. Daily Expenses (Bazar)", 14, finalY);
         let bazarBody = filteredBazar.slice().reverse().map(b => [b.date.substring(5), b.note, `Rs ${b.amt}`]);
         bazarBody.push(['', 'TOTAL COST', `Rs ${cost}`]); 
-        
+
         doc.autoTable({
             startY: finalY + 5,
             head: [['Date', 'Item/Note', 'Amount']],
             body: bazarBody,
-            headStyles: { fillColor: [17, 24, 39] },
+            headStyles: { fillColor: [5, 5, 5] },
             didParseCell: function(data) {
                 if (data.row.index === bazarBody.length - 1) {
                     data.cell.styles.fontStyle = 'bold';
-                    data.cell.styles.textColor = [239, 68, 68]; 
+                    data.cell.styles.textColor = [255, 71, 87]; 
                 }
             }
         });
 
         finalY = doc.lastAutoTable.finalY + 15;
         if(finalY > 250) { doc.addPage(); finalY = 20; }
-        
+
         doc.text("4. Deposit History", 14, finalY);
         let depositBody = (data.deposits || []).filter(d => d.date.startsWith(filterStr)).slice().reverse().map(d => {
             const mem = data.members.find(m => m.id == d.mId);
             return [d.date.substring(5), mem ? mem.name : 'Unknown', `Rs ${d.amt}`];
         });
-        
+
         doc.autoTable({
             startY: finalY + 5,
             head: [['Date', 'Member Name', 'Amount']],
             body: depositBody,
-            headStyles: { fillColor: [17, 24, 39] }
+            headStyles: { fillColor: [5, 5, 5] }
         });
 
         const safeTitle = messTitle.replace(/[^a-zA-Z0-9]/g, '_');
@@ -1114,10 +1254,10 @@
         const filterStr = `${y}-${m}`;
         const myName = (localStorage.getItem('mb_name') || "").toUpperCase();
         const currentUserObj = (data.members || []).find(mem => mem.name === myName);
-        
+
         let totalMeals = 0, totalBillable = 0, mActual = {}, mDeps = {}, income = 0;
         (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
-        
+
         (data.deposits || []).forEach(d => {
             if(d.date.startsWith(filterStr)) { mDeps[d.mId] += parseFloat(d.amt); income += parseFloat(d.amt); }
         });
@@ -1135,7 +1275,7 @@
         const today = new Date();
         const lastDay = new Date(yNum, mNum, 0).getDate();
         const endOfMonthDateStr = `${y}-${m}-${lastDay.toString().padStart(2, '0')}`;
-        
+
         const isMonthComplete = (yNum < today.getFullYear()) || 
                                 (yNum === today.getFullYear() && mNum < (today.getMonth() + 1)) || 
                                 !!(data.meals && data.meals[endOfMonthDateStr]);
@@ -1167,17 +1307,17 @@
                 const billAmount = Math.round(mem.bill * rate);
                 const depAmount = Math.round(mDeps[mem.id] || 0);
                 const net = billAmount - depAmount;
-                
+
                 let statusHtml = '';
                 if (net > 0) {
-                    statusHtml = `<button class="badge" onclick="window.startPay('${mem.name}', ${net})" style="background:rgba(229, 57, 53, 0.15); color:var(--tertiary)">DUE ₹${net}</button>`;
+                    statusHtml = `<button class="badge" onclick="window.startPay('${mem.name}', ${net})" style="background:var(--rose-dim); color:var(--rose); border: 1px solid rgba(255,71,87,0.3);">DUE ₹${net}</button>`;
                 } else if (net < 0) {
-                    statusHtml = `<button class="badge" style="background:rgba(16, 185, 129, 0.15); color:var(--emerald)">EXTRA ₹${Math.abs(net)}</button>`;
+                    statusHtml = `<button class="badge" style="background:var(--emerald-dim); color:var(--emerald); border: 1px solid rgba(46,213,115,0.3);">EXTRA ₹${Math.abs(net)}</button>`;
                 } else {
-                    statusHtml = `<button class="badge" style="background:#222; color:var(--text-dim)">SETTLED</button>`;
+                    statusHtml = `<button class="badge" style="background:rgba(255,255,255,0.1); color:var(--text-dim); border: 1px solid rgba(255,255,255,0.2);">SETTLED</button>`;
                 }
 
-                return `<tr><td style="font-weight:700;">${mem.name}</td><td style="font-weight:700;">₹${depAmount}</td><td style="font-weight:700;">${mem.act}</td><td style="font-weight:700; color:var(--primary);">₹${billAmount}</td><td>${statusHtml}</td></tr>`;
+                return `<tr><td style="font-weight:800;">${mem.name}</td><td style="font-weight:700;">₹${depAmount}</td><td style="font-weight:700;">${mem.act}</td><td style="font-weight:800; color:var(--primary);">₹${billAmount}</td><td>${statusHtml}</td></tr>`;
             }).join('');
 
         const pendingCard = document.getElementById('pending-requests-card');
@@ -1185,11 +1325,11 @@
             pendingCard.classList.remove('hidden');
             document.getElementById('pending-requests-body').innerHTML = data.pendingDeposits.map((req, idx) => `
                 <tr>
-                    <td style="font-weight:700; color:var(--text-main);">${req.name}</td>
-                    <td style="font-weight:800; color:var(--emerald);">₹${req.amt}</td>
+                    <td style="font-weight:800; color:#fff;">${req.name}</td>
+                    <td style="font-weight:800; color:var(--primary);">₹${req.amt}</td>
                     <td style="text-align:right;">
-                        <button onclick="window.approveRequest(${idx})" style="background:var(--emerald); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer; margin-right:5px;">✓</button>
-                        <button onclick="window.rejectRequest(${idx})" style="background:rgba(229, 57, 53, 0.15); color:var(--rose); border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer;">✕</button>
+                        <button onclick="window.approveRequest(${idx})" style="background:var(--primary-gradient); color:#000; border:none; padding:8px 14px; border-radius:12px; font-weight:800; cursor:pointer; margin-right:5px; box-shadow:0 4px 10px rgba(202,255,51,0.3);">✓</button>
+                        <button onclick="window.rejectRequest(${idx})" style="background:linear-gradient(135deg, #ff4757, #ff6b81); color:#fff; border:none; padding:8px 14px; border-radius:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 10px rgba(255,71,87,0.3);">✕</button>
                     </td>
                 </tr>
             `).join('');
@@ -1201,7 +1341,7 @@
         const masterActiveCard = document.getElementById('master-admin-active-card');
         const masterLogoCard = document.getElementById('master-admin-logo-card');
         const masterUpdateCard = document.getElementById('master-admin-update-card');
-        
+
         if (isMasterAdmin) {
             if(masterRegCard) masterRegCard.classList.remove('hidden');
             if(masterActiveCard) masterActiveCard.classList.remove('hidden');
@@ -1214,16 +1354,16 @@
                     const r = globalPendingMesses[reqId];
                     return `
                     <tr>
-                        <td style="font-weight:700; color:var(--primary);">${r.messName}</td>
-                        <td style="font-size:0.65rem; color:var(--text-dim);">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
+                        <td style="font-weight:800; color:#fff;">${r.messName}</td>
+                        <td style="font-size:0.75rem; color:var(--text-dim);">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
                         <td style="text-align:right;">
-                            <button onclick="window.approveNewMess('${reqId}')" style="background:var(--emerald); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer; margin-right:5px;">✓</button>
-                            <button onclick="window.rejectNewMess('${reqId}')" style="background:rgba(229, 57, 53, 0.15); color:var(--rose); border:none; padding:6px 12px; border-radius:8px; font-weight:800; cursor:pointer;">✕</button>
+                            <button onclick="window.approveNewMess('${reqId}')" style="background:var(--primary-gradient); color:#000; border:none; padding:8px 14px; border-radius:12px; font-weight:800; cursor:pointer; margin-right:5px; box-shadow:0 4px 10px rgba(202,255,51,0.3);">✓</button>
+                            <button onclick="window.rejectNewMess('${reqId}')" style="background:linear-gradient(135deg, #ff4757, #ff6b81); color:#fff; border:none; padding:8px 14px; border-radius:12px; font-weight:800; cursor:pointer; box-shadow:0 4px 10px rgba(255,71,87,0.3);">✕</button>
                         </td>
                     </tr>`;
                 }).join('');
             } else {
-                document.getElementById('registry-requests-body').innerHTML = '<tr><td colspan="3" style="color:var(--text-dim); text-align:center; padding:15px;">No pending registrations</td></tr>';
+                document.getElementById('registry-requests-body').innerHTML = '<tr><td colspan="3" style="color:var(--text-dim); text-align:center; padding:15px; font-weight:600;">No pending registrations</td></tr>';
             }
 
             const activeReqs = Object.keys(globalActiveMesses);
@@ -1232,16 +1372,16 @@
                     const r = globalActiveMesses[reqId];
                     return `
                     <tr>
-                        <td style="font-weight:700; color:var(--primary);">${r.messName}</td>
-                        <td style="font-size:0.65rem; color:var(--text-dim);">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
+                        <td style="font-weight:800; color:#ff9ff3;">${r.messName}</td>
+                        <td style="font-size:0.75rem; color:var(--text-dim);">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
                         <td style="text-align:right;">
-                            <button onclick="window.changeMessKeys('${reqId}')" class="edit-btn-small">Edit Keys</button>
+                            <button onclick="window.changeMessKeys('${reqId}')" class="edit-btn-small">Edit</button>
                             <button onclick="window.deleteActiveMess('${reqId}')" class="del-btn">Delete</button>
                         </td>
                     </tr>`;
                 }).join('');
             } else {
-                document.getElementById('active-messes-body').innerHTML = '<tr><td colspan="3" style="color:var(--text-dim); text-align:center; padding:15px;">No active messes</td></tr>';
+                document.getElementById('active-messes-body').innerHTML = '<tr><td colspan="3" style="color:var(--text-dim); text-align:center; padding:15px; font-weight:600;">No active messes</td></tr>';
             }
         } else {
             if(masterRegCard) masterRegCard.classList.add('hidden');
@@ -1250,15 +1390,14 @@
             if(masterUpdateCard) masterUpdateCard.classList.add('hidden');
         }
 
-        // --- RENDER MEMBER LIST WITH EDIT BUTTON ---
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
             <tr>
-                <td style="font-weight:700;">${mem.name}</td>
-                <td>${mem.minMeal}</td>
+                <td style="font-weight:800;">${mem.name}</td>
+                <td style="font-weight:600;">${mem.minMeal}</td>
                 ${isAdmin ? `
                 <td style="text-align: right;">
-                    <button class="edit-btn-small" style="padding:4px 8px; font-size:0.7rem;" onclick="window.editMinMeal(${mem.id}, ${mem.minMeal})">✎ Edit</button>
-                    <button class="del-btn" style="padding:4px 8px; font-size:0.7rem;" onclick="window.delMember(${mem.id})">✕</button>
+                    <button class="edit-btn-small" style="padding:6px 12px; font-size:0.75rem;" onclick="window.editMinMeal(${mem.id}, ${mem.minMeal})">✎ Edit</button>
+                    <button class="del-btn" style="padding:6px 12px; font-size:0.75rem;" onclick="window.delMember(${mem.id})">✕</button>
                 </td>` : '<td></td>'}
             </tr>
         `).join('');
@@ -1267,8 +1406,8 @@
         const filteredDates = dates.filter(d => d.startsWith(filterStr));
         const filteredMembers = (data.members || []).filter(mem => !showOnlyMe || mem.name === myName);
         document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th></th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.substring(5)}</td>${filteredMembers.map(mem => `<td style="font-weight:700;">${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" class="del-btn" style="padding:4px 8px; font-size:0.6rem;">✕</button></td>`:''}</tr>`).join('');
-        
+        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td style="color:var(--text-dim); font-size:0.8rem; font-weight:800;">${d.substring(5)}</td>${filteredMembers.map(mem => `<td style="font-weight:700;">${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" class="del-btn" style="padding:6px 10px; font-size:0.7rem;">✕</button></td>`:''}</tr>`).join('');
+
         document.getElementById('deposit-history-body').innerHTML = (data.deposits || [])
             .filter(d => d.date.startsWith(filterStr))
             .filter(d => !showOnlyMe || (currentUserObj && d.mId === currentUserObj.id))
@@ -1276,18 +1415,19 @@
             .map((d) => {
                 const realIdx = data.deposits.indexOf(d);
                 const mem = data.members.find(m => m.id == d.mId);
-                return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${d.date.substring(5)}</td><td style="font-weight:700;">${mem?mem.name:'?'}</td><td style="color:var(--text-main); font-weight:800;">₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn" style="padding:4px 8px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
+                return `<tr><td style="color:var(--text-dim); font-size:0.8rem; font-weight:800;">${d.date.substring(5)}</td><td style="font-weight:800;">${mem?mem.name:'?'}</td><td style="color:var(--primary); font-weight:800;">₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn" style="padding:6px 10px; font-size:0.7rem;">✕</button></td>`:''}</tr>`;
             }).join('');
 
         document.getElementById('bazar-body').innerHTML = filteredBazar.slice().reverse().map((b) => {
             const realIdx = data.bazar.indexOf(b);
-            return `<tr><td style="color:var(--text-dim); font-size:0.75rem; font-weight:700;">${b.date.substring(5)}</td><td style="font-weight:600;">${b.note}</td><td style="color:var(--text-main); font-weight:800;">₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn" style="padding:4px 8px; font-size:0.6rem;">✕</button></td>`:''}</tr>`;
+            return `<tr><td style="color:var(--text-dim); font-size:0.8rem; font-weight:800;">${b.date.substring(5)}</td><td style="font-weight:700;">${b.note}</td><td style="color:#fff; font-weight:800;">₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn" style="padding:6px 10px; font-size:0.7rem;">✕</button></td>`:''}</tr>`;
         }).join('');
 
         document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
+        
         if(isAdmin) {
             document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(mem => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:10px; border-bottom: 1px solid #222;"><span style="font-weight:700; color:var(--text-main);">${mem.name}</span><input type="number" step="0.5" class="m-val edit-input" style="width:80px; height:45px; margin:0; text-align:center;" data-id="${mem.id}" value="0"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; padding-bottom:15px; border-bottom: 1px solid rgba(255,255,255,0.1);"><span style="font-weight:800; color:#fff;">${mem.name}</span><input type="number" step="0.5" class="m-val edit-input" style="width:80px; height:50px; margin:0; text-align:center; font-size:1.1rem; padding:0;" data-id="${mem.id}" value="0"></div>
             `).join('');
         }
     };
@@ -1298,9 +1438,9 @@
         } else {
             document.getElementById('set-mess-name').value = document.getElementById('display-mess-name').innerText;
         }
-        
+
         if(data.upiId) document.getElementById('set-upi-id').value = data.upiId;
-        
+
         if(isMasterAdmin && data.keys) {
             document.getElementById('set-admin-key').value = data.keys.admin || "";
             document.getElementById('set-viewer-key').value = data.keys.viewer || "";
@@ -1317,7 +1457,6 @@
         }
     };
 
-    // --- NEW: EDIT MINIMUM MEAL LOGIC ---
     window.editMinMeal = (id, currentMin) => {
         if (!isAdmin) return;
         const newMin = prompt("Enter new minimum meal limit for this member:", currentMin);
@@ -1337,23 +1476,24 @@
     };
 
     window.delMember = (id) => { if(confirm("Delete Member?")) { data.members = data.members.filter(m => m.id !== id); window.save(); } };
+    
     window.showTab = (id, b) => { 
         document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden')); 
         document.getElementById('tab-'+id).classList.remove('hidden'); 
         document.querySelectorAll('nav button').forEach(nb=>nb.classList.remove('active')); 
         b.classList.add('active'); 
     };
-    
+
     window.save = () => { if(isAdmin && currentDataRef) set(currentDataRef, data); };
-    
+
     window.updateKeys = () => { 
         const nName = document.getElementById('set-mess-name').value.trim();
         const u = document.getElementById('set-upi-id').value;
         const a = document.getElementById('set-admin-key').value.toUpperCase().trim();
         const v = document.getElementById('set-viewer-key').value.toUpperCase().trim();
-        
+
         data.upiId = u; 
-        
+
         if(nName) {
             data.messName = nName;
             document.getElementById('display-mess-name').innerText = nName.toUpperCase();
@@ -1376,13 +1516,12 @@
                 alert("Settings Updated Successfully!");
             }
         }
-        
+
         document.getElementById('set-admin-key').value = "";
         document.getElementById('set-viewer-key').value = "";
         window.refreshExtras();
     };
-    
-    // --- UNDO DELETE LOGIC ---
+
     let deletedBazar = null;
     let deletedDep = null;
     let deletedMeal = null;
@@ -1442,10 +1581,10 @@
     };
 
     window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return alert("Date?"); const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseFloat(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
-    window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); } };
+    window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); document.getElementById('b-note').value=""; document.getElementById('b-amt').value=""; } };
     window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
-    window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); } };
-    
+    window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); document.getElementById('dep-amt').value=""; } };
+
     window.updateNotice = () => { 
         data.notice = document.getElementById('notice-input').value; 
         window.save(); 
@@ -1455,17 +1594,17 @@
     window.updateAndShareNotice = () => {
         const noticeText = document.getElementById('notice-input').value.trim();
         if(!noticeText) return alert("Write a notice first!");
-        
+
         data.notice = noticeText; 
         window.save(); 
-        
+
         const messName = document.getElementById('display-mess-name').innerText;
         const waText = `📢 *NOTICE | ${messName}*\n\n${noticeText}\n\n_Open the Mess Buddy app to check details._`;
-        
+
         window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
     };
 
-    window.deleteNotice = () => { if(confirm("Clear?")) { data.notice = ""; window.save(); } };
+    window.deleteNotice = () => { if(confirm("Clear?")) { data.notice = ""; document.getElementById('notice-input').value=""; window.save(); } };
     window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
 </script>
 </body>
