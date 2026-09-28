@@ -2,16 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mess Buddy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Buddy - Meal & Expense Manager for Mess / PG</title>
+    <meta name="description" content="Mess Buddy: track daily meals, bazar expenses, deposits and dues for your mess or PG. Clear dues, zero confusion.">
+    <meta name="theme-color" content="#170f14">
+    <meta name="robots" content="index, follow">
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Mess Buddy">
+    <meta property="og:description" content="Track meals, bazar expenses and dues for your mess or PG. Clear dues, zero confusion.">
+    <meta property="og:image" content="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Mess Buddy">
+    <meta name="twitter:description" content="Clear dues, zero confusion.">
+    <meta name="twitter:image" content="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg">
+
+    <link rel="icon" href="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg">
+    <link rel="apple-touch-icon" href="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;0,800;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
+    <script>
+        // Enforce HTTPS (skipped for local testing and packaged app files)
+        if (location.protocol === 'http:' && !['localhost', '127.0.0.1'].includes(location.hostname)) {
+            location.replace('https:' + location.href.substring(location.protocol.length));
+        }
+    </script>
+
     <style>
         :root {
-            /* Thali-inspired colourful palette — spice-box brights on a deep plate */
             --bg: #170f14;
             --bg-soft: #1f1420;
             --paper: rgba(255, 246, 235, 0.05);
@@ -20,21 +43,16 @@
             --line-strong: rgba(255, 246, 235, 0.24);
 
             --ink: #fbf3e7;
-            --ink-dim: #c2aec4;
-            --ink-faint: #8a7690;
+            --ink-dim: #cdbacf;
+            --ink-faint: #a996b0; /* lightened for better contrast */
 
             --marigold: #ffb627;
-            --marigold-deep: #ff9d0d;
             --marigold-dim: rgba(255, 182, 39, 0.16);
-
             --terracotta: #ff5d6c;
             --terracotta-dim: rgba(255, 93, 108, 0.16);
-
             --sage: #2fd8a8;
             --sage-dim: rgba(47, 216, 168, 0.16);
-
             --maroon: #ff4d6d;
-
             --berry: #ff5da2;
             --berry-dim: rgba(255, 93, 162, 0.16);
             --sky: #46c2ff;
@@ -47,12 +65,7 @@
             --r-lg: 24px;
         }
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Manrope', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { box-sizing: border-box; font-family: 'Manrope', sans-serif; -webkit-tap-highlight-color: transparent; }
         .serif { font-family: 'Fraunces', serif; }
 
         body {
@@ -63,76 +76,55 @@
                 radial-gradient(650px 460px at 90% 95%, rgba(70,194,255,0.14), transparent 55%),
                 radial-gradient(550px 380px at 5% 90%, rgba(47,216,168,0.12), transparent 55%);
             background-attachment: fixed;
-            margin: 0;
-            padding-bottom: 96px;
-            color: var(--ink);
-            min-height: 100vh;
+            margin: 0; padding-bottom: 96px; color: var(--ink); min-height: 100vh;
         }
 
-        @keyframes riseIn {
-            0% { opacity: 0; transform: translateY(16px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes riseIn { 0% { opacity: 0; transform: translateY(16px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        /* --- Screens & Modals --- */
-        #login-screen, #update-modal {
+        #login-screen, #update-modal, #legal-modal {
             position: fixed; inset: 0;
             background: rgba(15, 10, 7, 0.82);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
             display: flex; align-items: center; justify-content: center;
-            z-index: 9999;
-            overflow-y: auto;
-            padding: 20px;
+            z-index: 9999; overflow-y: auto; padding: 20px;
         }
-
         #update-modal { z-index: 20000; }
-        #update-modal:not(.hidden) { display: flex !important; }
+        #legal-modal { z-index: 30000; }
+        #update-modal:not(.hidden), #legal-modal:not(.hidden) { display: flex !important; }
 
         .login-card, .modal-card {
             background: linear-gradient(180deg, var(--bg-soft), var(--bg));
-            padding: 34px 24px;
-            border-radius: var(--r-lg);
-            width: 100%; max-width: 360px;
-            text-align: center;
-            border: 1px solid var(--line);
-            border-top: 1px solid var(--line-strong);
+            padding: 34px 24px; border-radius: var(--r-lg);
+            width: 100%; max-width: 360px; text-align: center;
+            border: 1px solid var(--line); border-top: 1px solid var(--line-strong);
             box-shadow: 0 24px 48px rgba(0,0,0,0.5);
-            opacity: 0;
-            animation: riseIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            margin: auto;
+            opacity: 0; animation: riseIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; margin: auto;
         }
-
         .login-card > * { opacity: 0; animation: riseIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .login-anim-1 { animation-delay: 0.05s !important; }
         .login-anim-2 { animation-delay: 0.15s !important; }
         .login-anim-3 { animation-delay: 0.25s !important; }
 
-        /* --- Navigation --- */
+        .legal-links { margin-top: 18px; font-size: 0.72rem; font-weight: 600; color: var(--ink-faint); }
+        .legal-links a { color: var(--ink-dim); text-decoration: underline; cursor: pointer; }
+        .legal-body { text-align: left; font-size: 0.82rem; line-height: 1.55; color: var(--ink); max-height: 55vh; overflow-y: auto; margin-bottom: 18px; font-weight: 500; }
+        .legal-body h4 { margin: 14px 0 4px; color: var(--marigold); font-size: 0.8rem; }
+        .legal-body p { margin: 0 0 6px; color: var(--ink-dim); }
+
         nav {
             position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 360px;
-            background: rgba(28, 21, 15, 0.88);
-            border: 1px solid var(--line);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 8px 10px; display: flex; z-index: 2000;
-            border-radius: 20px;
-            box-shadow: 0 16px 34px rgba(0,0,0,0.55);
-            justify-content: space-between; align-items: center;
+            width: 90%; max-width: 360px; background: rgba(28, 21, 15, 0.88);
+            border: 1px solid var(--line); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 8px 10px; display: flex; z-index: 2000; border-radius: 20px;
+            box-shadow: 0 16px 34px rgba(0,0,0,0.55); justify-content: space-between; align-items: center;
         }
         nav button {
-            flex: 1;
-            height: 46px; border: none; background: transparent;
-            color: var(--ink-faint); border-radius: 14px; transition: all 0.25s ease;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 3px; cursor: pointer;
-            position: relative;
+            flex: 1; height: 46px; border: none; background: transparent; color: var(--ink-faint);
+            border-radius: 14px; transition: all 0.25s ease; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; gap: 3px; cursor: pointer; position: relative;
         }
         nav button svg { width: 19px; height: 19px; stroke: currentColor; stroke-width: 2; fill: none; transition: 0.25s; }
-        nav button::after {
-            content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%);
-            width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0; transition: 0.25s;
-        }
+        nav button::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: currentColor; opacity: 0; transition: 0.25s; }
         nav button.active { background: var(--marigold-dim); }
         nav button.active::after { opacity: 1; }
         #nav-dashboard.active { color: var(--marigold); }
@@ -141,51 +133,24 @@
         #nav-members.active { color: var(--sage); background: var(--sage-dim); }
         #nav-settings.active { color: var(--violet); background: var(--violet-dim); }
 
-        /* --- Components --- */
         .container { padding: 18px 16px; max-width: 500px; margin: 0 auto; }
-
-        .header-card {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 6px 2px 22px;
-        }
+        .header-card { display: flex; justify-content: space-between; align-items: center; padding: 6px 2px 22px; }
         .header-card .eyebrow { margin: 0 0 3px; font-size: 0.78rem; color: var(--ink-faint); font-weight: 600; }
         .header-card h2 { margin: 0; font-weight: 700; font-size: 1.7rem; color: var(--ink); letter-spacing: -0.3px; }
-        .profile-icon {
-            width: 44px; height: 44px; border-radius: 13px;
-            background: var(--paper); display: flex; align-items: center; justify-content: center;
-            border: 1px solid var(--line);
-            overflow: hidden; padding: 3px;
-        }
+        .profile-icon { width: 44px; height: 44px; border-radius: 13px; background: var(--paper); display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); overflow: hidden; padding: 3px; }
         .profile-icon img { border-radius: 10px; }
 
-        /* Ledger stat block (replaces glossy "card") */
         .ledger-block {
-            border: 1px solid var(--line-strong);
-            border-radius: var(--r-lg);
-            padding: 24px 22px 20px;
-            margin-bottom: 18px;
+            border: 1px solid var(--line-strong); border-radius: var(--r-lg); padding: 24px 22px 20px; margin-bottom: 18px;
             background: linear-gradient(150deg, rgba(255,182,39,0.16), rgba(255,93,162,0.08) 45%, rgba(70,194,255,0.06) 100%), var(--paper);
-            position: relative;
-            overflow: hidden;
+            position: relative; overflow: hidden;
         }
-        .ledger-block::before {
-            content: ''; position: absolute; top: -60%; right: -30%; width: 220px; height: 220px;
-            background: radial-gradient(circle, rgba(255,182,39,0.35), transparent 70%);
-            pointer-events: none;
-        }
-        .ledger-top {
-            display: flex; justify-content: space-between; align-items: baseline;
-            border-bottom: 1px solid var(--line);
-            padding-bottom: 14px; margin-bottom: 16px;
-        }
-        #display-mess-name {
-            font-weight: 700; font-size: 0.95rem; letter-spacing: 0.3px; color: var(--ink);
-        }
+        .ledger-block::before { content: ''; position: absolute; top: -60%; right: -30%; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255,182,39,0.35), transparent 70%); pointer-events: none; }
+        .ledger-top { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid var(--line); padding-bottom: 14px; margin-bottom: 16px; }
+        #display-mess-name { font-weight: 700; font-size: 0.95rem; letter-spacing: 0.3px; color: var(--ink); }
         .ledger-top .tag { font-size: 0.68rem; font-weight: 700; color: var(--marigold); letter-spacing: 0.5px; }
-
         .ledger-main-label { font-size: 0.78rem; color: var(--ink-dim); font-weight: 600; margin: 0 0 2px; }
         #stat-cost { margin: 0 0 20px; font-size: 3rem; font-weight: 700; letter-spacing: -1.5px; color: var(--ink); line-height: 1; }
-
         .ledger-sub-row { display: flex; justify-content: space-between; align-items: flex-end; }
         .ledger-sub-row .col { flex: 1; }
         .ledger-sub-row .col + .col { text-align: right; }
@@ -193,11 +158,7 @@
         .ledger-sub-row .val { font-size: 1.15rem; font-weight: 700; color: var(--ink); }
         .ledger-sub-row .val.accent { color: var(--marigold); }
 
-        /* Meal stat row (replaces pill-container) */
-        .meal-stat-row {
-            display: flex; align-items: stretch; margin-bottom: 22px;
-            border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden;
-        }
+        .meal-stat-row { display: flex; align-items: stretch; margin-bottom: 22px; border: 1px solid var(--line); border-radius: var(--r-md); overflow: hidden; }
         .meal-stat { flex: 1; padding: 14px 16px; background: var(--sky-dim); }
         .meal-stat.billable { background: var(--sage-dim); }
         .meal-stat + .meal-stat { border-left: 1px solid var(--line); }
@@ -205,99 +166,57 @@
         .meal-stat.billable .lbl { color: var(--sage); }
         .meal-stat .num { font-size: 1.5rem; font-weight: 700; color: var(--ink); }
 
-        .card {
-            background: var(--paper);
-            border-radius: var(--r-md); padding: 18px 16px;
-            margin-bottom: 18px;
-            border: 1px solid var(--line);
-        }
+        .card { background: var(--paper); border-radius: var(--r-md); padding: 18px 16px; margin-bottom: 18px; border: 1px solid var(--line); }
 
         select.edit-input, .edit-input {
             width: 100%; height: 48px; padding: 0 15px; color-scheme: dark;
-            border: 1px solid var(--line); border-radius: var(--r-sm);
-            font-size: 0.9rem; margin-bottom: 11px;
-            background: rgba(0,0,0,0.25);
-            color: var(--ink); font-weight: 600; outline: none; transition: 0.2s;
+            border: 1px solid var(--line); border-radius: var(--r-sm); font-size: 0.9rem; margin-bottom: 11px;
+            background: rgba(0,0,0,0.25); color: var(--ink); font-weight: 600; outline: none; transition: 0.2s;
         }
         .edit-input::placeholder { color: var(--ink-faint); font-weight: 500; }
-        .edit-input:focus {
-            border-color: var(--sky);
-            box-shadow: 0 0 0 3px rgba(70,194,255,0.18);
-        }
+        .edit-input:focus { border-color: var(--sky); box-shadow: 0 0 0 3px rgba(70,194,255,0.18); }
 
         .btn {
-            height: 48px; border: none; border-radius: var(--r-sm); font-weight: 700; cursor: pointer;
-            width: 100%; background: var(--paper-strong);
-            color: var(--ink); transition: all 0.15s;
-            font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 6px;
-            border: 1px solid var(--line-strong);
+            height: 48px; border-radius: var(--r-sm); font-weight: 700; cursor: pointer; width: 100%;
+            background: var(--paper-strong); color: var(--ink); transition: all 0.15s; font-size: 0.88rem;
+            display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line-strong);
         }
         .btn:active { transform: scale(0.98); }
-
-        .login-btn, .btn.primary-btn {
-            background: linear-gradient(135deg, var(--marigold), var(--berry));
-            color: #170f14;
-            border: 1px solid var(--marigold);
-        }
+        .login-btn, .btn.primary-btn { background: linear-gradient(135deg, var(--marigold), var(--berry)); color: #170f14; border: 1px solid var(--marigold); }
         .login-btn:hover, .btn.primary-btn:hover { filter: brightness(1.08); }
 
-        /* Tables — ledger rows */
         .table-wrap { overflow-x: auto; margin: 0 -3px; padding: 0 3px; }
         .table-wrap::-webkit-scrollbar { height: 4px; }
         .table-wrap::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 10px; }
-
         table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 0 8px 10px; font-size: 0.68rem; color: var(--ink-faint); font-weight: 700; letter-spacing: 0.3px; border-bottom: 1px solid var(--line-strong); padding-bottom: 8px; }
+        th { text-align: left; padding: 0 8px 8px; font-size: 0.68rem; color: var(--ink-faint); font-weight: 700; letter-spacing: 0.3px; border-bottom: 1px solid var(--line-strong); }
         td { padding: 12px 8px; font-size: 0.85rem; color: var(--ink); border-bottom: 1px solid var(--line); }
         tr:last-child td { border-bottom: none; }
 
-        .badge {
-            padding: 6px 11px; border-radius: 8px; font-weight: 700; font-size: 0.7rem; border: none; cursor: pointer;
-        }
+        .badge { padding: 6px 11px; border-radius: 8px; font-weight: 700; font-size: 0.7rem; border: none; cursor: pointer; }
         .del-btn { background: var(--terracotta-dim); color: var(--terracotta); border: 1px solid rgba(255,93,108,0.35); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 0.72rem; }
         .edit-btn-small { background: var(--paper-strong); color: var(--ink); border: 1px solid var(--line-strong); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-weight: 700; margin-right: 4px; font-size: 0.72rem; }
 
         .hidden { display: none !important; }
         .fade-in-section { animation: riseIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        .personal-toggle-bar {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 15px 18px; background: var(--paper); border-radius: var(--r-md);
-            border: 1px solid var(--line);
-            margin-bottom: 20px; cursor: pointer;
-        }
+        .personal-toggle-bar { display: flex; align-items: center; justify-content: space-between; padding: 15px 18px; background: var(--paper); border-radius: var(--r-md); border: 1px solid var(--line); margin-bottom: 20px; cursor: pointer; }
         .personal-toggle-bar span { font-size: 0.87rem; font-weight: 700; color: var(--ink); }
 
-        .pay-link {
-            display: block; width: 100%; text-align: center; background: var(--marigold);
-            color: #1b140f; text-decoration: none; padding: 14px; border-radius: var(--r-sm);
-            font-weight: 700; margin-top: 14px;
-            border: 1px solid var(--marigold); font-size: 0.88rem;
-        }
-
+        .pay-link { display: block; width: 100%; text-align: center; background: var(--marigold); color: #1b140f; text-decoration: none; padding: 14px; border-radius: var(--r-sm); font-weight: 700; margin-top: 14px; border: 1px solid var(--marigold); font-size: 0.88rem; }
         select option { background: #170f14; color: var(--ink); }
 
         .notice-card { background: var(--sage-dim); border: 1px solid rgba(47,216,168,0.35); }
         .notice-header { font-size: 0.72rem; color: var(--sage); font-weight: 700; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.4px; }
         .notice-text { font-weight: 600; font-size: 0.9rem; color: var(--ink); line-height: 1.5; }
-
         .admin-card-header { margin: 0 0 15px; font-size: 1.1rem; font-weight: 700; color: var(--ink); font-family: 'Fraunces', serif; }
 
-        input[type="checkbox"] {
-            appearance: none; width: 22px; height: 22px; background: rgba(0,0,0,0.3);
-            border-radius: 6px; border: 1px solid var(--line-strong);
-            cursor: pointer; position: relative;
-        }
+        input[type="checkbox"] { appearance: none; width: 22px; height: 22px; background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid var(--line-strong); cursor: pointer; position: relative; }
         input[type="checkbox"]:checked { background: var(--marigold); border: 1px solid var(--marigold); }
-        input[type="checkbox"]:checked::after {
-            content: '✔'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: #1b140f; font-size: 13px; font-weight: 900;
-        }
+        input[type="checkbox"]:checked::after { content: '✔'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #1b140f; font-size: 13px; font-weight: 900; }
 
-        .dev-link {
-            display: flex; justify-content: space-between; align-items: center; text-decoration: none;
-            padding: 16px; margin-top: 16px; background: var(--paper);
-        }
+        .dev-link { display: flex; justify-content: space-between; align-items: center; text-decoration: none; padding: 16px; margin-top: 16px; background: var(--paper); }
+        .hp-field { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
     </style>
 </head>
 <body>
@@ -307,20 +226,27 @@
         <div class="serif" style="font-size: 1.1rem; color: var(--marigold); font-weight: 700; letter-spacing: 0.5px; margin-bottom: 8px;">UPDATE READY</div>
         <h2 class="serif" style="margin: 0 0 8px; color: var(--ink); font-weight: 700; font-size: 1.6rem;">A new version is here</h2>
         <p style="color: var(--ink-dim); font-size: 0.88rem; font-weight: 600; margin-bottom: 20px;">Version <span id="update-v-text" style="color: var(--marigold); font-weight: 800;"></span> is out.</p>
-
         <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--line); padding: 15px; border-radius: var(--r-sm); font-size: 0.85rem; text-align: left; margin-bottom: 22px; font-weight: 500; color: var(--ink);">
             <div style="font-size: 0.68rem; color: var(--marigold); text-transform: uppercase; margin-bottom: 8px; font-weight: 700; letter-spacing: 0.4px;">Release notes</div>
             <div id="update-n-text" style="white-space: pre-wrap; line-height: 1.5;"></div>
         </div>
-
         <button class="btn login-btn" onclick="downloadUpdate()">Install update</button>
+    </div>
+</div>
+
+<!-- Privacy / Terms modal -->
+<div id="legal-modal" class="hidden" role="dialog" aria-modal="true" aria-labelledby="legal-title">
+    <div class="modal-card" style="max-width: 400px;">
+        <h2 id="legal-title" class="serif" style="margin: 0 0 14px; color: var(--ink); font-size: 1.4rem;"></h2>
+        <div id="legal-content" class="legal-body"></div>
+        <button class="btn login-btn" onclick="closeLegal()">Close</button>
     </div>
 </div>
 
 <div id="login-screen">
     <div class="login-card">
         <div class="login-anim-1" style="width: 78px; height: 78px; border-radius: 20px; margin: 0 auto 18px; overflow: hidden; border: 1px solid var(--line-strong); display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3);">
-            <img id="app-logo" src="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg" alt="Mess Buddy Logo" style="width: 100%; height: 100%; object-fit: cover;">
+            <img id="app-logo" src="https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg" alt="Mess Buddy logo" width="78" height="78" decoding="async" style="width: 100%; height: 100%; object-fit: cover;">
         </div>
 
         <div class="login-anim-2">
@@ -333,23 +259,24 @@
             <button class="btn" onclick="switchView('register')">Register new mess</button>
 
             <div style="margin-top: 28px;">
-                <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20help%20with%20Mess%20Buddy" target="_blank"
+                <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20help%20with%20Mess%20Buddy" target="_blank" rel="noopener noreferrer"
                    style="color: var(--ink-dim); text-decoration: none; font-size: 0.83rem; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--marigold)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--marigold)" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                     <span>Need help? <span style="color: var(--ink);">Contact developer</span></span>
                 </a>
             </div>
+            <div class="legal-links">By continuing you agree to our <a onclick="showLegal('terms')">Terms</a> &amp; <a onclick="showLegal('privacy')">Privacy Policy</a></div>
         </div>
 
         <div id="login-form-area" class="hidden fade-in-section">
             <div id="first-time-area" class="hidden">
-                <input type="text" id="v-name-input" placeholder="Your name" class="edit-input">
+                <input type="text" id="v-name-input" placeholder="Your name" class="edit-input" maxlength="40" autocomplete="name" aria-label="Your name">
             </div>
             <div id="returning-area" class="hidden">
                 <p id="returning-msg" style="font-weight: 700; font-size: 0.88rem; color: var(--marigold); margin-bottom: 18px; background: rgba(0,0,0,0.25); padding: 14px; border-radius: var(--r-sm); border: 1px solid var(--line);"></p>
             </div>
 
-            <input type="password" id="pass" placeholder="Enter access key" class="edit-input" style="text-align: center; letter-spacing: 3px; font-weight: 700; font-size: 1.05rem;">
+            <input type="password" id="pass" placeholder="Enter access key" class="edit-input" maxlength="40" autocomplete="off" aria-label="Access key" style="text-align: center; letter-spacing: 3px; font-weight: 700; font-size: 1.05rem;">
             <button class="btn login-btn" onclick="checkLogin()">Unlock dashboard</button>
 
             <div style="margin-top: 22px;">
@@ -359,16 +286,17 @@
 
         <div id="register-mess-area" class="hidden fade-in-section">
             <h3 class="serif" style="margin:0 0 18px; color: var(--ink); font-size: 1.3rem; font-weight: 700;">Create new mess</h3>
-            <input type="text" id="reg-mess-name" placeholder="Mess / PG name" class="edit-input">
-            <input type="text" id="reg-admin-key" placeholder="Create admin key" class="edit-input" style="text-transform: uppercase;">
-            <input type="text" id="reg-viewer-key" placeholder="Create viewer key" class="edit-input" style="text-transform: uppercase;">
+            <input type="text" id="reg-mess-name" placeholder="Mess / PG name" class="edit-input" maxlength="40" aria-label="Mess name">
+            <input type="text" id="reg-admin-key" placeholder="Create admin key (min 6 chars)" class="edit-input" maxlength="30" autocomplete="off" style="text-transform: uppercase;" aria-label="Admin key">
+            <input type="text" id="reg-viewer-key" placeholder="Create viewer key (min 6 chars)" class="edit-input" maxlength="30" autocomplete="off" style="text-transform: uppercase;" aria-label="Viewer key">
+            <!-- Honeypot: real users never see or fill this -->
+            <input type="text" id="reg-website" class="hp-field" tabindex="-1" autocomplete="off" aria-hidden="true">
             <button class="btn login-btn" style="margin-top: 8px;" onclick="submitMessRegistration()">Submit request</button>
 
             <div style="margin-top: 18px;">
                 <button onclick="switchView('options')" style="background: transparent; border: 1px solid var(--line-strong); color: var(--ink); font-weight: 600; cursor: pointer; font-size: 0.83rem; padding: 10px 20px; border-radius: var(--r-sm);">← Back</button>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -381,34 +309,34 @@
                 <h2 id="dash-greeting" class="serif">User</h2>
             </div>
             <div class="profile-icon">
-                <img id="header-logo-img" src="" style="width:100%; height:100%; object-fit:cover;">
+                <img id="header-logo-img" src="" alt="Mess Buddy logo" width="44" height="44" decoding="async" style="width:100%; height:100%; object-fit:cover;">
             </div>
         </div>
 
         <div style="display:flex; gap:10px; margin-bottom: 22px; align-items: center;">
-            <select id="filter-month" class="edit-input" style="flex:2; margin:0; font-weight: 700;" onchange="refreshUI()"></select>
-            <select id="filter-year" class="edit-input" style="flex:1; margin:0; font-weight: 700;" onchange="refreshUI()">
-                <option value="2025">2025</option><option value="2026" selected>2026</option>
+            <select id="filter-month" class="edit-input" aria-label="Month" style="flex:2; margin:0; font-weight: 700;" onchange="refreshUI()"></select>
+            <select id="filter-year" class="edit-input" aria-label="Year" style="flex:1; margin:0; font-weight: 700;" onchange="refreshUI()">
+                <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
             </select>
-            <button class="btn" style="flex: 0.55; margin:0; padding: 0;" onclick="generatePDF()" title="Download PDF Report">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            <button class="btn" style="flex: 0.55; margin:0; padding: 0;" onclick="generatePDF()" title="Download PDF Report" aria-label="Download PDF report">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
             </button>
         </div>
 
-        <nav>
-            <button id="nav-dashboard" class="active" onclick="showTab('dashboard', this)">
+        <nav aria-label="Main navigation">
+            <button id="nav-dashboard" class="active" aria-label="Dashboard" onclick="showTab('dashboard', this)">
                 <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
             </button>
-            <button id="nav-meals" onclick="showTab('meals', this)">
+            <button id="nav-meals" aria-label="Meals" onclick="showTab('meals', this)">
                 <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>
             </button>
-            <button id="nav-bazar" onclick="showTab('bazar', this)">
+            <button id="nav-bazar" aria-label="Bazar expenses" onclick="showTab('bazar', this)">
                 <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
             </button>
-            <button id="nav-members" onclick="showTab('members', this)">
+            <button id="nav-members" aria-label="Members" onclick="showTab('members', this)">
                 <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
             </button>
-            <button id="nav-settings" class="admin-only hidden" onclick="showTab('settings', this)">
+            <button id="nav-settings" class="admin-only hidden" aria-label="Settings" onclick="showTab('settings', this)">
                 <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
             </button>
         </nav>
@@ -417,7 +345,7 @@
 
             <div class="personal-toggle-bar" onclick="togglePersonalView()">
                 <span>View my stats only</span>
-                <input type="checkbox" id="personal-toggle">
+                <input type="checkbox" id="personal-toggle" aria-label="View my stats only">
             </div>
 
             <div class="ledger-block">
@@ -425,31 +353,17 @@
                     <div id="display-mess-name">SCHOLAR'S NEST</div>
                     <div class="tag">THIS MONTH</div>
                 </div>
-
                 <p class="ledger-main-label">Total cost</p>
                 <h2 id="stat-cost" class="serif">₹0</h2>
-
                 <div class="ledger-sub-row">
-                    <div class="col">
-                        <div class="lbl">Balance</div>
-                        <div id="stat-balance" class="val">₹0</div>
-                    </div>
-                    <div class="col">
-                        <div class="lbl">Rate per meal</div>
-                        <div id="stat-rate" class="val accent">₹0</div>
-                    </div>
+                    <div class="col"><div class="lbl">Balance</div><div id="stat-balance" class="val">₹0</div></div>
+                    <div class="col"><div class="lbl">Rate per meal</div><div id="stat-rate" class="val accent">₹0</div></div>
                 </div>
             </div>
 
             <div class="meal-stat-row">
-                <div class="meal-stat">
-                    <div class="lbl">Actual meals</div>
-                    <div id="stat-actual-meals" class="num">0</div>
-                </div>
-                <div class="meal-stat billable">
-                    <div class="lbl">Billable meals</div>
-                    <div id="stat-billable-meals" class="num">0</div>
-                </div>
+                <div class="meal-stat"><div class="lbl">Actual meals</div><div id="stat-actual-meals" class="num">0</div></div>
+                <div class="meal-stat billable"><div class="lbl">Billable meals</div><div id="stat-billable-meals" class="num">0</div></div>
             </div>
 
             <div id="notice-display-card" class="card hidden notice-card">
@@ -467,8 +381,7 @@
                 </div>
             </div>
 
-            <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20tech%20support%20for%20Mess%20Buddy"
-               class="card dev-link">
+            <a href="https://wa.me/917074242645?text=Hi%20Mafuj,%20I%20need%20tech%20support%20for%20Mess%20Buddy" target="_blank" rel="noopener noreferrer" class="card dev-link">
                 <div style="display: flex; align-items: center; gap: 12px;">
                     <div style="width: 40px; height: 40px; border-radius: 11px; background: var(--marigold-dim); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid rgba(255,182,39,0.35);">👨‍💻</div>
                     <div>
@@ -482,42 +395,39 @@
             <div id="qr-pay-card" class="card hidden" style="text-align:center; padding: 28px 15px;">
                 <p id="pay-text" style="margin:0 0 18px; font-weight: 700; font-size: 0.85rem; color: var(--marigold); text-transform: uppercase; letter-spacing: 0.4px;">SCAN TO SETTLE DUE</p>
                 <div style="background: #fff; padding: 10px; border-radius: var(--r-md); display: inline-block; margin-bottom: 18px;">
-                    <img id="generated-qr" src="" style="width:160px; height:160px; border-radius:8px;">
+                    <img id="generated-qr" src="" alt="UPI payment QR code" width="160" height="160" style="width:160px; height:160px; border-radius:8px;">
                 </div>
                 <p id="qr-upi-text" style="font-size:1.05rem; color: var(--ink); font-weight:700; margin: 0 0 18px;"></p>
                 <a id="mobile-pay-btn" href="#" class="pay-link hidden">Pay via UPI app</a>
                 <button class="btn" style="margin-top: 14px;" onclick="sendPaymentRequest()">I have paid (notify admin)</button>
             </div>
 
-            <div style="text-align: center; padding: 22px 20px 36px; opacity: 0.3; font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">
-                Powered by Mess Buddy
+            <div style="text-align: center; padding: 22px 20px 36px;">
+                <div class="legal-links" style="margin: 0 0 10px;"><a onclick="showLegal('privacy')">Privacy Policy</a> · <a onclick="showLegal('terms')">Terms &amp; Conditions</a></div>
+                <div style="opacity: 0.45; font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;">Powered by Mess Buddy</div>
             </div>
         </div>
 
         <div id="tab-meals" class="tab-content hidden">
             <button id="undo-meal-btn" class="btn hidden admin-only" style="margin-bottom: 18px;" onclick="undoMeal()">↺ Undo deleted meal record</button>
-
             <div class="card admin-only hidden">
                 <h3 class="admin-card-header">Daily meal entry</h3>
-                <input type="date" id="meal-date" class="edit-input">
+                <input type="date" id="meal-date" class="edit-input" aria-label="Meal date">
                 <div id="meal-inputs-area" style="margin-top: 18px;"></div>
                 <button class="btn login-btn" onclick="saveDailyMeals()" style="margin-top: 14px;">Save records</button>
             </div>
             <div class="card" style="padding:14px 12px;">
-                <div class="table-wrap">
-                    <table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table>
-                </div>
+                <div class="table-wrap"><table><thead id="meal-history-head"></thead><tbody id="meal-history-body"></tbody></table></div>
             </div>
         </div>
 
         <div id="tab-bazar" class="tab-content hidden">
             <button id="undo-bazar-btn" class="btn hidden admin-only" style="margin-bottom: 18px;" onclick="undoBazar()">↺ Undo deleted expense</button>
-
             <div class="card admin-only hidden">
                 <h3 class="admin-card-header">New expense</h3>
-                <input type="date" id="b-date" class="edit-input">
-                <input type="number" id="b-amt" placeholder="Amount (₹)" class="edit-input">
-                <input type="text" id="b-note" placeholder="Item name" class="edit-input">
+                <input type="date" id="b-date" class="edit-input" aria-label="Expense date">
+                <input type="number" id="b-amt" placeholder="Amount (₹)" class="edit-input" min="1" max="1000000" step="any" inputmode="decimal" aria-label="Amount">
+                <input type="text" id="b-note" placeholder="Item name" class="edit-input" maxlength="80" aria-label="Item name">
                 <button class="btn login-btn" onclick="addBazar()">Add cost</button>
             </div>
             <div class="card" style="padding:14px 12px;">
@@ -528,25 +438,23 @@
         <div id="tab-members" class="tab-content hidden">
             <div id="pending-requests-card" class="card admin-only hidden" style="background: var(--marigold-dim); border: 1px solid rgba(255,182,39,0.35);">
                 <h3 class="admin-card-header" style="color: var(--marigold);">Pending payments</h3>
-                <div class="table-wrap">
-                    <table><tbody id="pending-requests-body"></tbody></table>
-                </div>
+                <div class="table-wrap"><table><tbody id="pending-requests-body"></tbody></table></div>
             </div>
 
             <div class="card admin-only hidden">
                 <h3 class="admin-card-header">Manage team</h3>
                 <div style="display:flex; gap:10px; margin-bottom: 11px;">
-                    <input type="text" id="new-mem-name" placeholder="Name" class="edit-input" style="flex:2; margin: 0;">
-                    <input type="number" id="new-mem-min" placeholder="Min" class="edit-input" style="flex:1; margin: 0;">
+                    <input type="text" id="new-mem-name" placeholder="Name" class="edit-input" maxlength="40" aria-label="Member name" style="flex:2; margin: 0;">
+                    <input type="number" id="new-mem-min" placeholder="Min" class="edit-input" min="0" max="200" aria-label="Minimum meals" style="flex:1; margin: 0;">
                 </div>
                 <button class="btn primary-btn" onclick="addMember()">Add member</button>
 
                 <hr style="margin:22px 0; border: none; border-top: 1px dashed var(--line-strong);">
 
                 <h3 class="admin-card-header">Deposit money</h3>
-                <input type="date" id="dep-date" class="edit-input">
-                <select id="dep-member" class="edit-input"></select>
-                <input type="number" id="dep-amt" placeholder="Amount (₹)" class="edit-input">
+                <input type="date" id="dep-date" class="edit-input" aria-label="Deposit date">
+                <select id="dep-member" class="edit-input" aria-label="Member"></select>
+                <input type="number" id="dep-amt" placeholder="Amount (₹)" class="edit-input" min="1" max="1000000" step="any" inputmode="decimal" aria-label="Deposit amount">
                 <button class="btn" style="margin-top: 4px;" onclick="addDeposit()">Save deposit</button>
             </div>
 
@@ -570,19 +478,19 @@
         <div id="tab-settings" class="tab-content hidden">
 
             <div id="master-admin-update-card" class="card hidden" style="background: rgba(255,77,109,0.14); border: 1px solid rgba(255,77,109,0.35);">
-                <h3 class="admin-card-header" style="color: #e39a9a;">Push OTA app update</h3>
-                <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 15px; line-height: 1.4; font-weight: 500;">Paste the download link to your new APK. A mandatory update screen will block the app for all users until they install it.</p>
-                <input type="number" step="0.1" id="update-version-input" class="edit-input" placeholder="New version number (e.g., 2.0)">
-                <input type="text" id="update-link-input" class="edit-input" placeholder="Direct APK download link (Google Drive, etc.)">
-                <textarea id="update-notes-input" class="edit-input" style="height:90px; resize:none; padding-top:14px;" placeholder="Release notes: what's new in this version?"></textarea>
+                <h3 class="admin-card-header" style="color: #f0b0b0;">Push OTA app update</h3>
+                <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 15px; line-height: 1.4; font-weight: 500;">Paste the https download link to your new APK. A mandatory update screen will block the app for all users until they install it.</p>
+                <input type="number" step="0.1" id="update-version-input" class="edit-input" placeholder="New version number (e.g., 2.1)" aria-label="Version">
+                <input type="text" id="update-link-input" class="edit-input" placeholder="Direct APK download link (https://...)" aria-label="APK link">
+                <textarea id="update-notes-input" class="edit-input" style="height:90px; resize:none; padding-top:14px;" maxlength="500" placeholder="Release notes: what's new in this version?" aria-label="Release notes"></textarea>
                 <button class="btn" style="background: var(--maroon); color: #fff; border: 1px solid var(--maroon);" onclick="pushAppUpdate()">Blast update to all devices</button>
                 <button class="btn" style="background: transparent; border: 1px solid var(--terracotta); color: var(--terracotta); margin-top: 12px;" onclick="clearAppUpdate()">Remove update prompt</button>
             </div>
 
             <div id="master-admin-logo-card" class="card hidden">
                 <h3 class="admin-card-header">App logo setup</h3>
-                <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 15px; line-height: 1.4;">Paste a direct image link to update the login logo instantly for all users.</p>
-                <input type="text" id="logo-url-input" class="edit-input" placeholder="Paste direct image link (https://...)">
+                <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 15px; line-height: 1.4;">Paste a direct https image link to update the login logo instantly for all users. Use a compressed image (under 100 KB).</p>
+                <input type="text" id="logo-url-input" class="edit-input" placeholder="Paste direct image link (https://...)" aria-label="Logo URL">
                 <div style="display:flex; gap:12px;">
                     <button class="btn" style="flex: 1;" onclick="updateGlobalLogo()">Update logo</button>
                     <button class="btn" style="background: var(--terracotta-dim); color: var(--terracotta); border: 1px solid rgba(255,93,108,0.35); flex: 0.4;" onclick="deleteGlobalLogo()">Remove</button>
@@ -592,45 +500,34 @@
             <div id="master-admin-registry-card" class="card hidden">
                 <h3 class="admin-card-header">Mess registrations</h3>
                 <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 15px;">Approve new messes requesting to use the app.</p>
-                <div class="table-wrap">
-                    <table><tbody id="registry-requests-body"></tbody></table>
-                </div>
+                <div class="table-wrap"><table><tbody id="registry-requests-body"></tbody></table></div>
             </div>
 
             <div id="master-admin-active-card" class="card hidden" style="background: rgba(255,77,109,0.10); border: 1px solid rgba(255,77,109,0.3);">
-                <h3 class="admin-card-header" style="color: #e0a3a3;">Active messes</h3>
-                <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 15px;">Manage active messes. Edit their login keys or delete them.</p>
-                <div class="table-wrap">
-                    <table><tbody id="active-messes-body"></tbody></table>
-                </div>
+                <h3 class="admin-card-header" style="color: #f0b0b0;">Active messes</h3>
+                <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 15px;">Manage active messes. Edit their login keys or delete them. Keys are hidden for security.</p>
+                <div class="table-wrap"><table><tbody id="active-messes-body"></tbody></table></div>
             </div>
 
             <div class="card">
                 <h3 class="admin-card-header">System config</h3>
                 <p style="font-size: 0.8rem; color: var(--ink-dim); margin-bottom: 18px; line-height: 1.4;">Update your mess name, UPI ID, or securely change your mess access keys.</p>
-
-                <input type="text" id="set-mess-name" class="edit-input" placeholder="Mess name">
-                <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID (for receiving payments)">
-                <input type="text" id="set-admin-key" class="edit-input" placeholder="New admin key (master only)" style="text-transform: uppercase;">
-                <input type="text" id="set-viewer-key" class="edit-input" placeholder="New viewer key (master only)" style="text-transform: uppercase;">
-
+                <input type="text" id="set-mess-name" class="edit-input" placeholder="Mess name" maxlength="40" aria-label="Mess name">
+                <input type="text" id="set-upi-id" class="edit-input" placeholder="UPI ID (e.g. name@bank)" maxlength="60" autocomplete="off" aria-label="UPI ID">
+                <input type="password" id="set-admin-key" class="edit-input" placeholder="New admin key (master only)" autocomplete="new-password" style="text-transform: uppercase;" aria-label="New admin key">
+                <input type="password" id="set-viewer-key" class="edit-input" placeholder="New viewer key (master only)" autocomplete="new-password" style="text-transform: uppercase;" aria-label="New viewer key">
                 <button class="btn login-btn" style="margin-top: 8px;" onclick="updateKeys()">Save settings</button>
                 <button class="btn" style="background: transparent; border: 1px solid var(--terracotta); color: var(--terracotta); margin-top:14px;" onclick="resetIdentity()">Logout account</button>
             </div>
 
             <div class="card">
                 <h3 class="admin-card-header">Global notice</h3>
-                <textarea id="notice-input" class="edit-input" style="height:100px; resize: none; padding-top: 14px;" placeholder="Write your announcement here..."></textarea>
-
+                <textarea id="notice-input" class="edit-input" style="height:100px; resize: none; padding-top: 14px;" maxlength="500" placeholder="Write your announcement here..." aria-label="Notice"></textarea>
                 <div style="display:flex; gap:12px; margin-bottom: 11px;">
                     <button class="btn" style="flex: 1;" onclick="updateNotice()">Post in app</button>
                     <button class="btn" style="background: var(--terracotta-dim); color: var(--terracotta); border: 1px solid rgba(255,93,108,0.35); flex: 0.4;" onclick="deleteNotice()">Clear</button>
                 </div>
-
-                <button class="btn" style="background: var(--sage); color: #16220f; border: 1px solid var(--sage); margin-top: 10px;" onclick="updateAndShareNotice()">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
-                    Post & forward to WhatsApp
-                </button>
+                <button class="btn" style="background: var(--sage); color: #16220f; border: 1px solid var(--sage); margin-top: 10px;" onclick="updateAndShareNotice()">Post &amp; forward to WhatsApp</button>
             </div>
         </div>
     </div>
@@ -639,7 +536,10 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set, onValue, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
 
+    // NOTE: A Firebase web apiKey is a public project identifier, not a secret.
+    // Real protection = Realtime Database Rules + Authentication + App Check + API-key restrictions in Google Cloud Console.
     const firebaseConfig = {
         apiKey: "AIzaSyAnfWzHfN2qBGw68lOkTttSZ3Mz3D0T274",
         authDomain: "messmenegment.firebaseapp.com",
@@ -647,12 +547,67 @@
         projectId: "messmenegment",
         storageBucket: "messmenegment.firebasestorage.app",
         messagingSenderId: "365715103776",
-        appId: "1:365715103776:web:32af4ed2537cb806341c45"
+        appId: "1:365715103776:web:32af4ed2537cb806341c45",
+        measurementId: "" // Optional: paste your Google Analytics measurementId (G-XXXXXXX) to enable analytics
     };
 
     const fbApp = initializeApp(firebaseConfig);
     const db = getDatabase(fbApp);
 
+    if (firebaseConfig.measurementId) {
+        isSupported().then(ok => { if (ok) getAnalytics(fbApp); }).catch(() => {});
+    }
+
+    // ---------- Helpers ----------
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const isHttps = u => /^https:\/\/[^\s]+$/i.test(u);
+    const isUpi = u => /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/.test(u);
+    const posNum = v => { const n = parseFloat(v); return (isFinite(n) && n > 0) ? n : null; };
+
+    // ---------- Legal ----------
+    const LEGAL = {
+        privacy: {
+            title: "Privacy Policy",
+            html: `
+            <p>Last updated: 2026</p>
+            <h4>What we collect</h4>
+            <p>Your display name (stored on your device), and the mess data entered by admins: member names, meal counts, expenses, deposits, UPI ID and notices.</p>
+            <h4>Where it is stored</h4>
+            <p>Mess data is stored in Google Firebase Realtime Database. Your name and login state are stored locally on your device using localStorage. We do not use advertising or tracking cookies.</p>
+            <h4>How it is used</h4>
+            <p>Only to calculate meal bills and show dues inside your mess. We do not sell or share your data with third parties, except Firebase/Google as our hosting provider.</p>
+            <h4>Payments</h4>
+            <p>Mess Buddy does not process payments. UPI payments happen in your own UPI app; the app only generates a payment link and QR code.</p>
+            <h4>Your choices</h4>
+            <p>You can log out to clear your saved name. To request deletion of your mess data, contact the developer via WhatsApp from the app.</p>
+            <h4>Contact</h4>
+            <p>Developer: Mafuj (WhatsApp +91 70742 42645).</p>`
+        },
+        terms: {
+            title: "Terms & Conditions",
+            html: `
+            <p>Last updated: 2026</p>
+            <h4>Use of the app</h4>
+            <p>Mess Buddy is a tool to track shared meals and expenses in a mess or PG. You agree to use it only for that purpose and not to misuse, attack or attempt to access data of other messes.</p>
+            <h4>Accuracy</h4>
+            <p>Admins are responsible for the accuracy of data they enter. Bills are calculated automatically from that data and are provided as-is.</p>
+            <h4>Access keys</h4>
+            <p>Keep your access keys private. You are responsible for activity done using your keys.</p>
+            <h4>Availability</h4>
+            <p>The app is provided free and "as is" without warranty. We may update, suspend or remove the service at any time.</p>
+            <h4>Liability</h4>
+            <p>The developer is not liable for any financial dispute or loss arising from the use of this app.</p>`
+        }
+    };
+    window.showLegal = (type) => {
+        const item = LEGAL[type]; if (!item) return;
+        document.getElementById('legal-title').innerText = item.title;
+        document.getElementById('legal-content').innerHTML = item.html;
+        document.getElementById('legal-modal').classList.remove('hidden');
+    };
+    window.closeLegal = () => document.getElementById('legal-modal').classList.add('hidden');
+
+    // ---------- OTA update ----------
     const CURRENT_APP_VERSION = 2.0;
     let globalUpdateLink = "";
 
@@ -669,22 +624,21 @@
     });
 
     window.downloadUpdate = () => {
-        if(globalUpdateLink) window.open(globalUpdateLink, '_blank');
+        if (globalUpdateLink && isHttps(globalUpdateLink)) window.open(globalUpdateLink, '_blank', 'noopener');
+        else alert("Invalid update link. Please contact the developer.");
     };
 
-    const globalBrandRef = ref(db, 'globalBranding');
-    onValue(globalBrandRef, (snap) => {
+    onValue(ref(db, 'globalBranding'), (snap) => {
         const val = snap.val();
         const defaultLogo = "https://image2url.com/r2/default/images/1773432254264-529719f2-4823-4b7e-8177-ed6942e853d9.jpeg";
-        const newLogo = (val && val.logo) ? val.logo : defaultLogo;
-
+        const newLogo = (val && val.logo && isHttps(val.logo)) ? val.logo : defaultLogo;
         const appLogo = document.getElementById('app-logo');
         const headerLogo = document.getElementById('header-logo-img');
-
         if (appLogo && appLogo.src !== newLogo) appLogo.src = newLogo;
         if (headerLogo && headerLogo.src !== newLogo) headerLogo.src = newLogo;
     });
 
+    // ---------- State ----------
     let currentDataRef = null;
     let isAdmin = false;
     let isMasterAdmin = false;
@@ -699,7 +653,7 @@
 
     window.addEventListener('load', () => {
         const saved = localStorage.getItem('mb_name');
-        if(saved) {
+        if (saved) {
             document.getElementById('returning-area').classList.remove('hidden');
             document.getElementById('returning-msg').innerText = "Logged in as: " + saved;
         } else {
@@ -711,14 +665,9 @@
         document.getElementById('options-area').classList.add('hidden');
         document.getElementById('login-form-area').classList.add('hidden');
         document.getElementById('register-mess-area').classList.add('hidden');
-
-        if (view === 'login') {
-            document.getElementById('login-form-area').classList.remove('hidden');
-        } else if (view === 'register') {
-            document.getElementById('register-mess-area').classList.remove('hidden');
-        } else {
-            document.getElementById('options-area').classList.remove('hidden');
-        }
+        if (view === 'login') document.getElementById('login-form-area').classList.remove('hidden');
+        else if (view === 'register') document.getElementById('register-mess-area').classList.remove('hidden');
+        else document.getElementById('options-area').classList.remove('hidden');
     };
 
     window.togglePersonalView = () => {
@@ -727,46 +676,59 @@
         window.refreshUI();
     };
 
+    // ---------- Login (no hardcoded keys in source) ----------
+    let loginAttempts = 0, lockUntil = 0;
+
     window.checkLogin = async () => {
-        const pass = document.getElementById('pass').value.toUpperCase();
+        if (Date.now() < lockUntil) return alert("Too many attempts. Please wait a minute and try again.");
+
+        const pass = document.getElementById('pass').value.toUpperCase().trim();
         const saved = localStorage.getItem('mb_name');
         const input = document.getElementById('v-name-input').value.trim();
         const nameToSave = (saved || input).toUpperCase();
 
-        if(!pass) return alert("Enter an Access Key");
+        if (!pass) return alert("Enter an Access Key");
 
-        const masterKeysSnap = await get(child(ref(db), 'messData/keys'));
-        let masterAdminKey = "MESS2026";
-        let masterViewerKey = "MESSMEAL";
-        if (masterKeysSnap.exists()) {
-            const k = masterKeysSnap.val();
-            if(k.admin) masterAdminKey = k.admin;
-            if(k.viewer) masterViewerKey = k.viewer;
-        }
+        let masterAdminKey = null, masterViewerKey = null;
+        try {
+            const masterKeysSnap = await get(child(ref(db), 'messData/keys'));
+            if (masterKeysSnap.exists()) {
+                const k = masterKeysSnap.val();
+                masterAdminKey = k.admin || null;
+                masterViewerKey = k.viewer || null;
+            }
+        } catch (e) { /* access denied by rules is fine */ }
 
-        if(pass === masterAdminKey || pass === masterViewerKey) {
-            if(pass === masterViewerKey && !nameToSave) return alert("Enter your name!");
-            if(pass === masterViewerKey) localStorage.setItem('mb_name', nameToSave);
+        const isMasterA = masterAdminKey && pass === masterAdminKey;
+        const isMasterV = masterViewerKey && pass === masterViewerKey;
 
-            isAdmin = (pass === masterAdminKey);
+        if (isMasterA || isMasterV) {
+            if (isMasterV && !nameToSave) return alert("Enter your name!");
+            if (isMasterV) localStorage.setItem('mb_name', nameToSave);
+            isAdmin = !!isMasterA;
             isMasterAdmin = isAdmin;
-
+            loginAttempts = 0;
             window.executeLogin('DEFAULT', isAdmin, "Scholar's Nest");
             return;
         }
 
-        const keySnap = await get(child(ref(db), `messRegistry/keys/${pass}`));
-        if (keySnap.exists()) {
+        let keySnap = null;
+        // Firebase paths cannot contain . # $ [ ] /
+        if (!/[.#$\[\]\/]/.test(pass)) {
+            try { keySnap = await get(child(ref(db), `messRegistry/keys/${pass}`)); } catch (e) { keySnap = null; }
+        }
+
+        if (keySnap && keySnap.exists()) {
             const keyInfo = keySnap.val();
-
-            if(keyInfo.role === 'viewer' && !nameToSave) return alert("Enter your name!");
-            if(keyInfo.role === 'viewer') localStorage.setItem('mb_name', nameToSave);
-
+            if (keyInfo.role === 'viewer' && !nameToSave) return alert("Enter your name!");
+            if (keyInfo.role === 'viewer') localStorage.setItem('mb_name', nameToSave);
             isAdmin = (keyInfo.role === 'admin');
             isMasterAdmin = false;
-
+            loginAttempts = 0;
             window.executeLogin(keyInfo.messId, isAdmin, keyInfo.messName);
         } else {
+            loginAttempts++;
+            if (loginAttempts >= 5) { lockUntil = Date.now() + 60000; loginAttempts = 0; }
             alert("Incorrect Key or Mess not registered!");
         }
     };
@@ -775,69 +737,49 @@
         globalCurrentMessId = messId;
         const name = localStorage.getItem('mb_name') || "ADMIN";
         document.getElementById('dash-greeting').innerText = name.split(' ')[0];
-        if(document.getElementById('display-mess-name')) document.getElementById('display-mess-name').innerText = messTitle.toUpperCase();
+        document.getElementById('display-mess-name').innerText = (messTitle || "").toUpperCase();
 
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app').classList.remove('hidden');
+        document.getElementById('pass').value = "";
 
         document.querySelectorAll('.admin-only').forEach(el => el.classList.toggle('hidden', !adminStatus));
 
         const mSel = document.getElementById('filter-month');
-        if(mSel.options.length === 0) {
-            const months = ['01','02','03','04','05','06','07','08','09','10','11','12'];
-            mSel.innerHTML = months.map((m, i) => `<option value="${m}">${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][i]}</option>`).join('');
+        if (mSel.options.length === 0) {
+            const names = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            mSel.innerHTML = names.map((n, i) => `<option value="${String(i+1).padStart(2,'0')}">${n}</option>`).join('');
             mSel.value = String(new Date().getMonth() + 1).padStart(2, '0');
         }
 
         currentDataRef = ref(db, messId === 'DEFAULT' ? 'messData' : `messes/${messId}`);
         onValue(currentDataRef, (snap) => {
             const cloud = snap.val();
-            if(cloud) {
+            if (cloud) {
                 data = cloud;
-                if(data.messName && document.getElementById('display-mess-name')) {
-                    document.getElementById('display-mess-name').innerText = data.messName.toUpperCase();
-                }
+                if (data.messName) document.getElementById('display-mess-name').innerText = data.messName.toUpperCase();
                 window.refreshUI();
                 window.refreshExtras();
             }
         });
 
-        const masterRegCard = document.getElementById('master-admin-registry-card');
-        const masterActiveCard = document.getElementById('master-admin-active-card');
-        const masterLogoCard = document.getElementById('master-admin-logo-card');
-        const masterUpdateCard = document.getElementById('master-admin-update-card');
-
         if (isMasterAdmin) {
-            if(masterRegCard) masterRegCard.classList.remove('hidden');
-            if(masterActiveCard) masterActiveCard.classList.remove('hidden');
-            if(masterLogoCard) masterLogoCard.classList.remove('hidden');
-            if(masterUpdateCard) masterUpdateCard.classList.remove('hidden');
-
-            onValue(ref(db, 'messRegistry/pending'), (snap) => {
-                globalPendingMesses = snap.val() || {};
-                window.refreshUI();
-            });
-            onValue(ref(db, 'messRegistry/active'), (snap) => {
-                globalActiveMesses = snap.val() || {};
-                window.refreshUI();
-            });
+            onValue(ref(db, 'messRegistry/pending'), (snap) => { globalPendingMesses = snap.val() || {}; window.refreshUI(); });
+            onValue(ref(db, 'messRegistry/active'), (snap) => { globalActiveMesses = snap.val() || {}; window.refreshUI(); });
         }
     };
 
+    // ---------- Master admin tools ----------
     window.pushAppUpdate = () => {
-        if(!isMasterAdmin) return;
+        if (!isMasterAdmin) return;
         const v = document.getElementById('update-version-input').value.trim();
         const l = document.getElementById('update-link-input').value.trim();
         const n = document.getElementById('update-notes-input').value.trim();
+        if (!v || !l) return alert("Please provide both a Version Number and a Download Link.");
+        if (!isHttps(l)) return alert("Download link must start with https://");
 
-        if(!v || !l) return alert("Please provide both a Version Number and a Download Link.");
-
-        if(confirm(`Are you sure you want to force all users to download version ${v}?`)) {
-            set(ref(db, 'globalUpdate'), {
-                version: v,
-                link: l,
-                notes: n
-            }).then(() => {
+        if (confirm(`Are you sure you want to force all users to download version ${v}?`)) {
+            set(ref(db, 'globalUpdate'), { version: v, link: l, notes: n }).then(() => {
                 alert(`Update ${v} blasted to all devices successfully!`);
                 document.getElementById('update-version-input').value = "";
                 document.getElementById('update-link-input').value = "";
@@ -847,19 +789,17 @@
     };
 
     window.clearAppUpdate = () => {
-        if(!isMasterAdmin) return;
-        if(confirm("Remove the update prompt for all users?")) {
-            set(ref(db, 'globalUpdate'), null).then(() => {
-                alert("Update prompt removed.");
-            });
+        if (!isMasterAdmin) return;
+        if (confirm("Remove the update prompt for all users?")) {
+            set(ref(db, 'globalUpdate'), null).then(() => alert("Update prompt removed."));
         }
     };
 
     window.updateGlobalLogo = () => {
-        if(!isMasterAdmin) return;
+        if (!isMasterAdmin) return;
         const url = document.getElementById('logo-url-input').value.trim();
-        if(!url) return alert("Please paste an image link first.");
-
+        if (!url) return alert("Please paste an image link first.");
+        if (!isHttps(url)) return alert("Image link must start with https://");
         set(ref(db, 'globalBranding/logo'), url).then(() => {
             alert("Global Logo Updated Successfully! Everyone will see it instantly.");
             document.getElementById('logo-url-input').value = "";
@@ -867,104 +807,101 @@
     };
 
     window.deleteGlobalLogo = () => {
-        if(!isMasterAdmin) return;
-        if(confirm("Remove the custom logo? It will return to the default logo.")) {
-            set(ref(db, 'globalBranding/logo'), null).then(() => {
-                alert("Logo successfully removed.");
-            });
+        if (!isMasterAdmin) return;
+        if (confirm("Remove the custom logo? It will return to the default logo.")) {
+            set(ref(db, 'globalBranding/logo'), null).then(() => alert("Logo successfully removed."));
         }
     };
 
+    // ---------- Registration (with spam protection) ----------
     window.submitMessRegistration = async () => {
+        if (document.getElementById('reg-website').value) return; // honeypot triggered: silently drop
+
+        const last = parseInt(localStorage.getItem('mb_reg_ts') || "0");
+        if (Date.now() - last < 60000) return alert("Please wait a minute before sending another request.");
+
         const mName = document.getElementById('reg-mess-name').value.trim();
         const aKey = document.getElementById('reg-admin-key').value.toUpperCase().trim();
         const vKey = document.getElementById('reg-viewer-key').value.toUpperCase().trim();
 
-        if(!mName || !aKey || !vKey) return alert("Please fill all fields.");
-        if(aKey === vKey) return alert("Admin and Viewer keys must be different.");
+        if (!mName || !aKey || !vKey) return alert("Please fill all fields.");
+        if (mName.length < 3) return alert("Mess name is too short.");
+        if (aKey.length < 6 || vKey.length < 6) return alert("Keys must be at least 6 characters.");
+        if (/[.#$\[\]\/\s]/.test(aKey) || /[.#$\[\]\/\s]/.test(vKey)) return alert("Keys cannot contain spaces or . # $ [ ] /");
+        if (aKey === vKey) return alert("Admin and Viewer keys must be different.");
 
-        if(["MESS2026", "MESSMEAL"].includes(aKey) || ["MESS2026", "MESSMEAL"].includes(vKey)) {
-            return alert("That key is reserved. Please pick a unique key.");
+        try {
+            const mk = await get(child(ref(db), 'messData/keys'));
+            if (mk.exists()) {
+                const k = mk.val();
+                if ([k.admin, k.viewer].includes(aKey) || [k.admin, k.viewer].includes(vKey))
+                    return alert("That key is reserved. Please pick a unique key.");
+            }
+            const aSnap = await get(child(ref(db), `messRegistry/keys/${aKey}`));
+            const vSnap = await get(child(ref(db), `messRegistry/keys/${vKey}`));
+            if (aSnap.exists() || vSnap.exists()) return alert("One of these keys is already in use. Please pick unique ones.");
+
+            const reqId = "mess_" + Date.now().toString();
+            await set(ref(db, `messRegistry/pending/${reqId}`), {
+                messName: mName, adminKey: aKey, viewerKey: vKey, timestamp: new Date().toISOString()
+            });
+            localStorage.setItem('mb_reg_ts', String(Date.now()));
+            alert("Registration Sent! Waiting for the Master Admin to approve.");
+            window.switchView('options');
+        } catch (e) {
+            alert("Could not send request. Please try again later.");
         }
-
-        const aSnap = await get(child(ref(db), `messRegistry/keys/${aKey}`));
-        const vSnap = await get(child(ref(db), `messRegistry/keys/${vKey}`));
-
-        if(aSnap.exists() || vSnap.exists()) return alert("One of these keys is already in use. Please pick unique ones.");
-
-        const reqId = "mess_" + Date.now().toString();
-        await set(ref(db, `messRegistry/pending/${reqId}`), {
-            messName: mName,
-            adminKey: aKey,
-            viewerKey: vKey,
-            timestamp: new Date().toISOString()
-        });
-
-        alert("Registration Sent! Waiting for the Master Admin to approve.");
-        window.switchView('options');
     };
 
     window.approveNewMess = async (reqId) => {
-        if(!isMasterAdmin) return;
+        if (!isMasterAdmin) return;
         const req = globalPendingMesses[reqId];
-        if(!req) return;
+        if (!req) return;
 
         const aSnap = await get(child(ref(db), `messRegistry/keys/${req.adminKey}`));
-        if(aSnap.exists()) return alert("Error: Key was taken while pending. Reject this request.");
+        if (aSnap.exists()) return alert("Error: Key was taken while pending. Reject this request.");
 
         await set(ref(db, `messRegistry/keys/${req.adminKey}`), { messId: reqId, role: 'admin', messName: req.messName });
         await set(ref(db, `messRegistry/keys/${req.viewerKey}`), { messId: reqId, role: 'viewer', messName: req.messName });
-
-        await set(ref(db, `messes/${reqId}`), {
-            messName: req.messName,
-            members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], upiId: ""
-        });
-
-        await set(ref(db, `messRegistry/active/${reqId}`), {
-            messName: req.messName,
-            adminKey: req.adminKey,
-            viewerKey: req.viewerKey,
-            timestamp: new Date().toISOString()
-        });
-
+        await set(ref(db, `messes/${reqId}`), { messName: req.messName, members: [], meals: {}, bazar: [], deposits: [], pendingDeposits: [], upiId: "" });
+        await set(ref(db, `messRegistry/active/${reqId}`), { messName: req.messName, adminKey: req.adminKey, viewerKey: req.viewerKey, timestamp: new Date().toISOString() });
         await set(ref(db, `messRegistry/pending/${reqId}`), null);
         alert(`Mess '${req.messName}' Approved!`);
     };
 
     window.rejectNewMess = async (reqId) => {
-        if(!isMasterAdmin) return;
-        if(confirm("Reject this mess registration?")) {
-            await set(ref(db, `messRegistry/pending/${reqId}`), null);
-        }
+        if (!isMasterAdmin) return;
+        if (confirm("Reject this mess registration?")) await set(ref(db, `messRegistry/pending/${reqId}`), null);
     };
 
     window.changeMessKeys = async (reqId) => {
-        if(!isMasterAdmin) return;
+        if (!isMasterAdmin) return;
         const r = globalActiveMesses[reqId];
-        if(!r) return;
+        if (!r) return;
 
-        const newAdmin = prompt("Enter new ADMIN Key for this mess:", r.adminKey)?.trim().toUpperCase();
-        if(!newAdmin) return;
-        const newViewer = prompt("Enter new VIEWER Key for this mess:", r.viewerKey)?.trim().toUpperCase();
-        if(!newViewer) return;
+        const newAdmin = prompt("Enter new ADMIN Key for this mess (min 6 chars):", "")?.trim().toUpperCase();
+        if (!newAdmin) return;
+        const newViewer = prompt("Enter new VIEWER Key for this mess (min 6 chars):", "")?.trim().toUpperCase();
+        if (!newViewer) return;
 
-        if(newAdmin === newViewer) return alert("Admin and Viewer keys must be different.");
+        if (newAdmin.length < 6 || newViewer.length < 6) return alert("Keys must be at least 6 characters.");
+        if (/[.#$\[\]\/\s]/.test(newAdmin) || /[.#$\[\]\/\s]/.test(newViewer)) return alert("Keys cannot contain spaces or . # $ [ ] /");
+        if (newAdmin === newViewer) return alert("Admin and Viewer keys must be different.");
 
-        if(newAdmin !== r.adminKey) {
+        if (newAdmin !== r.adminKey) {
             const aSnap = await get(child(ref(db), `messRegistry/keys/${newAdmin}`));
-            if(aSnap.exists()) return alert(`Key ${newAdmin} is already taken!`);
+            if (aSnap.exists()) return alert(`Key ${newAdmin} is already taken!`);
         }
-        if(newViewer !== r.viewerKey) {
+        if (newViewer !== r.viewerKey) {
             const vSnap = await get(child(ref(db), `messRegistry/keys/${newViewer}`));
-            if(vSnap.exists()) return alert(`Key ${newViewer} is already taken!`);
+            if (vSnap.exists()) return alert(`Key ${newViewer} is already taken!`);
         }
 
-        if(newAdmin !== r.adminKey) await set(ref(db, `messRegistry/keys/${r.adminKey}`), null);
-        if(newViewer !== r.viewerKey) await set(ref(db, `messRegistry/keys/${r.viewerKey}`), null);
+        if (newAdmin !== r.adminKey) await set(ref(db, `messRegistry/keys/${r.adminKey}`), null);
+        if (newViewer !== r.viewerKey) await set(ref(db, `messRegistry/keys/${r.viewerKey}`), null);
 
         await set(ref(db, `messRegistry/keys/${newAdmin}`), { messId: reqId, role: 'admin', messName: r.messName });
         await set(ref(db, `messRegistry/keys/${newViewer}`), { messId: reqId, role: 'viewer', messName: r.messName });
-
         await set(ref(db, `messRegistry/active/${reqId}/adminKey`), newAdmin);
         await set(ref(db, `messRegistry/active/${reqId}/viewerKey`), newViewer);
 
@@ -972,10 +909,10 @@
     };
 
     window.deleteActiveMess = async (reqId) => {
-        if(!isMasterAdmin) return;
-        if(confirm("DANGER: Are you sure you want to permanently delete this mess? All their data will be wiped!")) {
+        if (!isMasterAdmin) return;
+        if (confirm("DANGER: Are you sure you want to permanently delete this mess? All their data will be wiped!")) {
             const messInfo = globalActiveMesses[reqId];
-            if(messInfo) {
+            if (messInfo) {
                 await set(ref(db, `messRegistry/keys/${messInfo.adminKey}`), null);
                 await set(ref(db, `messRegistry/keys/${messInfo.viewerKey}`), null);
             }
@@ -985,25 +922,28 @@
         }
     };
 
-    window.startPay = (name, amount) => {
-        if(!data.upiId) return alert("Admin UPI not set! Have your Admin update their Settings.");
-        currentPayName = name;
+    // ---------- Payments ----------
+    window.startPay = (memId, amount) => {
+        const mem = (data.members || []).find(m => m.id == memId);
+        if (!mem) return;
+        if (!data.upiId) return alert("Admin UPI not set! Have your Admin update their Settings.");
+        currentPayName = mem.name;
         currentPayAmount = amount;
-        const upiLink = `upi://pay?pa=${data.upiId}&pn=MessPayment&am=${amount}&cu=INR&tn=MessPayment_${name}`;
+        const upiLink = `upi://pay?pa=${encodeURIComponent(data.upiId)}&pn=MessPayment&am=${amount}&cu=INR&tn=${encodeURIComponent('MessPayment_' + mem.name)}`;
         document.getElementById('generated-qr').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(upiLink)}&bgcolor=ffffff&color=1b140f`;
         document.getElementById('qr-upi-text').innerText = "Amount: ₹" + amount;
-        document.getElementById('pay-text').innerText = "PAYING FOR: " + name;
+        document.getElementById('pay-text').innerText = "PAYING FOR: " + mem.name;
         const mBtn = document.getElementById('mobile-pay-btn');
         mBtn.href = upiLink;
         mBtn.classList.remove('hidden');
         document.getElementById('qr-pay-card').classList.remove('hidden');
-        document.getElementById('qr-pay-card').scrollIntoView({behavior:'smooth', block:'center'});
+        document.getElementById('qr-pay-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
     };
 
     window.sendPaymentRequest = () => {
         const mem = (data.members || []).find(m => m.name === currentPayName);
-        if(!mem) return;
-        if(!data.pendingDeposits) data.pendingDeposits = [];
+        if (!mem) return;
+        if (!data.pendingDeposits) data.pendingDeposits = [];
         const alreadyExists = data.pendingDeposits.find(r => r.mId === mem.id && r.amt === currentPayAmount);
         if (alreadyExists) return alert("Request already sent to Admin!");
         const today = new Date().toISOString().split('T')[0];
@@ -1015,23 +955,22 @@
     };
 
     window.approveRequest = (idx) => {
-        if(!isAdmin) return;
+        if (!isAdmin) return;
         const req = data.pendingDeposits[idx];
-        if(!data.deposits) data.deposits = [];
-        data.deposits.push({date: req.date, mId: req.mId, amt: req.amt});
+        if (!req) return;
+        if (!data.deposits) data.deposits = [];
+        data.deposits.push({ date: req.date, mId: req.mId, amt: req.amt });
         data.pendingDeposits.splice(idx, 1);
         window.save();
         alert("Payment Approved!");
     };
 
     window.rejectRequest = (idx) => {
-        if(!isAdmin) return;
-        if(confirm("Reject this payment request?")) {
-            data.pendingDeposits.splice(idx, 1);
-            window.save();
-        }
+        if (!isAdmin) return;
+        if (confirm("Reject this payment request?")) { data.pendingDeposits.splice(idx, 1); window.save(); }
     };
 
+    // ---------- PDF ----------
     window.generatePDF = () => {
         if (!window.jspdf) return alert("Please wait a moment for the PDF system to load...");
 
@@ -1051,30 +990,24 @@
         doc.text(`Period: ${monthName} ${y}`, 14, 30);
         doc.setTextColor(0);
 
-        let totalMeals = 0, totalBillable = 0, cost = 0, income = 0;
+        let totalBillable = 0, cost = 0;
         let mActual = {}, mDeps = {};
-
         (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
 
         (data.deposits || []).filter(d => d.date.startsWith(filterStr)).forEach(d => {
-            mDeps[d.mId] += parseFloat(d.amt);
-            income += parseFloat(d.amt);
+            if (mDeps[d.mId] !== undefined) mDeps[d.mId] += parseFloat(d.amt);
         });
 
-        if(data.meals) {
+        if (data.meals) {
             Object.entries(data.meals).forEach(([date, dayData]) => {
-                if(date.startsWith(filterStr)) {
-                    Object.entries(dayData).forEach(([id, q]) => { if(mActual[id] !== undefined) mActual[id] += q; });
-                }
+                if (date.startsWith(filterStr)) Object.entries(dayData).forEach(([id, q]) => { if (mActual[id] !== undefined) mActual[id] += q; });
             });
         }
 
-        const yNum = parseInt(y);
-        const mNum = parseInt(m);
+        const yNum = parseInt(y), mNum = parseInt(m);
         const today = new Date();
         const lastDay = new Date(yNum, mNum, 0).getDate();
         const endOfMonthDateStr = `${y}-${m}-${lastDay.toString().padStart(2, '0')}`;
-
         const isMonthComplete = (yNum < today.getFullYear()) ||
                                 (yNum === today.getFullYear() && mNum < (today.getMonth() + 1)) ||
                                 !!(data.meals && data.meals[endOfMonthDateStr]);
@@ -1082,100 +1015,73 @@
         const filteredBazar = (data.bazar || []).filter(b => b.date.startsWith(filterStr));
         cost = Math.round(filteredBazar.reduce((s, b) => s + parseFloat(b.amt), 0));
 
-        const summaryBody = (data.members || []).map(mem => {
+        const base = (data.members || []).map(mem => {
             const act = mActual[mem.id] || 0;
             const min = mem.minMeal || 50;
             const bill = (isMonthComplete && act < min) ? min : act;
-            totalMeals += act; totalBillable += bill;
+            totalBillable += bill;
             return { name: mem.name, act, bill, id: mem.id };
-        }).map(mem => {
-            const rate = totalBillable > 0 ? cost / totalBillable : 0;
+        });
+        const rate = totalBillable > 0 ? cost / totalBillable : 0;
+
+        const summaryBody = base.map(mem => {
             const billAmount = Math.round(mem.bill * rate);
             const depAmount = Math.round(mDeps[mem.id] || 0);
             const net = billAmount - depAmount;
-            let status = net > 0 ? `DUE Rs ${net}` : (net < 0 ? `EXTRA Rs ${Math.abs(net)}` : `SETTLED`);
+            const status = net > 0 ? `DUE Rs ${net}` : (net < 0 ? `EXTRA Rs ${Math.abs(net)}` : `SETTLED`);
             return [mem.name, `Rs ${depAmount}`, mem.act, `Rs ${billAmount}`, status];
         });
 
         let startY = 40;
         doc.setFontSize(14);
         doc.text("1. Bill Summary", 14, startY);
-        doc.autoTable({
-            startY: startY + 5,
-            head: [['Member', 'Deposited', 'Meals', 'Bill', 'Status']],
-            body: summaryBody,
-            headStyles: { fillColor: [27, 20, 15] }
-        });
+        doc.autoTable({ startY: startY + 5, head: [['Member', 'Deposited', 'Meals', 'Bill', 'Status']], body: summaryBody, headStyles: { fillColor: [27, 20, 15] } });
 
         let finalY = doc.lastAutoTable.finalY + 15;
         doc.text("2. Daily Meals", 14, finalY);
 
         const dates = Object.keys(data.meals || {}).sort().reverse().filter(d => d.startsWith(filterStr));
         const membersList = data.members || [];
+        const mealHead = ['Date', ...membersList.map(mm => mm.name.substring(0, 3))];
+        const mealBody = dates.map(d => [d.substring(5), ...membersList.map(mem => data.meals[d][mem.id] || 0)]);
 
-        let mealHead = ['Date', ...membersList.map(m => m.name.substring(0,3))];
-        let mealBody = dates.map(d => {
-            let row = [d.substring(5)];
-            membersList.forEach(mem => {
-                row.push(data.meals[d][mem.id] || 0);
-            });
-            return row;
-        });
-
-        doc.autoTable({
-            startY: finalY + 5,
-            head: [mealHead],
-            body: mealBody,
-            headStyles: { fillColor: [27, 20, 15] }
-        });
+        doc.autoTable({ startY: finalY + 5, head: [mealHead], body: mealBody, headStyles: { fillColor: [27, 20, 15] } });
 
         finalY = doc.lastAutoTable.finalY + 15;
-        if(finalY > 250) { doc.addPage(); finalY = 20; }
+        if (finalY > 250) { doc.addPage(); finalY = 20; }
 
         doc.text("3. Daily Expenses (Bazar)", 14, finalY);
-        let bazarBody = filteredBazar.slice().reverse().map(b => [b.date.substring(5), b.note, `Rs ${b.amt}`]);
+        const bazarBody = filteredBazar.slice().reverse().map(b => [b.date.substring(5), b.note, `Rs ${b.amt}`]);
         bazarBody.push(['', 'TOTAL COST', `Rs ${cost}`]);
 
         doc.autoTable({
-            startY: finalY + 5,
-            head: [['Date', 'Item/Note', 'Amount']],
-            body: bazarBody,
-            headStyles: { fillColor: [27, 20, 15] },
-            didParseCell: function(data) {
-                if (data.row.index === bazarBody.length - 1) {
-                    data.cell.styles.fontStyle = 'bold';
-                    data.cell.styles.textColor = [193, 80, 63];
+            startY: finalY + 5, head: [['Date', 'Item/Note', 'Amount']], body: bazarBody, headStyles: { fillColor: [27, 20, 15] },
+            didParseCell: function (d) {
+                if (d.section === 'body' && d.row.index === bazarBody.length - 1) {
+                    d.cell.styles.fontStyle = 'bold';
+                    d.cell.styles.textColor = [193, 80, 63];
                 }
             }
         });
 
         finalY = doc.lastAutoTable.finalY + 15;
-        if(finalY > 250) { doc.addPage(); finalY = 20; }
+        if (finalY > 250) { doc.addPage(); finalY = 20; }
 
         doc.text("4. Deposit History", 14, finalY);
-        let depositBody = (data.deposits || []).filter(d => d.date.startsWith(filterStr)).slice().reverse().map(d => {
-            const mem = data.members.find(m => m.id == d.mId);
+        const depositBody = (data.deposits || []).filter(d => d.date.startsWith(filterStr)).slice().reverse().map(d => {
+            const mem = (data.members || []).find(mm => mm.id == d.mId);
             return [d.date.substring(5), mem ? mem.name : 'Unknown', `Rs ${d.amt}`];
         });
-
-        doc.autoTable({
-            startY: finalY + 5,
-            head: [['Date', 'Member Name', 'Amount']],
-            body: depositBody,
-            headStyles: { fillColor: [27, 20, 15] }
-        });
+        doc.autoTable({ startY: finalY + 5, head: [['Date', 'Member Name', 'Amount']], body: depositBody, headStyles: { fillColor: [27, 20, 15] } });
 
         const safeTitle = messTitle.replace(/[^a-zA-Z0-9]/g, '_');
         const fileName = `${safeTitle}_Report_${y}_${m}.pdf`;
 
-        if (window.Android && window.Android.savePDF) {
-            const base64PDF = doc.output('datauristring');
-            window.Android.savePDF(base64PDF, fileName);
-        } else {
-            doc.save(fileName);
-        }
+        if (window.Android && window.Android.savePDF) window.Android.savePDF(doc.output('datauristring'), fileName);
+        else doc.save(fileName);
     };
 
+    // ---------- UI ----------
     window.refreshUI = () => {
         const m = document.getElementById('filter-month').value;
         const y = document.getElementById('filter-year').value;
@@ -1187,23 +1093,22 @@
         (data.members || []).forEach(mem => { mActual[mem.id] = 0; mDeps[mem.id] = 0; });
 
         (data.deposits || []).forEach(d => {
-            if(d.date.startsWith(filterStr)) { mDeps[d.mId] += parseFloat(d.amt); income += parseFloat(d.amt); }
+            if (d.date.startsWith(filterStr)) {
+                if (mDeps[d.mId] !== undefined) mDeps[d.mId] += parseFloat(d.amt);
+                income += parseFloat(d.amt);
+            }
         });
 
-        if(data.meals) {
+        if (data.meals) {
             Object.entries(data.meals).forEach(([date, dayData]) => {
-                if(date.startsWith(filterStr)) {
-                    Object.entries(dayData).forEach(([id, q]) => { if(mActual[id] !== undefined) mActual[id] += q; });
-                }
+                if (date.startsWith(filterStr)) Object.entries(dayData).forEach(([id, q]) => { if (mActual[id] !== undefined) mActual[id] += q; });
             });
         }
 
-        const yNum = parseInt(y);
-        const mNum = parseInt(m);
+        const yNum = parseInt(y), mNum = parseInt(m);
         const today = new Date();
         const lastDay = new Date(yNum, mNum, 0).getDate();
         const endOfMonthDateStr = `${y}-${m}-${lastDay.toString().padStart(2, '0')}`;
-
         const isMonthComplete = (yNum < today.getFullYear()) ||
                                 (yNum === today.getFullYear() && mNum < (today.getMonth() + 1)) ||
                                 !!(data.meals && data.meals[endOfMonthDateStr]);
@@ -1237,15 +1142,11 @@
                 const net = billAmount - depAmount;
 
                 let statusHtml = '';
-                if (net > 0) {
-                    statusHtml = `<button class="badge" onclick="window.startPay('${mem.name}', ${net})" style="background:var(--terracotta-dim); color:var(--terracotta); border: 1px solid rgba(255,93,108,0.35);">DUE ₹${net}</button>`;
-                } else if (net < 0) {
-                    statusHtml = `<button class="badge" style="background:var(--sage-dim); color:var(--sage); border: 1px solid rgba(47,216,168,0.35);">EXTRA ₹${Math.abs(net)}</button>`;
-                } else {
-                    statusHtml = `<button class="badge" style="background:var(--paper-strong); color:var(--ink-faint); border: 1px solid var(--line-strong);">SETTLED</button>`;
-                }
+                if (net > 0) statusHtml = `<button class="badge" onclick="window.startPay(${Number(mem.id)}, ${net})" style="background:var(--terracotta-dim); color:var(--terracotta); border: 1px solid rgba(255,93,108,0.35);">DUE ₹${net}</button>`;
+                else if (net < 0) statusHtml = `<button class="badge" style="background:var(--sage-dim); color:var(--sage); border: 1px solid rgba(47,216,168,0.35);">EXTRA ₹${Math.abs(net)}</button>`;
+                else statusHtml = `<button class="badge" style="background:var(--paper-strong); color:var(--ink-faint); border: 1px solid var(--line-strong);">SETTLED</button>`;
 
-                return `<tr><td style="font-weight:700;">${mem.name}</td><td style="font-weight:600;">₹${depAmount}</td><td style="font-weight:600;">${mem.act}</td><td style="font-weight:700; color:var(--marigold);">₹${billAmount}</td><td>${statusHtml}</td></tr>`;
+                return `<tr><td style="font-weight:700;">${esc(mem.name)}</td><td style="font-weight:600;">₹${depAmount}</td><td style="font-weight:600;">${mem.act}</td><td style="font-weight:700; color:var(--marigold);">₹${billAmount}</td><td>${statusHtml}</td></tr>`;
             }).join('');
 
         const pendingCard = document.getElementById('pending-requests-card');
@@ -1253,131 +1154,100 @@
             pendingCard.classList.remove('hidden');
             document.getElementById('pending-requests-body').innerHTML = data.pendingDeposits.map((req, idx) => `
                 <tr>
-                    <td style="font-weight:700; color:var(--ink);">${req.name}</td>
-                    <td style="font-weight:700; color:var(--marigold);">₹${req.amt}</td>
+                    <td style="font-weight:700; color:var(--ink);">${esc(req.name)}</td>
+                    <td style="font-weight:700; color:var(--marigold);">₹${Number(req.amt) || 0}</td>
                     <td style="text-align:right;">
-                        <button onclick="window.approveRequest(${idx})" style="background:var(--marigold); color:#1b140f; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer; margin-right:5px;">✓</button>
-                        <button onclick="window.rejectRequest(${idx})" style="background:var(--terracotta); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer;">✕</button>
+                        <button aria-label="Approve" onclick="window.approveRequest(${idx})" style="background:var(--marigold); color:#1b140f; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer; margin-right:5px;">✓</button>
+                        <button aria-label="Reject" onclick="window.rejectRequest(${idx})" style="background:var(--terracotta); color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:700; cursor:pointer;">✕</button>
                     </td>
-                </tr>
-            `).join('');
+                </tr>`).join('');
         } else if (pendingCard) {
             pendingCard.classList.add('hidden');
         }
 
-        const masterRegCard = document.getElementById('master-admin-registry-card');
-        const masterActiveCard = document.getElementById('master-admin-active-card');
-        const masterLogoCard = document.getElementById('master-admin-logo-card');
-        const masterUpdateCard = document.getElementById('master-admin-update-card');
+        const masterCards = ['master-admin-registry-card', 'master-admin-active-card', 'master-admin-logo-card', 'master-admin-update-card'].map(id => document.getElementById(id));
+        masterCards.forEach(c => { if (c) c.classList.toggle('hidden', !isMasterAdmin); });
 
         if (isMasterAdmin) {
-            if(masterRegCard) masterRegCard.classList.remove('hidden');
-            if(masterActiveCard) masterActiveCard.classList.remove('hidden');
-            if(masterLogoCard) masterLogoCard.classList.remove('hidden');
-            if(masterUpdateCard) masterUpdateCard.classList.remove('hidden');
-
             const reqs = Object.keys(globalPendingMesses);
-            if(reqs.length > 0) {
-                document.getElementById('registry-requests-body').innerHTML = reqs.map(reqId => {
-                    const r = globalPendingMesses[reqId];
-                    return `
-                    <tr>
-                        <td style="font-weight:700; color:var(--ink);">${r.messName}</td>
-                        <td style="font-size:0.7rem; color:var(--ink-faint);">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
-                        <td style="text-align:right;">
-                            <button onclick="window.approveNewMess('${reqId}')" style="background:var(--marigold); color:#1b140f; border:none; padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer; margin-right:5px;">✓</button>
-                            <button onclick="window.rejectNewMess('${reqId}')" style="background:var(--terracotta); color:#fff; border:none; padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer;">✕</button>
-                        </td>
-                    </tr>`;
-                }).join('');
-            } else {
-                document.getElementById('registry-requests-body').innerHTML = '<tr><td colspan="3" style="color:var(--ink-faint); text-align:center; padding:12px; font-weight:600;">No pending registrations</td></tr>';
-            }
+            document.getElementById('registry-requests-body').innerHTML = reqs.length > 0 ? reqs.map(reqId => {
+                const r = globalPendingMesses[reqId];
+                return `
+                <tr>
+                    <td style="font-weight:700; color:var(--ink);">${esc(r.messName)}</td>
+                    <td style="font-size:0.7rem; color:var(--ink-faint);">Keys: hidden</td>
+                    <td style="text-align:right;">
+                        <button aria-label="Approve" onclick="window.approveNewMess('${esc(reqId)}')" style="background:var(--marigold); color:#1b140f; border:none; padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer; margin-right:5px;">✓</button>
+                        <button aria-label="Reject" onclick="window.rejectNewMess('${esc(reqId)}')" style="background:var(--terracotta); color:#fff; border:none; padding:6px 10px; border-radius:8px; font-weight:700; cursor:pointer;">✕</button>
+                    </td>
+                </tr>`;
+            }).join('') : '<tr><td colspan="3" style="color:var(--ink-faint); text-align:center; padding:12px; font-weight:600;">No pending registrations</td></tr>';
 
             const activeReqs = Object.keys(globalActiveMesses);
-            if(activeReqs.length > 0) {
-                document.getElementById('active-messes-body').innerHTML = activeReqs.map(reqId => {
-                    const r = globalActiveMesses[reqId];
-                    return `
-                    <tr>
-                        <td style="font-weight:700; color:#e0a3a3;">${r.messName}</td>
-                        <td style="font-size:0.7rem; color:var(--ink-faint);">A: ${r.adminKey}<br>V: ${r.viewerKey}</td>
-                        <td style="text-align:right;">
-                            <button onclick="window.changeMessKeys('${reqId}')" class="edit-btn-small">Edit</button>
-                            <button onclick="window.deleteActiveMess('${reqId}')" class="del-btn">Delete</button>
-                        </td>
-                    </tr>`;
-                }).join('');
-            } else {
-                document.getElementById('active-messes-body').innerHTML = '<tr><td colspan="3" style="color:var(--ink-faint); text-align:center; padding:12px; font-weight:600;">No active messes</td></tr>';
-            }
-        } else {
-            if(masterRegCard) masterRegCard.classList.add('hidden');
-            if(masterActiveCard) masterActiveCard.classList.add('hidden');
-            if(masterLogoCard) masterLogoCard.classList.add('hidden');
-            if(masterUpdateCard) masterUpdateCard.classList.add('hidden');
+            document.getElementById('active-messes-body').innerHTML = activeReqs.length > 0 ? activeReqs.map(reqId => {
+                const r = globalActiveMesses[reqId];
+                return `
+                <tr>
+                    <td style="font-weight:700; color:#f0b0b0;">${esc(r.messName)}</td>
+                    <td style="font-size:0.7rem; color:var(--ink-faint);">A: ••••<br>V: ••••</td>
+                    <td style="text-align:right;">
+                        <button onclick="window.changeMessKeys('${esc(reqId)}')" class="edit-btn-small">Edit</button>
+                        <button onclick="window.deleteActiveMess('${esc(reqId)}')" class="del-btn">Delete</button>
+                    </td>
+                </tr>`;
+            }).join('') : '<tr><td colspan="3" style="color:var(--ink-faint); text-align:center; padding:12px; font-weight:600;">No active messes</td></tr>';
         }
 
         document.getElementById('members-list-body').innerHTML = (data.members || []).map(mem => `
             <tr>
-                <td style="font-weight:700;">${mem.name}</td>
-                <td style="font-weight:600;">${mem.minMeal}</td>
+                <td style="font-weight:700;">${esc(mem.name)}</td>
+                <td style="font-weight:600;">${Number(mem.minMeal) || 0}</td>
                 ${isAdmin ? `
                 <td style="text-align: right;">
-                    <button class="edit-btn-small" style="padding:6px 10px; font-size:0.7rem;" onclick="window.editMinMeal(${mem.id}, ${mem.minMeal})">✎ Edit</button>
-                    <button class="del-btn" style="padding:6px 10px; font-size:0.7rem;" onclick="window.delMember(${mem.id})">✕</button>
+                    <button class="edit-btn-small" style="padding:6px 10px; font-size:0.7rem;" onclick="window.editMinMeal(${Number(mem.id)}, ${Number(mem.minMeal) || 0})">✎ Edit</button>
+                    <button class="del-btn" aria-label="Delete member" style="padding:6px 10px; font-size:0.7rem;" onclick="window.delMember(${Number(mem.id)})">✕</button>
                 </td>` : '<td></td>'}
-            </tr>
-        `).join('');
+            </tr>`).join('');
 
         const dates = Object.keys(data.meals || {}).sort().reverse();
         const filteredDates = dates.filter(d => d.startsWith(filterStr));
         const filteredMembers = (data.members || []).filter(mem => !showOnlyMe || mem.name === myName);
-        document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${filteredMembers.map(mem => `<th>${mem.name.substring(0,3)}</th>`).join('')} ${isAdmin?'<th></th>':''}</tr>`;
-        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td style="color:var(--ink-faint); font-size:0.75rem; font-weight:700;">${d.substring(5)}</td>${filteredMembers.map(mem => `<td style="font-weight:600;">${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin?`<td><button onclick="window.delMeal('${d}')" class="del-btn" style="padding:4px 8px; font-size:0.65rem;">✕</button></td>`:''}</tr>`).join('');
+        document.getElementById('meal-history-head').innerHTML = `<tr><th>Date</th>${filteredMembers.map(mem => `<th>${esc(mem.name.substring(0, 3))}</th>`).join('')} ${isAdmin ? '<th></th>' : ''}</tr>`;
+        document.getElementById('meal-history-body').innerHTML = filteredDates.map(d => `<tr><td style="color:var(--ink-faint); font-size:0.75rem; font-weight:700;">${esc(d.substring(5))}</td>${filteredMembers.map(mem => `<td style="font-weight:600;">${data.meals[d][mem.id] || 0}</td>`).join('')}${isAdmin ? `<td><button onclick="window.delMeal('${esc(d)}')" aria-label="Delete record" class="del-btn" style="padding:4px 8px; font-size:0.65rem;">✕</button></td>` : ''}</tr>`).join('');
 
         document.getElementById('deposit-history-body').innerHTML = (data.deposits || [])
             .filter(d => d.date.startsWith(filterStr))
             .filter(d => !showOnlyMe || (currentUserObj && d.mId === currentUserObj.id))
             .slice().reverse()
-            .map((d) => {
+            .map(d => {
                 const realIdx = data.deposits.indexOf(d);
-                const mem = data.members.find(m => m.id == d.mId);
-                return `<tr><td style="color:var(--ink-faint); font-size:0.75rem; font-weight:700;">${d.date.substring(5)}</td><td style="font-weight:700;">${mem?mem.name:'?'}</td><td style="color:var(--marigold); font-weight:700;">₹${d.amt}</td>${isAdmin?`<td><button onclick="window.delDep(${realIdx})" class="del-btn" style="padding:4px 8px; font-size:0.65rem;">✕</button></td>`:''}</tr>`;
+                const mem = (data.members || []).find(mm => mm.id == d.mId);
+                return `<tr><td style="color:var(--ink-faint); font-size:0.75rem; font-weight:700;">${esc(d.date.substring(5))}</td><td style="font-weight:700;">${mem ? esc(mem.name) : '?'}</td><td style="color:var(--marigold); font-weight:700;">₹${Number(d.amt) || 0}</td>${isAdmin ? `<td><button onclick="window.delDep(${realIdx})" aria-label="Delete deposit" class="del-btn" style="padding:4px 8px; font-size:0.65rem;">✕</button></td>` : ''}</tr>`;
             }).join('');
 
-        document.getElementById('bazar-body').innerHTML = filteredBazar.slice().reverse().map((b) => {
+        document.getElementById('bazar-body').innerHTML = filteredBazar.slice().reverse().map(b => {
             const realIdx = data.bazar.indexOf(b);
-            return `<tr><td style="color:var(--ink-faint); font-size:0.75rem; font-weight:700;">${b.date.substring(5)}</td><td style="font-weight:600;">${b.note}</td><td style="color:var(--ink); font-weight:700;">₹${b.amt}</td>${isAdmin?`<td><button onclick="window.delBazar(${realIdx})" class="del-btn" style="padding:4px 8px; font-size:0.65rem;">✕</button></td>`:''}</tr>`;
+            return `<tr><td style="color:var(--ink-faint); font-size:0.75rem; font-weight:700;">${esc(b.date.substring(5))}</td><td style="font-weight:600;">${esc(b.note)}</td><td style="color:var(--ink); font-weight:700;">₹${Number(b.amt) || 0}</td>${isAdmin ? `<td><button onclick="window.delBazar(${realIdx})" aria-label="Delete expense" class="del-btn" style="padding:4px 8px; font-size:0.65rem;">✕</button></td>` : ''}</tr>`;
         }).join('');
 
-        document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${mem.id}">${mem.name}</option>`).join('');
+        document.getElementById('dep-member').innerHTML = (data.members || []).map(mem => `<option value="${Number(mem.id)}">${esc(mem.name)}</option>`).join('');
 
-        if(isAdmin) {
+        if (isAdmin) {
             document.getElementById('meal-inputs-area').innerHTML = (data.members || []).map(mem => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:12px; border-bottom: 1px solid var(--line);"><span style="font-weight:700; color:var(--ink); font-size:0.9rem;">${mem.name}</span><input type="number" step="0.5" class="m-val edit-input" style="width:70px; height:42px; margin:0; text-align:center; font-size:1rem; padding:0;" data-id="${mem.id}" value="0"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:12px; border-bottom: 1px solid var(--line);"><span style="font-weight:700; color:var(--ink); font-size:0.9rem;">${esc(mem.name)}</span><input type="number" step="0.5" min="0" max="10" aria-label="Meals for ${esc(mem.name)}" class="m-val edit-input" style="width:70px; height:42px; margin:0; text-align:center; font-size:1rem; padding:0;" data-id="${Number(mem.id)}" value="0"></div>
             `).join('');
         }
     };
 
     window.refreshExtras = () => {
-        if(data.messName) {
-            document.getElementById('set-mess-name').value = data.messName;
-        } else {
-            document.getElementById('set-mess-name').value = document.getElementById('display-mess-name').innerText;
-        }
+        document.getElementById('set-mess-name').value = data.messName || document.getElementById('display-mess-name').innerText;
+        if (data.upiId) document.getElementById('set-upi-id').value = data.upiId;
 
-        if(data.upiId) document.getElementById('set-upi-id').value = data.upiId;
+        // Never pre-fill keys in the UI
+        document.getElementById('set-admin-key').value = "";
+        document.getElementById('set-viewer-key').value = "";
 
-        if(isMasterAdmin && data.keys) {
-            document.getElementById('set-admin-key').value = data.keys.admin || "";
-            document.getElementById('set-viewer-key').value = data.keys.viewer || "";
-        } else {
-            document.getElementById('set-admin-key').value = "";
-            document.getElementById('set-viewer-key').value = "";
-        }
-
-        if(data.notice) {
+        if (data.notice) {
             document.getElementById('current-notice').innerText = data.notice;
             document.getElementById('notice-display-card').classList.remove('hidden');
         } else {
@@ -1390,7 +1260,7 @@
         const newMin = prompt("Enter new minimum meal limit for this member:", currentMin);
         if (newMin !== null && newMin.trim() !== "") {
             const parsedMin = parseInt(newMin);
-            if (!isNaN(parsedMin)) {
+            if (!isNaN(parsedMin) && parsedMin >= 0 && parsedMin <= 200) {
                 const memIndex = data.members.findIndex(m => m.id === id);
                 if (memIndex !== -1) {
                     data.members[memIndex].minMeal = parsedMin;
@@ -1398,51 +1268,51 @@
                     alert("Minimum meal updated successfully!");
                 }
             } else {
-                alert("Please enter a valid number.");
+                alert("Please enter a valid number between 0 and 200.");
             }
         }
     };
 
-    window.delMember = (id) => { if(confirm("Delete Member?")) { data.members = data.members.filter(m => m.id !== id); window.save(); } };
+    window.delMember = (id) => { if (confirm("Delete Member?")) { data.members = data.members.filter(m => m.id !== id); window.save(); } };
 
     window.showTab = (id, b) => {
-        document.querySelectorAll('.tab-content').forEach(t=>t.classList.add('hidden'));
-        document.getElementById('tab-'+id).classList.remove('hidden');
-        document.querySelectorAll('nav button').forEach(nb=>nb.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+        document.getElementById('tab-' + id).classList.remove('hidden');
+        document.querySelectorAll('nav button').forEach(nb => nb.classList.remove('active'));
         b.classList.add('active');
     };
 
-    window.save = () => { if(isAdmin && currentDataRef) set(currentDataRef, data); };
+    window.save = () => { if (isAdmin && currentDataRef) set(currentDataRef, data); };
 
     window.updateKeys = () => {
         const nName = document.getElementById('set-mess-name').value.trim();
-        const u = document.getElementById('set-upi-id').value;
+        const u = document.getElementById('set-upi-id').value.trim();
         const a = document.getElementById('set-admin-key').value.toUpperCase().trim();
         const v = document.getElementById('set-viewer-key').value.toUpperCase().trim();
 
+        if (u && !isUpi(u)) return alert("Enter a valid UPI ID (e.g. name@bank).");
+        if ((a && a.length < 6) || (v && v.length < 6)) return alert("Keys must be at least 6 characters.");
+        if ((a && /[.#$\[\]\/\s]/.test(a)) || (v && /[.#$\[\]\/\s]/.test(v))) return alert("Keys cannot contain spaces or . # $ [ ] /");
+
         data.upiId = u;
 
-        if(nName) {
+        if (nName) {
             data.messName = nName;
             document.getElementById('display-mess-name').innerText = nName.toUpperCase();
-            if(!isMasterAdmin && globalCurrentMessId && globalCurrentMessId !== 'DEFAULT') {
+            if (!isMasterAdmin && globalCurrentMessId && globalCurrentMessId !== 'DEFAULT') {
                 set(ref(db, `messRegistry/active/${globalCurrentMessId}/messName`), nName);
             }
         }
 
-        if(isMasterAdmin) {
-            if(!data.keys) data.keys = {};
-            if(a) data.keys.admin = a;
-            if(v) data.keys.viewer = v;
+        if (isMasterAdmin) {
+            if (!data.keys) data.keys = {};
+            if (a) data.keys.admin = a;
+            if (v) data.keys.viewer = v;
             window.save();
             alert("Settings and Master Keys Updated Successfully!");
         } else {
             window.save();
-            if(a || v) {
-                alert("Mess Name & UPI ID Updated! (Note: Sub-Messes cannot change keys here. Contact Master Admin).");
-            } else {
-                alert("Settings Updated Successfully!");
-            }
+            alert((a || v) ? "Mess Name & UPI ID Updated! (Note: Sub-Messes cannot change keys here. Contact Master Admin)." : "Settings Updated Successfully!");
         }
 
         document.getElementById('set-admin-key').value = "";
@@ -1450,21 +1320,20 @@
         window.refreshExtras();
     };
 
-    let deletedBazar = null;
-    let deletedDep = null;
-    let deletedMeal = null;
+    // ---------- Delete / undo ----------
+    let deletedBazar = null, deletedDep = null, deletedMeal = null;
 
     window.delBazar = (idx) => {
-        if(confirm("Delete Expense?")) {
-            deletedBazar = { idx: idx, item: JSON.parse(JSON.stringify(data.bazar[idx])) };
-            data.bazar.splice(idx,1);
-            document.getElementById('undo-bazar-btn').style.display = 'block';
+        if (confirm("Delete Expense?")) {
+            deletedBazar = { idx, item: JSON.parse(JSON.stringify(data.bazar[idx])) };
+            data.bazar.splice(idx, 1);
+            document.getElementById('undo-bazar-btn').style.display = 'flex';
             window.save();
         }
     };
     window.undoBazar = () => {
-        if(deletedBazar) {
-            if(!data.bazar) data.bazar = [];
+        if (deletedBazar) {
+            if (!data.bazar) data.bazar = [];
             data.bazar.splice(deletedBazar.idx, 0, deletedBazar.item);
             deletedBazar = null;
             document.getElementById('undo-bazar-btn').style.display = 'none';
@@ -1473,16 +1342,16 @@
     };
 
     window.delDep = (idx) => {
-        if(confirm("Delete Deposit?")) {
-            deletedDep = { idx: idx, item: JSON.parse(JSON.stringify(data.deposits[idx])) };
-            data.deposits.splice(idx,1);
-            document.getElementById('undo-dep-btn').style.display = 'block';
+        if (confirm("Delete Deposit?")) {
+            deletedDep = { idx, item: JSON.parse(JSON.stringify(data.deposits[idx])) };
+            data.deposits.splice(idx, 1);
+            document.getElementById('undo-dep-btn').style.display = 'flex';
             window.save();
         }
     };
     window.undoDep = () => {
-        if(deletedDep) {
-            if(!data.deposits) data.deposits = [];
+        if (deletedDep) {
+            if (!data.deposits) data.deposits = [];
             data.deposits.splice(deletedDep.idx, 0, deletedDep.item);
             deletedDep = null;
             document.getElementById('undo-dep-btn').style.display = 'none';
@@ -1491,16 +1360,16 @@
     };
 
     window.delMeal = (d) => {
-        if(confirm("Delete Records for this Date?")) {
+        if (confirm("Delete Records for this Date?")) {
             deletedMeal = { date: d, item: JSON.parse(JSON.stringify(data.meals[d])) };
             delete data.meals[d];
-            document.getElementById('undo-meal-btn').style.display = 'block';
+            document.getElementById('undo-meal-btn').style.display = 'flex';
             window.save();
         }
     };
     window.undoMeal = () => {
-        if(deletedMeal) {
-            if(!data.meals) data.meals = {};
+        if (deletedMeal) {
+            if (!data.meals) data.meals = {};
             data.meals[deletedMeal.date] = deletedMeal.item;
             deletedMeal = null;
             document.getElementById('undo-meal-btn').style.display = 'none';
@@ -1508,31 +1377,83 @@
         }
     };
 
-    window.saveDailyMeals = () => { const d = document.getElementById('meal-date').value; if(!d) return alert("Date?"); const e = {}; document.querySelectorAll('.m-val').forEach(i=>e[i.dataset.id]=parseFloat(i.value)||0); if(!data.meals) data.meals={}; data.meals[d]=e; window.save(); alert("Saved"); };
-    window.addBazar = () => { const d = document.getElementById('b-date').value, a = document.getElementById('b-amt').value, n = document.getElementById('b-note').value; if(d&&a) { if(!data.bazar) data.bazar=[]; data.bazar.push({date:d, amt:parseFloat(a), note:n}); window.save(); document.getElementById('b-note').value=""; document.getElementById('b-amt').value=""; } };
-    window.addMember = () => { const n = document.getElementById('new-mem-name').value, m = document.getElementById('new-mem-min').value; if(n) { if(!data.members) data.members=[]; data.members.push({id:Date.now(), name:n.toUpperCase(), minMeal:parseInt(m)||50}); window.save(); document.getElementById('new-mem-name').value=""; } };
-    window.addDeposit = () => { const d = document.getElementById('dep-date').value, m = document.getElementById('dep-member').value, a = document.getElementById('dep-amt').value; if(d&&m&&a) { if(!data.deposits) data.deposits=[]; data.deposits.push({date:d, mId:parseInt(m), amt:parseFloat(a)}); window.save(); document.getElementById('dep-amt').value=""; } };
+    // ---------- Add entries (with validation) ----------
+    window.saveDailyMeals = () => {
+        const d = document.getElementById('meal-date').value;
+        if (!d) return alert("Please pick a date.");
+        const e = {};
+        let bad = false;
+        document.querySelectorAll('.m-val').forEach(i => {
+            const v = parseFloat(i.value);
+            if (i.value !== "" && (isNaN(v) || v < 0 || v > 10)) bad = true;
+            e[i.dataset.id] = v || 0;
+        });
+        if (bad) return alert("Meal counts must be between 0 and 10.");
+        if (!data.meals) data.meals = {};
+        data.meals[d] = e;
+        window.save();
+        alert("Saved");
+    };
 
+    window.addBazar = () => {
+        const d = document.getElementById('b-date').value;
+        const a = posNum(document.getElementById('b-amt').value);
+        const n = document.getElementById('b-note').value.trim();
+        if (!d) return alert("Please pick a date.");
+        if (a === null) return alert("Enter a valid amount greater than 0.");
+        if (!n) return alert("Enter an item name.");
+        if (!data.bazar) data.bazar = [];
+        data.bazar.push({ date: d, amt: a, note: n });
+        window.save();
+        document.getElementById('b-note').value = "";
+        document.getElementById('b-amt').value = "";
+    };
+
+    window.addMember = () => {
+        const n = document.getElementById('new-mem-name').value.trim();
+        const mv = document.getElementById('new-mem-min').value;
+        if (!n) return alert("Enter a member name.");
+        const min = mv === "" ? 50 : parseInt(mv);
+        if (isNaN(min) || min < 0 || min > 200) return alert("Minimum meals must be between 0 and 200.");
+        if (!data.members) data.members = [];
+        if (data.members.some(x => x.name === n.toUpperCase())) return alert("A member with this name already exists.");
+        data.members.push({ id: Date.now(), name: n.toUpperCase(), minMeal: min });
+        window.save();
+        document.getElementById('new-mem-name').value = "";
+        document.getElementById('new-mem-min').value = "";
+    };
+
+    window.addDeposit = () => {
+        const d = document.getElementById('dep-date').value;
+        const m = document.getElementById('dep-member').value;
+        const a = posNum(document.getElementById('dep-amt').value);
+        if (!d) return alert("Please pick a date.");
+        if (!m) return alert("Add a member first.");
+        if (a === null) return alert("Enter a valid amount greater than 0.");
+        if (!data.deposits) data.deposits = [];
+        data.deposits.push({ date: d, mId: parseInt(m), amt: a });
+        window.save();
+        document.getElementById('dep-amt').value = "";
+    };
+
+    // ---------- Notices ----------
     window.updateNotice = () => {
-        data.notice = document.getElementById('notice-input').value;
+        data.notice = document.getElementById('notice-input').value.trim();
         window.save();
         alert("Notice Posted in App!");
     };
 
     window.updateAndShareNotice = () => {
         const noticeText = document.getElementById('notice-input').value.trim();
-        if(!noticeText) return alert("Write a notice first!");
-
+        if (!noticeText) return alert("Write a notice first!");
         data.notice = noticeText;
         window.save();
-
         const messName = document.getElementById('display-mess-name').innerText;
         const waText = `📢 *NOTICE | ${messName}*\n\n${noticeText}\n\n_Open the Mess Buddy app to check details._`;
-
-        window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank');
+        window.open(`https://wa.me/?text=${encodeURIComponent(waText)}`, '_blank', 'noopener');
     };
 
-    window.deleteNotice = () => { if(confirm("Clear?")) { data.notice = ""; document.getElementById('notice-input').value=""; window.save(); } };
+    window.deleteNotice = () => { if (confirm("Clear?")) { data.notice = ""; document.getElementById('notice-input').value = ""; window.save(); } };
     window.resetIdentity = () => { localStorage.removeItem('mb_name'); location.reload(); };
 </script>
 </body>
